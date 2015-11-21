@@ -5,7 +5,6 @@ var es2015 = require('babel-preset-es2015');
 var transformReactJsx = require('babel-plugin-transform-react-jsx');
 
 scriptHandler('mathbox/jsx', function(text) {
-  console.log('mathbox stuff', text);
   var result = babel.transform(text, {presets: [es2015], plugins: [transformReactJsx]});
 
   var root,
@@ -14,8 +13,6 @@ scriptHandler('mathbox/jsx', function(text) {
           var children;
           if (arguments.length > 2) children = Array.prototype.slice.call(arguments, 2);
 
-          console.log('create', name, props, children, arguments);
-
           var element = {name: name, props: props, children: children};
 
           root = element;
@@ -23,7 +20,7 @@ scriptHandler('mathbox/jsx', function(text) {
           return element;
         }
       };
-console.log(result);
+
   eval(result.code);
 
   build(mathBox({
@@ -38,7 +35,6 @@ console.log(result);
         props = node.props;
 
     if (name !== 'root') {
-      console.log(name);
       view = view[name](props);
     }
 
