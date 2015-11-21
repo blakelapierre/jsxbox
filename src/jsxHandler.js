@@ -23,7 +23,7 @@ scriptHandler('mathbox/jsx', function(text) {
 
   eval(result.code);
 
-  build(mathBox({
+  var view = build(mathBox({
     plugins: ['core', 'controls', 'cursor', 'stats'],
     controls: {
       klass: THREE.OrbitControls
@@ -35,11 +35,21 @@ scriptHandler('mathbox/jsx', function(text) {
         props = node.props;
 
     if (name !== 'root') {
-      view = view[name](props);
+      if (name === 'camera') {
+        var props1 = {lookAt: props.lookAt},
+            props2 = {position: props.position};  // What is this and why is it needed
+
+        view = view[name](props1, props2);
+      }
+      else view = view[name](props);
     }
 
     (node.children || []).forEach(function(child) {
       build(view, child);
     });
+
+    return view;
   }
+
+  window.view = view;
 });

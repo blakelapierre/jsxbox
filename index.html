@@ -7,27 +7,103 @@
     <script src="mathbox-bundle.js"></script>
 
     <script type="mathbox/jsx">
-      <root focus={3}>
-        <camera proxy={true} position={[0, 0, 3]} />
-        <cartesian range={[[-2, 2], [-1, 1]]} scale={[2, 1]}>
-          <axis axis={1} width={3} color="black" />
-          <axis axis={2} width={3} color="black" />
-          <grid width={2} divideX={20} divideY={10} />
-          <interval expr={(emit, x, i, t) => emit(x, Math.sin(x + t))} length={64} channels={2} />
-          <line width={5} color="#3090FF" />
-          <point size={8} color="#3090FF" />
-          <interval expr={(emit, x, i, t) => {
-                emit(x, 0);
-                emit(x, -Math.sin(x + t));
-              }} length={64} channels={2} items={2} />
-          <vector end={true} width={5} color="#50A000" />
-          <scale divide={10} />
-          <ticks width={5} size={15} color="black" />
-          <format digits={2} weight="bold" />
-          <label color="red" zIndex={1} />
+      <root id="1">
+        <cartesian id="2" range={[[-1, 1], [-1, 1], [-1, 1]]} scale={[1, 1, 1]}>
+          <present id="3" index={1}>
+            <slide id="5">
+              <reveal id="6" duration={2}>
+                <transform id="7" position={[0, 1, 0]} scale={[11/10, 11/10, 11/10]}>
+                  <step id="8" script={[[{position: [0, 1, 0]}], [{position: [0, 3/4, 0]}], [{position: [0, 1/2, 0]}], [{position: [0, 1/4, 0]}], [{position: [0, 0, 0]}], [{position: [0, -1/4, 0]}], [{position: [0, -1/2, 0]}], [{position: [0, -3/4, 0]}], [{position: [0, -1, 0]}]]} />
+                  <grid id="9" axes={[1, 3]} width={2} color={11579568} depth={1/2} />
+                </transform>
+              </reveal>
+              <slide id="10">
+                <reveal id="11" stagger={[1, 1, 0, 0]}>
+                  <transform id="12" position={[0, 3/4, 0]}>
+                    <grid id="13" axes={[1, 3]} width={2} color={3145616} depth={1/2} />
+                  </transform>
+                </reveal>
+              </slide>
+              <slide id="14">
+                <reveal id="15">
+                  <move id="16" from={[1, 0, 0, 0]}>
+                    <transform id="17" position={[0, 1/2, 0]}>
+                      <grid id="18" axes={[1, 3]} width={2} color={3121136} depth={1/2} />
+                    </transform>
+                  </move>
+                  <slide id="19">
+                    <reveal id="20" stagger={1}>
+                      <move id="21" stagger={1} to={[0, -1, 0, 0]}>
+                        <transform id="22" position={[0, 1/4, 0]}>
+                          <grid id="23" detailX={20} detailY={20} axes={[1, 3]} width={2} color={3121136} depth={1/2} />
+                        </transform>
+                      </move>
+                    </reveal>
+                  </slide>
+                </reveal>
+              </slide>
+            </slide>
+            <slide id="24">
+              <grid id="25" axes={[1, 3]} width={2} color={16732048} depth={1/2} />
+              <reveal id="26" stagger={[1]} duration={1}>
+                <interval id="27" length={128} expr={(emit, x, i, t) => {
+                    if (i == 0) console.log('emitting')
+                    emit(x, .5 + .5 * Math.sin((x + t) * 3));
+                  }} channels={2} />
+                <line id="28" color={3182847} width={20} />
+              </reveal>
+            </slide>
+            <slide id="29">
+              <reveal id="30">
+                <transform id="31" position={[0, -1/4, 0]}>
+                  <grid id="32" axes={[1, 3]} width={2} color={16723856} depth={1/2} />
+                </transform>
+              </reveal>
+              <slide id="33">
+                <reveal id="34">
+                  <move id="35" stagger={2} from={[0, -2, 0, 0]} to={[0, -2, 0, 0]}>
+                    <transform id="36" position={[0, -1/2, 0]}>
+                      <grid id="37" detailX={20} detailY={20} axes={[1, 3]} width={2} color={10432496} depth={1/2} crossed={true} />
+                    </transform>
+                  </move>
+                </reveal>
+              </slide>
+              <slide id="38" early={1} late={1}>
+                <reveal id="39">
+                  <transform id="40" position={[0, -3/4, 0]}>
+                    <grid id="41" axes={[1, 3]} width={2} color={10432496} depth={1/2} />
+                  </transform>
+                </reveal>
+              </slide>
+              <slide id="42">
+                <reveal id="43">
+                  <transform id="44" position={[0, -1, 0]}>
+                    <grid id="45" axes={[1, 3]} width={2} color={10432496} depth={1/2} />
+                  </transform>
+                </reveal>
+              </slide>
+            </slide>
+          </present>
+          <camera id="4" lookAt={[0, 0, 0]} position={t => [-3 * Math.cos(t), .4 + .2 * Math.cos(t * .381), -3 * Math.sin(t)]} />
         </cartesian>
-        <play target="cartesian" to={2} loop={true} pace={5} script={[{props: {range: [[-2, 2], [-1, 1]]}}, {props: {range: [[-4, 4], [-2, 2]]}}, {props: {range: [[-2, 2], [-1, 1]]}}]} />
       </root>
+
+      window.onkeydown = function (e) {
+        const present = view.select('present'),
+              index = present.get('index'),
+              length = present.get('length');
+
+        switch (e.keyCode) {
+          case 37:
+          case 38:
+            present.set('index', (index - 1) % length);
+            break;
+          case 39:
+          case 40:
+            present.set('index', (index + 1) % length);
+            break;
+        }
+      }
     </script>
   </body>
 </html>
