@@ -10,10 +10,9 @@ scriptHandler('mathbox/jsx', function(text) {
   var root,
       React = {
         createElement: function(name, props) {
-          var children;
-          if (arguments.length > 2) children = Array.prototype.slice.call(arguments, 2);
+          root = {name: name, props: props};
 
-          root = {name: name, props: props, children: children};
+          if (arguments.length > 2) root.children = Array.prototype.slice.call(arguments, 2);
 
           return root;
         }
