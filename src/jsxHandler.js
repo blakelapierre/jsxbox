@@ -13,11 +13,9 @@ scriptHandler('mathbox/jsx', function(text) {
           var children;
           if (arguments.length > 2) children = Array.prototype.slice.call(arguments, 2);
 
-          var element = {name: name, props: props, children: children};
+          root = {name: name, props: props, children: children};
 
-          root = element;
-
-          return element;
+          return root;
         }
       };
 
