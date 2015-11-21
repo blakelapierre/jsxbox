@@ -1,0 +1,24 @@
+{
+  "name": "jsxbox",
+  "version": "1.0.0",
+  "description": "jsx parsing for mathbox DOMs",
+  "main": "index.html",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/blakelapierre/jsxbox"
+  },
+  "author": "",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/blakelapierre/jsxbox/issues"
+  },
+  "homepage": "https://github.com/blakelapierre/jsxbos",
+  "dependencies": {
+    "babel-core": "^6.2.0",
+    "babel-plugin-transform-react-jsx": "^6.2.0",
+    "babel-preset-es2015": "^6.1.18"
+  }
+}
