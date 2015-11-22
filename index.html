@@ -96,7 +96,7 @@
         switch (e.keyCode) {
           case 37:
           case 38:
-            present.set('index', (index - 1) % length);
+            present.set('index', (length + index - 1) % length);
             break;
           case 39:
           case 40:
