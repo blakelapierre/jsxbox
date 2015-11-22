@@ -88,12 +88,12 @@
         </cartesian>
       </root>
 
-      window.onkeydown = function (e) {
+      window.onkeydown = event => {
         const present = view.select('present'),
               index = present.get('index'),
               length = present.get('length');
 
-        switch (e.keyCode) {
+        switch (event.keyCode) {
           case 37:
           case 38:
             present.set('index', (length + index - 1) % length);
