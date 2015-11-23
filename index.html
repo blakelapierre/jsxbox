@@ -88,22 +88,99 @@
         </cartesian>
       </root>
 
-      window.onkeydown = event => {
-        const present = view.select('present'),
-              index = present.get('index'),
-              length = present.get('length');
+      // set({
+      //   controls: [
+      //     [37, 38], 'prevSlide',
+      //     [39, 40], 'nextSlide'
+      //   ],
+      //   commands: {
+      //     'prevSlide': {'present': {index: ['length', (index, length) => (length + index - 1) % length]}},
+      //     'nextSlide': {'present': {index: ['length', (index, length) => (index + 1) % length]}}
+      //   }
+      // })
 
-        switch (event.keyCode) {
-          case 37:
-          case 38:
-            present.set('index', (length + index - 1) % length);
-            break;
-          case 39:
-          case 40:
-            present.set('index', (index + 1) % length);
-            break;
+      set([
+        [ [37, 38], 'prevSlide' ],
+        [ [39, 40], 'nextSlide' ]
+      ], {
+        'prevSlide': {'present': {index: ['length', (index, length) => (length + index - 1) % length]}},
+        'nextSlide': {'present': {index: ['length', (index, length) => (index + 1) % length]}}
+      });
+
+      function set(controls, commands) {
+        const actionHandler = generateActionHandler(controls, define(commands));
+
+        window.onkeydown = ({keyCode}) => actionHandler(keyCode);
+
+        function generateActionHandler(controls, commands) {
+          const actions = controls.reduce((actions, [keys, command]) => {
+              keys.forEach(key => actions[key] = command);
+              return actions;
+            }, {});
+
+          return keyCode => run(commands[actions[keyCode]]);
+        }
+
+        function run(command) {
+          for (let name in command) {
+            const props = command[name],
+                  element = view.select(name);
+
+            for (let propName in props) {
+              const action = props[propName],
+                    propValue = element.get(propName);
+
+              if (typeof action === 'function') element.set(propName, action(propValue));
+              else {
+                const parameters = [];
+                let i = 0;
+                for (; i < action.length - 1; i++) parameters.push(element.get(action[i]));
+                element.set(propName, action[i](propValue, ...parameters));
+              }
+            }
+          }
+        }
+
+        function define(commands) {
+          //may want to do something fancier here, perhaps there are things in `run` that could be pre-cached?
+          return commands;
         }
       }
+      // applyControls(controls);
+
+      // function applyControls(controls) {
+      //   window.onkeydown = event => {
+
+      //   }
+      // }
+
+      // window.onkeydown = event => {
+      //   const present = view.select('present'),
+      //         index = present.get('index'),
+      //         length = present.get('length');
+
+      //   switch (event.keyCode) {
+      //     case 37:
+      //     case 38: commands['prevSlide'](); break;
+      //     case 39:
+      //     case 40: commands['nextSlide'](); break;
+      //   }
+      // }
+
+      //   index: ['length', (index, length) => (length + index - 1) % length]
+
+      // nextSlide: {
+      //   index: ({length, index}) => (length + index - 1) % length
+      // }
+      // prevSlide: {
+      //   index: ({length, index}) => (index + 1) % length;
+      // }
+
+      // present.set(name, fn(present))
+
+      // function nextSlide(present) {
+      //   present.set()
+      // }
     </script>
   </body>
 </html>
