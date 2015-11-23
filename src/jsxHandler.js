@@ -27,6 +27,10 @@ scriptHandler('mathbox/jsx', function(text) {
     },
   }), root);
 
+  (window.onMathBoxViewBuilt || function() {})(view);
+
+  window.view = view;
+
   function build(view, node) {
     var name = node.name,
         props = node.props;
@@ -47,6 +51,4 @@ scriptHandler('mathbox/jsx', function(text) {
 
     return view;
   }
-
-  window.view = view;
 });

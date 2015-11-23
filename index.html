@@ -99,18 +99,22 @@
       //   }
       // })
 
-      set([
-        [ [37, 38], 'prevSlide' ],
-        [ [39, 40], 'nextSlide' ]
-      ], {
-        'prevSlide': {'present': {index: ['length', (index, length) => (length + index - 1) % length]}},
-        'nextSlide': {'present': {index: ['length', (index, length) => (index + 1) % length]}}
+      window.onMathBoxViewBuilt = view => set(view, [
+          [ [8], 'reverseLookAt'],
+          [ [32], 'lookAt'],
+          [ [37, 38], 'prevSlide' ],
+          [ [39, 40], 'nextSlide' ]
+        ], {
+          'reverseLookAt': {'camera': {lookAt: lookAt => lookAt.addScalar(-0.5)}},
+          'lookAt': {'camera': {lookAt: lookAt => lookAt.addScalar(0.5)}},
+          'prevSlide': {'present': {index: ['length', (index, length) => (length + index - 1) % length]}},
+          'nextSlide': {'present': {index: ['length', (index, length) => (index + 1) % length]}}
       });
 
-      function set(controls, commands) {
+      function set(view, controls, commands) {
         const actionHandler = generateActionHandler(controls, define(commands));
 
-        window.onkeydown = ({keyCode}) => actionHandler(keyCode);
+        view._context.canvas.parentNode.onkeydown = ({keyCode}) => actionHandler(keyCode);
 
         function generateActionHandler(controls, commands) {
           const actions = controls.reduce((actions, [keys, command]) => {
