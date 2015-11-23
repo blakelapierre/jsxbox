@@ -3,7 +3,7 @@ module.exports = function(type, fn) {
     var scripts = document.getElementsByTagName('script');
 
     Array.prototype.forEach.call(scripts, function(script) {
-      if (script.type === type) fn(script.innerHTML); // Is there another way to select these?
+      if (script.type === type) fn(script.innerHTML, script); // Is there another way to select these?
     });
   });
 };

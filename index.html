@@ -1,190 +1,217 @@
 <html>
   <head>
     <title>mathbox/jsx</title>
+
+    <style>
+    body {
+      margin: 0;
+      padding: 0;
+
+      display: flex;
+
+      overflow: hidden;
+    }
+    </style>
   </head>
   <body>
     <script src="handler.js"></script>
     <script src="mathbox-bundle.js"></script>
 
-    <script type="mathbox/jsx">
-      <root>
-        <cartesian range={[[-1, 1], [-1, 1], [-1, 1]]} scale={[1, 1, 1]}>
-          <present index={1}>
-            <slide>
-              <reveal duration={2}>
-                <transform position={[0, 1, 0]} scale={[11/10, 11/10, 11/10]}>
-                  <step script={[[{position: [0, 1, 0]}], [{position: [0, 3/4, 0]}], [{position: [0, 1/2, 0]}], [{position: [0, 1/4, 0]}], [{position: [0, 0, 0]}], [{position: [0, -1/4, 0]}], [{position: [0, -1/2, 0]}], [{position: [0, -3/4, 0]}], [{position: [0, -1, 0]}]]} />
-                  <grid axes={[1, 3]} width={2} color={11579568} depth={1/2} />
-                </transform>
-              </reveal>
+    <div class="box" tabindex="0">
+      <style>
+      .box {
+        flex: 1;
+      }
+      </style>
+      <script type="mathbox/jsx">
+        <root>
+          <cartesian range={[[-1, 1], [-1, 1], [-1, 1]]} scale={[1, 1, 1]}>
+            <present index={1}>
               <slide>
-                <reveal stagger={[1, 1, 0, 0]}>
-                  <transform position={[0, 3/4, 0]}>
-                    <grid axes={[1, 3]} width={2} color={3145616} depth={1/2} />
+                <reveal duration={2}>
+                  <transform position={[0, 1, 0]} scale={[11/10, 11/10, 11/10]}>
+                    <step script={[[{position: [0, 1, 0]}], [{position: [0, 3/4, 0]}], [{position: [0, 1/2, 0]}], [{position: [0, 1/4, 0]}], [{position: [0, 0, 0]}], [{position: [0, -1/4, 0]}], [{position: [0, -1/2, 0]}], [{position: [0, -3/4, 0]}], [{position: [0, -1, 0]}]]} />
+                    <grid axes={[1, 3]} width={2} color={11579568} depth={1/2} />
                   </transform>
                 </reveal>
-              </slide>
-              <slide>
-                <reveal>
-                  <move from={[1, 0, 0, 0]}>
-                    <transform position={[0, 1/2, 0]}>
-                      <grid axes={[1, 3]} width={2} color={3121136} depth={1/2} />
+                <slide>
+                  <reveal stagger={[1, 1, 0, 0]}>
+                    <transform position={[0, 3/4, 0]}>
+                      <grid axes={[1, 3]} width={2} color={3145616} depth={1/2} />
                     </transform>
-                  </move>
-                  <slide>
-                    <reveal stagger={1}>
-                      <move stagger={1} to={[0, -1, 0, 0]}>
-                        <transform position={[0, 1/4, 0]}>
-                          <grid detailX={20} detailY={20} axes={[1, 3]} width={2} color={3121136} depth={1/2} />
-                        </transform>
-                      </move>
-                    </reveal>
-                  </slide>
+                  </reveal>
+                </slide>
+                <slide>
+                  <reveal>
+                    <move from={[1, 0, 0, 0]}>
+                      <transform position={[0, 1/2, 0]}>
+                        <grid axes={[1, 3]} width={2} color={3121136} depth={1/2} />
+                      </transform>
+                    </move>
+                    <slide>
+                      <reveal stagger={1}>
+                        <move stagger={1} to={[0, -1, 0, 0]}>
+                          <transform position={[0, 1/4, 0]}>
+                            <grid detailX={20} detailY={20} axes={[1, 3]} width={2} color={3121136} depth={1/2} />
+                          </transform>
+                        </move>
+                      </reveal>
+                    </slide>
+                  </reveal>
+                </slide>
+              </slide>
+              <slide>
+                <grid axes={[1, 3]} width={2} color={16732048} depth={1/2} />
+                <reveal stagger={[1]} duration={1}>
+                  <interval length={128} expr={(emit, x, i, t) => {
+                      if (i == 0) console.log('emitting')
+                      emit(x, .5 + .5 * Math.sin((x + t) * 3));
+                    }} channels={2} />
+                  <line color={3182847} width={20} />
                 </reveal>
               </slide>
-            </slide>
-            <slide>
-              <grid axes={[1, 3]} width={2} color={16732048} depth={1/2} />
-              <reveal stagger={[1]} duration={1}>
-                <interval length={128} expr={(emit, x, i, t) => {
-                    if (i == 0) console.log('emitting')
-                    emit(x, .5 + .5 * Math.sin((x + t) * 3));
-                  }} channels={2} />
-                <line color={3182847} width={20} />
-              </reveal>
-            </slide>
-            <slide>
-              <reveal>
-                <transform position={[0, -1/4, 0]}>
-                  <grid axes={[1, 3]} width={2} color={16723856} depth={1/2} />
-                </transform>
-              </reveal>
               <slide>
                 <reveal>
-                  <move stagger={2} from={[0, -2, 0, 0]} to={[0, -2, 0, 0]}>
-                    <transform position={[0, -1/2, 0]}>
-                      <grid detailX={20} detailY={20} axes={[1, 3]} width={2} color={10432496} depth={1/2} crossed={true} />
+                  <transform position={[0, -1/4, 0]}>
+                    <grid axes={[1, 3]} width={2} color={16723856} depth={1/2} />
+                  </transform>
+                </reveal>
+                <slide>
+                  <reveal>
+                    <move stagger={2} from={[0, -2, 0, 0]} to={[0, -2, 0, 0]}>
+                      <transform position={[0, -1/2, 0]}>
+                        <grid detailX={20} detailY={20} axes={[1, 3]} width={2} color={10432496} depth={1/2} crossed={true} />
+                      </transform>
+                    </move>
+                  </reveal>
+                </slide>
+                <slide early={1} late={1}>
+                  <reveal>
+                    <transform position={[0, -3/4, 0]}>
+                      <grid axes={[1, 3]} width={2} color={10432496} depth={1/2} />
                     </transform>
-                  </move>
-                </reveal>
+                  </reveal>
+                </slide>
+                <slide>
+                  <reveal>
+                    <transform position={[0, -1, 0]}>
+                      <grid axes={[1, 3]} width={2} color={10432496} depth={1/2} />
+                    </transform>
+                  </reveal>
+                </slide>
               </slide>
-              <slide early={1} late={1}>
-                <reveal>
-                  <transform position={[0, -3/4, 0]}>
-                    <grid axes={[1, 3]} width={2} color={10432496} depth={1/2} />
-                  </transform>
-                </reveal>
-              </slide>
-              <slide>
-                <reveal>
-                  <transform position={[0, -1, 0]}>
-                    <grid axes={[1, 3]} width={2} color={10432496} depth={1/2} />
-                  </transform>
-                </reveal>
-              </slide>
-            </slide>
-          </present>
-          <camera lookAt={[0, 0, 0]} position={t => [-3 * Math.cos(t), .4 + .2 * Math.cos(t * .381), -3 * Math.sin(t)]} />
-        </cartesian>
-      </root>
+            </present>
+            <camera lookAt={[0, 0, 0]} position={t => [-3 * Math.cos(t), .4 + .2 * Math.cos(t * .381), -3 * Math.sin(t)]} />
+          </cartesian>
+        </root>
 
-      // set({
-      //   controls: [
-      //     [37, 38], 'prevSlide',
-      //     [39, 40], 'nextSlide'
-      //   ],
-      //   commands: {
-      //     'prevSlide': {'present': {index: ['length', (index, length) => (length + index - 1) % length]}},
-      //     'nextSlide': {'present': {index: ['length', (index, length) => (index + 1) % length]}}
-      //   }
-      // })
+        // set({
+        //   controls: [
+        //     [37, 38], 'prevSlide',
+        //     [39, 40], 'nextSlide'
+        //   ],
+        //   commands: {
+        //     'prevSlide': {'present': {index: ['length', (index, length) => (length + index - 1) % length]}},
+        //     'nextSlide': {'present': {index: ['length', (index, length) => (index + 1) % length]}}
+        //   }
+        // })
 
-      window.onMathBoxViewBuilt = view => set(view, [
-          [ [8], 'reverseLookAt'],
-          [ [32], 'lookAt'],
-          [ [37, 38], 'prevSlide' ],
-          [ [39, 40], 'nextSlide' ]
-        ], {
-          'reverseLookAt': {'camera': {lookAt: lookAt => lookAt.addScalar(-0.5)}},
-          'lookAt': {'camera': {lookAt: lookAt => lookAt.addScalar(0.5)}},
-          'prevSlide': {'present': {index: ['length', (index, length) => (length + index - 1) % length]}},
-          'nextSlide': {'present': {index: ['length', (index, length) => (index + 1) % length]}}
-      });
+        window.onMathBoxViewBuilt = view => set(view, [
+            [ [8], 'reverseLookAt'],
+            [ [32], 'lookAt'],
+            [ [37, 38], 'prevSlide' ],
+            [ [39, 40], 'nextSlide' ]
+          ], {
+            'reverseLookAt': {'camera': {lookAt: lookAt => lookAt.addScalar(-0.5)}},
+            'lookAt': {'camera': {lookAt: lookAt => lookAt.addScalar(0.5)}},
+            'prevSlide': {'present': {index: ['length', (index, length) => (length + index - 1) % length]}},
+            'nextSlide': {'present': {index: ['length', (index, length) => (index + 1) % length]}}
+        }) & view._context.canvas.parentElement.focus();
 
-      function set(view, controls, commands) {
-        const actionHandler = generateActionHandler(controls, define(commands));
+        function set(view, controls, commands) {
+          const actionHandler = generateActionHandler(controls, define(commands));
 
-        view._context.canvas.parentNode.onkeydown = ({keyCode}) => actionHandler(keyCode);
+          view._context.canvas.parentElement.addEventListener('mousedown', event => view._context.canvas.parentElement.focus());
+          window.onkeydown = event => event.target === view._context.canvas.parentElement ? actionHandler(event.keyCode) : undefined;
 
-        function generateActionHandler(controls, commands) {
-          const actions = controls.reduce((actions, [keys, command]) => {
-              keys.forEach(key => actions[key] = command);
-              return actions;
-            }, {});
+          function generateActionHandler(controls, commands) {
+            const actions = controls.reduce((actions, [keys, command]) => {
+                keys.forEach(key => actions[key] = command);
+                return actions;
+              }, {});
 
-          return keyCode => run(commands[actions[keyCode]]);
-        }
+            return keyCode => run(commands[actions[keyCode]]);
+          }
 
-        function run(command) {
-          for (let name in command) {
-            const props = command[name],
-                  element = view.select(name);
+          function run(command) {
+            for (let name in command) {
+              const props = command[name],
+                    element = view.select(name);
 
-            for (let propName in props) {
-              const action = props[propName],
-                    propValue = element.get(propName);
+              for (let propName in props) {
+                const action = props[propName],
+                      propValue = element.get(propName);
 
-              if (typeof action === 'function') element.set(propName, action(propValue));
-              else {
-                const parameters = [];
-                let i = 0;
-                for (; i < action.length - 1; i++) parameters.push(element.get(action[i]));
-                element.set(propName, action[i](propValue, ...parameters));
+                if (typeof action === 'function') element.set(propName, action(propValue));
+                else {
+                  const parameters = [];
+                  let i = 0;
+                  for (; i < action.length - 1; i++) parameters.push(element.get(action[i]));
+                  element.set(propName, action[i](propValue, ...parameters));
+                }
               }
             }
           }
+
+          function define(commands) {
+            //may want to do something fancier here, perhaps there are things in `run` that could be pre-cached?
+            return commands;
+          }
         }
+        // applyControls(controls);
 
-        function define(commands) {
-          //may want to do something fancier here, perhaps there are things in `run` that could be pre-cached?
-          return commands;
+        // function applyControls(controls) {
+        //   window.onkeydown = event => {
+
+        //   }
+        // }
+
+        // window.onkeydown = event => {
+        //   const present = view.select('present'),
+        //         index = present.get('index'),
+        //         length = present.get('length');
+
+        //   switch (event.keyCode) {
+        //     case 37:
+        //     case 38: commands['prevSlide'](); break;
+        //     case 39:
+        //     case 40: commands['nextSlide'](); break;
+        //   }
+        // }
+
+        //   index: ['length', (index, length) => (length + index - 1) % length]
+
+        // nextSlide: {
+        //   index: ({length, index}) => (length + index - 1) % length
+        // }
+        // prevSlide: {
+        //   index: ({length, index}) => (index + 1) % length;
+        // }
+
+        // present.set(name, fn(present))
+
+        // function nextSlide(present) {
+        //   present.set()
+        // }
+      </script>
+    </div>
+    <div class="panel">
+      <style>
+        .panel {
+          display: none;
+          flex: 1;
         }
-      }
-      // applyControls(controls);
-
-      // function applyControls(controls) {
-      //   window.onkeydown = event => {
-
-      //   }
-      // }
-
-      // window.onkeydown = event => {
-      //   const present = view.select('present'),
-      //         index = present.get('index'),
-      //         length = present.get('length');
-
-      //   switch (event.keyCode) {
-      //     case 37:
-      //     case 38: commands['prevSlide'](); break;
-      //     case 39:
-      //     case 40: commands['nextSlide'](); break;
-      //   }
-      // }
-
-      //   index: ['length', (index, length) => (length + index - 1) % length]
-
-      // nextSlide: {
-      //   index: ({length, index}) => (length + index - 1) % length
-      // }
-      // prevSlide: {
-      //   index: ({length, index}) => (index + 1) % length;
-      // }
-
-      // present.set(name, fn(present))
-
-      // function nextSlide(present) {
-      //   present.set()
-      // }
-    </script>
+      </style>
+    </div>
   </body>
 </html>

@@ -4,7 +4,7 @@ var babel = require('babel-core');
 var es2015 = require('babel-preset-es2015');
 var transformReactJsx = require('babel-plugin-transform-react-jsx');
 
-scriptHandler('mathbox/jsx', function(text) {
+scriptHandler('mathbox/jsx', function(text, script) {
   var result = babel.transform(text, {presets: [es2015], plugins: [transformReactJsx]});
 
   var root,
@@ -21,6 +21,7 @@ scriptHandler('mathbox/jsx', function(text) {
   eval(result.code);
 
   var view = build(mathBox({
+    element: script.parentNode,
     plugins: ['core', 'controls', 'cursor', 'stats'],
     controls: {
       klass: THREE.OrbitControls
