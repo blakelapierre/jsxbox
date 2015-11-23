@@ -1,2 +1,2 @@
 require('./es2015handler');
-require('./jsxHandler');
+require('./mathboxJsxHandler');

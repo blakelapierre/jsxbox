@@ -12,6 +12,32 @@
       overflow: hidden;
     }
     </style>
+
+    <style>
+    .box {
+      position: relative;
+
+      display: flex;
+
+      flex: 1;
+    }
+
+    .box mathbox {
+      flex: 1;
+    }
+
+    .box .settings {
+      position: absolute;
+      top: 0;
+      right: 0;
+
+      color: #fff;
+
+      cursor: pointer;
+
+      user-select: none;
+    }
+    </style>
   </head>
   <body>
     <script src="handler.js"></script>
@@ -31,31 +57,6 @@
     </script>
 
     <div class="box">
-      <style>
-      .box {
-        position: relative;
-
-        display: flex;
-
-        flex: 1;
-      }
-
-      .box mathbox {
-        flex: 1;
-      }
-
-      .box .settings {
-        position: absolute;
-        top: 0;
-        right: 0;
-
-        color: #fff;
-
-        cursor: pointer;
-
-        user-select: none;
-      }
-      </style>
       <mathbox tabindex="1">
         <script type="mathbox/jsx">
           <root>
@@ -139,104 +140,20 @@
             </cartesian>
           </root>
 
-          // set({
-          //   controls: [
-          //     [37, 38], 'prevSlide',
-          //     [39, 40], 'nextSlide'
-          //   ],
-          //   commands: {
-          //     'prevSlide': {'present': {index: ['length', (index, length) => (length + index - 1) % length]}},
-          //     'nextSlide': {'present': {index: ['length', (index, length) => (index + 1) % length]}}
-          //   }
-          // })
-
-          window.onMathBoxViewBuilt = view => set(view, [
+          module.exports = {
+            controls: [
               [ [8], 'reverseLookAt'],
               [ [32], 'lookAt'],
               [ [37, 38], 'prevSlide' ],
               [ [39, 40], 'nextSlide' ]
-            ], {
+            ],
+            commands: {
               'reverseLookAt': {'camera': {lookAt: lookAt => lookAt.addScalar(-0.5)}},
               'lookAt': {'camera': {lookAt: lookAt => lookAt.addScalar(0.5)}},
               'prevSlide': {'present': {index: ['length', (index, length) => (length + index - 1) % length]}},
               'nextSlide': {'present': {index: ['length', (index, length) => (index + 1) % length]}}
-          }) & view._context.canvas.parentElement.focus();
-
-          function set(view, controls, commands) {
-            const actionHandler = generateActionHandler(controls, define(commands));
-
-            view._context.canvas.parentElement.addEventListener('mousedown', event => view._context.canvas.parentElement.focus());
-            window.addEventListener('keydown', event => event.target === view._context.canvas.parentElement ? actionHandler(event.keyCode) : console.log(event));
-
-            function generateActionHandler(controls, commands) {
-              const actions = controls.reduce((actions, [keys, command]) => {
-                  keys.forEach(key => actions[key] = command);
-                  return actions;
-                }, {});
-
-              return keyCode => run(commands[actions[keyCode]]);
             }
-
-            function run(command) {
-              for (let name in command) {
-                const props = command[name],
-                      element = view.select(name);
-
-                for (let propName in props) {
-                  const action = props[propName],
-                        propValue = element.get(propName);
-
-                  if (typeof action === 'function') element.set(propName, action(propValue));
-                  else {
-                    const parameters = [];
-                    let i = 0;
-                    for (; i < action.length - 1; i++) parameters.push(element.get(action[i]));
-                    element.set(propName, action[i](propValue, ...parameters));
-                  }
-                }
-              }
-            }
-
-            function define(commands) {
-              //may want to do something fancier here, perhaps there are things in `run` that could be pre-cached?
-              return commands;
-            }
-          }
-          // applyControls(controls);
-
-          // function applyControls(controls) {
-          //   window.onkeydown = event => {
-
-          //   }
-          // }
-
-          // window.onkeydown = event => {
-          //   const present = view.select('present'),
-          //         index = present.get('index'),
-          //         length = present.get('length');
-
-          //   switch (event.keyCode) {
-          //     case 37:
-          //     case 38: commands['prevSlide'](); break;
-          //     case 39:
-          //     case 40: commands['nextSlide'](); break;
-          //   }
-          // }
-
-          //   index: ['length', (index, length) => (length + index - 1) % length]
-
-          // nextSlide: {
-          //   index: ({length, index}) => (length + index - 1) % length
-          // }
-          // prevSlide: {
-          //   index: ({length, index}) => (index + 1) % length;
-          // }
-
-          // present.set(name, fn(present))
-
-          // function nextSlide(present) {
-          //   present.set()
-          // }
+          };
         </script>
       </mathbox>
       <div class="panel">
@@ -255,31 +172,6 @@
     </div>
 
     <div class="box">
-      <style>
-      .box {
-        position: relative;
-
-        display: flex;
-
-        flex: 1;
-      }
-
-      .box mathbox {
-        flex: 1;
-      }
-
-      .box .settings {
-        position: absolute;
-        top: 0;
-        right: 0;
-
-        color: #fff;
-
-        cursor: pointer;
-
-        user-select: none;
-      }
-      </style>
       <mathbox tabindex="2">
         <script type="mathbox/jsx">
           const position = [0, 0, -5, 0],
@@ -313,22 +205,13 @@
               <matrix width={256} height={256} channels={2} expr={(emit, x, y) => (x !== 0 && y !== 0 && x % y === 0) ? emit(x, y) : undefined} />
               <swizzle order={'xyyx'} />
               <cartesian range={[[1, 256], [1, 256], [-1, 1]]} scale={[16/9, 1, 1]} position={[Math.sqrt(Math.PI), 0, 0]} />
-              <point size={5} color={[64 / 255, 128 / 255, 192 / 255]} blending={'add'}/>
+              <point size={10} color={[64 / 255, 128 / 255, 192 / 255]} blending={'add'}/>
           </root>
 
-          // set({
-          //   controls: [
-          //     [37, 38], 'prevSlide',
-          //     [39, 40], 'nextSlide'
-          //   ],
-          //   commands: {
-          //     'prevSlide': {'present': {index: ['length', (index, length) => (length + index - 1) % length]}},
-          //     'nextSlide': {'present': {index: ['length', (index, length) => (index + 1) % length]}}
-          //   }
-          // })
-
           let modifier = identity;
-          window.onMathBoxViewBuilt = view => set(view, [
+
+          module.exports = {
+            controls: [
               [ [16, 32],  'turbo' ],
               [ 65,  'left' ],
               [ 68,  'right' ],
@@ -336,7 +219,8 @@
               [ 83,  'backward' ],
               [ 87,  'forward' ],
               [ 90,  'down' ]
-            ], {
+            ],
+            commands: {
               'turbo': view => modifier = modifier === identity ? turbo : identity,
               'left': view => velocity[0] = modifier(-5),
               'right': view => velocity[0] = modifier(5),
@@ -344,95 +228,11 @@
               'down': view => velocity[1] = modifier(-5),
               'backward': view => velocity[2] = modifier(-5),
               'forward': view => velocity[2] = modifier(5)
-          }) & view._context.canvas.parentElement.focus();
+            }
+          };
 
           function identity(value) { return value; }
           function turbo(value) { return value * value * value / Math.abs(value); }
-
-          function set(view, controls, commands) {
-            const actionHandler = generateActionHandler(controls, define(commands));
-
-            view._context.canvas.parentElement.addEventListener('mousedown', event => view._context.canvas.parentElement.focus());
-            window.addEventListener('keydown', event => event.target === view._context.canvas.parentElement ? actionHandler(event.keyCode) : console.log(event, view));
-
-            function generateActionHandler(controls, commands) {
-              const actions = controls.reduce((actions, [keys, command]) => {
-                  (typeof keys === 'number' ? [keys] : keys).forEach(key => actions[key] = command);
-                  return actions;
-                }, {});
-
-              return keyCode => run(commands[actions[keyCode]]);
-            }
-
-            function run(command) {
-              if (typeof command === 'function') command(view);
-              else {
-                for (let name in command) {
-                  const props = command[name]
-
-                  if (typeof props === 'function') {
-                    props(view); // not sure what, if anything, should be passed in here
-                  }
-                  else {
-                    const element = view.select(name);
-
-                    for (let propName in props) {
-                      const action = props[propName],
-                            propValue = element.get(propName);
-
-                      if (typeof action === 'function') element.set(propName, action(propValue));
-                      else {
-                        const parameters = [];
-                        let i = 0;
-                        for (; i < action.length - 1; i++) parameters.push(element.get(action[i]));
-                        element.set(propName, action[i](propValue, ...parameters));
-                      }
-                    }
-                  }
-                }
-              }
-            }
-
-            function define(commands) {
-              //may want to do something fancier here, perhaps there are things in `run` that could be pre-cached?
-              return commands;
-            }
-          }
-          // applyControls(controls);
-
-          // function applyControls(controls) {
-          //   window.onkeydown = event => {
-
-          //   }
-          // }
-
-          // window.onkeydown = event => {
-          //   const present = view.select('present'),
-          //         index = present.get('index'),
-          //         length = present.get('length');
-
-          //   switch (event.keyCode) {
-          //     case 37:
-          //     case 38: commands['prevSlide'](); break;
-          //     case 39:
-          //     case 40: commands['nextSlide'](); break;
-          //   }
-          // }
-
-          //   index: ['length', (index, length) => (length + index - 1) % length]
-
-          // nextSlide: {
-          //   index: ({length, index}) => (length + index - 1) % length
-          // }
-          // prevSlide: {
-          //   index: ({length, index}) => (index + 1) % length;
-          // }
-
-          // present.set(name, fn(present))
-
-          // function nextSlide(present) {
-          //   present.set()
-          // }
         </script>
       </mathbox>
       <div class="panel">
