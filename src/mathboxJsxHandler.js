@@ -64,9 +64,7 @@ scriptHandler('mathbox/jsx', function(text, script) {
         for (var name in command) {
           var props = command[name];
 
-          if (typeof props === 'function') {
-            props(view); // not sure what, if anything, should be passed in here
-          }
+          if (typeof props === 'function') props(view); // not sure what, if anything, should be passed in here
           else {
             var element = view.select(name);
 
