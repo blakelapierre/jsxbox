@@ -329,13 +329,13 @@
 
           let modifier = identity;
           window.onMathBoxViewBuilt = view => set(view, [
-              [ [16],  'turbo' ],
-              [ [65],  'left' ],
-              [ [68],  'right' ],
-              [ [81],  'up'],
-              [ [83],  'backward' ],
-              [ [87],  'forward' ],
-              [ [90],  'down' ]
+              [ [16, 32],  'turbo' ],
+              [ 65,  'left' ],
+              [ 68,  'right' ],
+              [ 81,  'up'],
+              [ 83,  'backward' ],
+              [ 87,  'forward' ],
+              [ 90,  'down' ]
             ], {
               'turbo': view => modifier = modifier === identity ? turbo : identity,
               'left': view => velocity[0] = modifier(-5),
@@ -357,7 +357,7 @@
 
             function generateActionHandler(controls, commands) {
               const actions = controls.reduce((actions, [keys, command]) => {
-                  keys.forEach(key => actions[key] = command);
+                  (typeof keys === 'number' ? [keys] : keys).forEach(key => actions[key] = command);
                   return actions;
                 }, {});
 
