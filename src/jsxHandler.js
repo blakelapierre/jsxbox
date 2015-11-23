@@ -37,13 +37,16 @@ scriptHandler('mathbox/jsx', function(text, script) {
         props = node.props;
 
     if (name !== 'root') {
-      if (name === 'camera') {
-        var props1 = {lookAt: props.lookAt},
-            props2 = {position: props.position};  // What is this and why is it needed
+      var props1 = {}, props2;
 
-        view = view[name](props1, props2);
+      for (var propName in props) {
+        var prop = props[propName];
+
+        if (name === 'camera' && typeof prop === 'function') (props2 = (props2 || {}))[propName] = prop;
+        else (props1 = (props1 || {}))[propName] = prop;
       }
-      else view = view[name](props);
+
+      view = view[name](props1, props2);
     }
 
     (node.children || []).forEach(function(child) {
