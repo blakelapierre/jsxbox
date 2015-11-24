@@ -55,123 +55,10 @@
     <script src="mathbox-bundle.js"></script>
 
     <div class="box">
-      <mathbox tabindex="1">
-        <script type="mathbox/jsx">
-          <root>
-            <cartesian range={[[-1, 1], [-1, 1], [-1, 1]]} scale={[1, 1, 1]}>
-              <present index={1}>
-                <slide>
-                  <reveal duration={2}>
-                    <transform position={[0, 1, 0]} scale={[11/10, 11/10, 11/10]}>
-                      <step script={[
-                        [{position: [0, 1, 0]}],
-                        [{position: [0, 3/4, 0]}],
-                        [{position: [0, 1/2, 0]}],
-                        [{position: [0, 1/4, 0]}],
-                        [{position: [0, 0, 0]}],
-                        [{position: [0, -1/4, 0]}],
-                        [{position: [0, -1/2, 0]}],
-                        [{position: [0, -3/4, 0]}],
-                        [{position: [0, -1, 0]}]]} />
-                      <grid axes={[1, 3]} width={2} color={11579568} depth={1/2} />
-                    </transform>
-                  </reveal>
-                  <slide>
-                    <reveal stagger={[1, 1, 0, 0]}>
-                      <transform position={[0, 3/4, 0]}>
-                        <grid axes={[1, 3]} width={2} color={3145616} depth={1/2} />
-                      </transform>
-                    </reveal>
-                  </slide>
-                  <slide>
-                    <reveal>
-                      <move from={[1, 0, 0, 0]}>
-                        <transform position={[0, 1/2, 0]}>
-                          <grid axes={[1, 3]} width={2} color={3121136} depth={1/2} />
-                        </transform>
-                      </move>
-                      <slide>
-                        <reveal stagger={1}>
-                          <move stagger={1} to={[0, -1, 0, 0]}>
-                            <transform position={[0, 1/4, 0]}>
-                              <grid detailX={20} detailY={20} axes={[1, 3]} width={2} color={3121136} depth={1/2} />
-                            </transform>
-                          </move>
-                        </reveal>
-                      </slide>
-                    </reveal>
-                  </slide>
-                </slide>
-                <slide>
-                  <grid axes={[1, 3]} width={2} color={16732048} depth={1/2} />
-                  <reveal stagger={[1]} duration={1}>
-                    <interval length={128} expr={(emit, x, i, t) => {
-                        if (i == 0) console.log('emitting')
-                        emit(x, .5 + .5 * Math.sin((x + t) * 3));
-                      }} channels={2} />
-                    <line color={3182847} width={20} />
-                  </reveal>
-                </slide>
-                <slide>
-                  <reveal>
-                    <transform position={[0, -1/4, 0]}>
-                      <grid axes={[1, 3]} width={2} color={16723856} depth={1/2} />
-                    </transform>
-                  </reveal>
-                  <slide>
-                    <reveal>
-                      <move stagger={2} from={[0, -2, 0, 0]} to={[0, -2, 0, 0]}>
-                        <transform position={[0, -1/2, 0]}>
-                          <grid detailX={20} detailY={20} axes={[1, 3]} width={2} color={10432496} depth={1/2} crossed={true} />
-                        </transform>
-                      </move>
-                    </reveal>
-                  </slide>
-                  <slide early={1} late={1}>
-                    <reveal>
-                      <transform position={[0, -3/4, 0]}>
-                        <grid axes={[1, 3]} width={2} color={10432496} depth={1/2} />
-                      </transform>
-                    </reveal>
-                  </slide>
-                  <slide>
-                    <reveal>
-                      <transform position={[0, -1, 0]}>
-                        <grid axes={[1, 3]} width={2} color={10432496} depth={1/2} />
-                      </transform>
-                    </reveal>
-                  </slide>
-                </slide>
-              </present>
-              <camera lookAt={[0, 0, 0]} position={t => [-3 * Math.cos(t), .4 + .2 * Math.cos(t * .381), -3 * Math.sin(t)]} />
-            </cartesian>
-          </root>
-
-          module.exports = {
-            controls: [
-              [ [8], 'reverseLookAt'],
-              [ [32], 'lookAt'],
-              [ [37, 38], 'prevSlide' ],
-              [ [39, 40], 'nextSlide' ]
-            ],
-            commands: {
-              'reverseLookAt': {'camera': {lookAt: lookAt => lookAt.addScalar(-0.5)}},
-              'lookAt': {'camera': {lookAt: lookAt => lookAt.addScalar(0.5)}},
-              'prevSlide': {'present': {index: ['length', (index, length) => (length + index - 1) % length]}},
-              'nextSlide': {'present': {index: ['length', (index, length) => (index + 1) % length]}}
-            }
-          };
-        </script>
-      </mathbox>
-      <div class="panel"></div>
-      <div class="settings" onclick="expandPanel(event, this)">P</div>
-    </div>
-
-    <div class="box">
       <mathbox tabindex="2">
         <script type="mathbox/jsx">
-          const position = [0, 1, -32, 0],
-                velocity = [0, 0, 0, 0];
+          const position = [0, -1024 * 256, -2048, 0],
+                velocity = [0, 10, -10, 0];
 
           function cameraPosition(t, dt) {
             const [x, y, z, w] = position,
@@ -191,13 +78,14 @@
           }
 
           function decay(value, dt) {
-            return value * dt;
+            // return value * dt;
+            return 0;
           }
 
           const data = [],
-                x_min = 1, x_max = 128,
-                y_min = 1, y_max = 128,
-                z_min = 0, z_max = 128;
+                x_min = 1, x_max = 512,
+                y_min = 1, y_max = 512,
+                z_min = 0, z_max = 4;
 
           for (let x = x_min; x < x_max; x++)
             for (let y = y_min; y < y_max; y++)
@@ -215,22 +103,19 @@
           <root>
               <camera
                 lookAt={[0, 0, 0]}
-                position={cameraPosition}
-                fov={70}
+                position={t => [0, 512 + 2 * (t * t), -1024 - (t * t), 0]}
+                fov={t => Math.max(90, 60 + t / Math.sqrt(t))}
               />
-              <spherical range={[[x_min, x_max], [y_min, y_max], [z_min, Math.sqrt(z_max)], [x_min * y_min * z_min, x_max * y_max * z_max]]} scale={[16/9, 1 / 2, 100, 1/10]}
+              <spherical
+                range={[[x_min, x_max], [y_min, y_max], [z_min, Math.sqrt(z_max)], [x_min * y_min * z_min, x_max * y_max * z_max]]}
+                scale={t => [16/9 * t, 1 / 2 * t, 100 * t, 1/10 * t]}
                 position={[0, 0, 0]}
-                bend={t => t / Math.PI / 10}
-                quaternion={t => [
-                  Math.cos(t / Math.PI),
-                  Math.cos(t / Math.PI),
-                  Math.sin(t / Math.PI / Math.PI),
-                  Math.sin(t / Math.PI / Math.PI)
-                ]}
+                bend={t => t}
+                rotation={t => [0, t / 2, 0]}
               >
                 <array length={data.length} channels={4} data={data} />
-                <swizzle order={'wzyx'} />
-                <point size={10} shape={'square'} color={[64 / 255, 128 / 255, 192 / 255]} blending={'add'}/>
+                <swizzle order={'xyzw'} />
+                <point size={30} shape={'square'} color={[64 / 255, 128 / 255, 192 / 255]} blending={'add'}/>
               </spherical>
               <play target="spherical" script={sphericalScript} />
           </root>
