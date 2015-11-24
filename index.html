@@ -170,7 +170,7 @@
     <div class="box">
       <mathbox tabindex="2">
         <script type="mathbox/jsx">
-          const position = [0, 1, -32, 0],
+          const position = [128 * 4, 128 * 2, -128 * 2, 0],
                 velocity = [0, 0, 0, 0];
 
           function cameraPosition(t, dt) {
@@ -220,12 +220,9 @@
               />
               <spherical range={[[x_min, x_max], [y_min, y_max], [z_min, Math.sqrt(z_max)], [x_min * y_min * z_min, x_max * y_max * z_max]]} scale={[16/9, 1 / 2, 100, 1/10]}
                 position={[0, 0, 0]}
-                bend={t => t / Math.PI / 10}
+                bend={t => Math.pow(Math.E, t * Math.cos(t) * Math.sin(t)) / Math.PI / 100}
                 quaternion={t => [
-                  Math.sin(t / Math.PI),
-                  Math.cos(t / Math.PI),
-                  Math.sin(t / Math.PI / Math.PI),
-                  Math.sin(t / Math.PI / Math.PI)
+                  0, 0, Math.sin(t), 0
                 ]}
               >
                 <array length={data.length} channels={4} data={data} />
