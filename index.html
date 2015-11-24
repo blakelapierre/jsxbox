@@ -206,20 +206,14 @@
 
           console.log(data.length, 'divisors!');
 
-          const sphericalScript = [];
-
-          for (let i = 0; i < x_max; i++) sphericalScript.push([{range: [[x_min, x_min + i], [y_min, y_min + i], [z_min, z_min + i], [-1, 1]]}]);
-
-          console.log({sphericalScript});
 
           <root>
               <camera
                 lookAt={[Math.sqrt(Math.PI), 0, 0]}
                 position={cameraPosition} />
-              <spherical range={[[x_min, x_max], [y_min, y_max], [z_min, z_max], [-1, 1]]} scale={[16/9, 1, 1, 1]} position={[Math.sqrt(Math.PI), 0, 0]}>
-                <play ease={'linear'} loop={true} pace={4} speed={1} script={sphericalScript}>
-
-                </play>
+              <spherical range={[[x_min, x_max], [y_min, y_max], [z_min, z_max], [-1, 1]]} scale={[16/9, 1, 1, 1]}
+                position={[Math.sqrt(Math.PI), 0, 0]}
+                rotation={t => [t / Math.PI, t / Math.PI, t / Math.PI]}>
 
                 <array length={data.length} channels={3} data={data} />
                 <swizzle order={'zxyw'} />

@@ -105,7 +105,7 @@ scriptHandler('mathbox/jsx', function(text, script) {
       for (var propName in props) {
         var prop = props[propName];
 
-        if (name === 'camera' && typeof prop === 'function') (props2 = (props2 || {}))[propName] = prop;
+        if (typeof prop === 'function' && (name === 'camera' || (propName !== 'expr'))) (props2 = (props2 || {}))[propName] = prop;
         else (props1 = (props1 || {}))[propName] = prop;
       }
 
