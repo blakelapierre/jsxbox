@@ -202,14 +202,15 @@
           for (let x = x_min; x < x_max; x++)
             for (let y = y_min; y < y_max; y++)
               for (let z = z_min; z < z_max; z++)
-                if (x !== 0 && y !== 0 && x % y === z) data.push([x, y, z, x + y + z]);
+                if (x !== 0 && y !== 0 && x % y === z) data.push([x, y, z, x * y * z]);
 
           console.log(data.length, 'divisors!');
 
           const sphericalScript = [];
 
-          for (let i = 0; i < x_max; i++) sphericalScript.push([{range: [[x_min, x_min + i], [y_min, y_min + i], [z_min, Math.sqrt(z_min + i)], [-1, 1]]}]);
+          for (let i = 0; i < 1; i++) sphericalScript.push({range: [[x_min, x_min + i], [y_min, y_min + i], [z_min, Math.sqrt(z_min + i)], [x_min * y_min * z_min, x_max * y_max * z_max]]});
 
+          console.log(sphericalScript);
 
           <root>
               <camera
@@ -219,13 +220,14 @@
               />
               <spherical range={[[x_min, x_max], [y_min, y_max], [z_min, Math.sqrt(z_max)], [x_min * y_min * z_min, x_max * y_max * z_max]]} scale={[16/9, 1 / 2, 100, 1/10]}
                 position={[0, 0, 0]}
+                bend={t => t / Math.PI / 10}
                 quaternion={t => [Math.cos(t / Math.PI), Math.cos(t / Math.PI), Math.sin(t / Math.PI / Math.PI), Math.cos(t / Math.PI / Math.PI)]}
               >
-                <play ease={'linear'} loop={true} pace={1} speed={1} script={sphericalScript} />
                 <array length={data.length} channels={4} data={data} />
                 <swizzle order={'wzxy'} />
-                <point size={1} color={[64 / 255, 128 / 255, 192 / 255]} blending={'add'}/>
+                <point size={10} shape={'square'} color={[64 / 255, 128 / 255, 192 / 255]} blending={'add'}/>
               </spherical>
+              <play target="spherical" script={sphericalScript} />
           </root>
 
           let modifier = identity,
