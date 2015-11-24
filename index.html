@@ -83,7 +83,7 @@
           }
 
           const data = [],
-                x_min = 1, x_max = 512,
+                x_min = -255, x_max = 256,
                 y_min = 1, y_max = 512,
                 z_min = 0, z_max = 5;
 
@@ -111,12 +111,13 @@
                 scale={t => [16/9, 1 / 2, 1, 1/10]}
                 position={[0, 0, 0]}
                 bend={t => 1 / t}
+                quaternion={t => [0, 0, 0, t]}
                 rotation={t => [0, 0, 0]}
               >
                 <array length={data.length} channels={4} data={data} />
-                <swizzle order={'wyxz'} />
+                <swizzle order={'wxyz'} />
 
-                <point size={30} shape={'square'} color={[64 / 255, 128 / 255, 192 / 255]} blending={'add'}/>
+                <point size={100} shape={'square'} color={[64 / 255, 128 / 255, 192 / 255]} blending={'add'}/>
               </spherical>
               <play target="spherical" script={sphericalScript} />
           </root>
