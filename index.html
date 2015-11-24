@@ -90,7 +90,8 @@
           for (let x = x_min; x <= x_max; x++)
             for (let y = y_min; y <=y_max; y++)
               for (let z = z_min; z <= z_max; z++)
-                if (x !== 0 && y !== 0 && x % y === z) data.push([x, y, z, x * y * z]);
+                if (x !== 0 && y !== 0 && x / y === z) data.push([x, y, z, x * y * z]);
+                // if (x !== 0 && y !== 0 && x % y === z) data.push([x, y, z, x * y * z]);
                 // if (x !== 0 && y !== 0 && x % y === z) data.push([x, y, z, x + y + z]);
 
           console.log(data.length, 'divisors!');
