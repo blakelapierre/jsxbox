@@ -222,14 +222,14 @@
                 position={[0, 0, 0]}
                 bend={t => t / Math.PI / 10}
                 quaternion={t => [
-                  Math.cos(t / Math.PI),
+                  Math.sin(t / Math.PI),
                   Math.cos(t / Math.PI),
                   Math.sin(t / Math.PI / Math.PI),
                   Math.sin(t / Math.PI / Math.PI)
                 ]}
               >
                 <array length={data.length} channels={4} data={data} />
-                <swizzle order={'wzyx'} />
+                <swizzle order={'wxzy'} />
                 <point size={10} shape={'square'} color={[64 / 255, 128 / 255, 192 / 255]} blending={'add'}/>
               </spherical>
               <play target="spherical" script={sphericalScript} />
