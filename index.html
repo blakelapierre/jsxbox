@@ -83,8 +83,8 @@
           }
 
           const data = [],
-                x_min = 1, x_max = 128,
-                y_min = 1, y_max = 128,
+                x_min = 1, x_max = 1024,
+                y_min = 1, y_max = 1024,
                 z_min = 0, z_max = 127;
 
           for (let x = x_min; x <= x_max; x++)
@@ -115,7 +115,7 @@
                 rotation={t => [0, t / 8, 0]}
               >
                 <array length={data.length} channels={4} data={data} />
-                <swizzle order={'wwxw'} />
+                <swizzle order={'xyzw'} />
 
                 <point size={30} shape={'square'} color={[64 / 255, 128 / 255, 192 / 255]} blending={'add'}/>
               </spherical>
