@@ -202,7 +202,7 @@
           for (let x = x_min; x < x_max; x++)
             for (let y = y_min; y < y_max; y++)
               for (let z = z_min; z < z_max; z++)
-                if (x !== 0 && y !== 0 && x % y === z) data.push([x, y, z]);
+                if (x !== 0 && y !== 0 && x % y === z) data.push([x, y, Math.log(z)]);
 
           console.log(data.length, 'divisors!');
 
@@ -211,13 +211,21 @@
               <camera
                 lookAt={[0, 0, 0]}
                 position={cameraPosition}
+                rotation={t => [0, 0, t]}
               />
               <spherical range={[[x_min, x_max], [y_min, y_max], [z_min, z_max], [-1, 1]]} scale={[16/9, 1, 1, 1]}
                 position={[0, 0, 0]}
                 rotation={t => [0, t / 2, 0]}>
-
                 <array length={data.length} channels={3} data={data} />
-                <swizzle order={'xyzw'} />
+                <swizzle order={'zxyw'} />
+                <point size={1} color={[64 / 255, 128 / 255, 192 / 255]} blending={'add'}/>
+              </spherical>
+
+              <spherical range={[[x_min, x_max], [y_min, y_max], [z_min, z_max], [-1, 1]]} scale={[16/9, 1, 1, 1]}
+                position={[0, 0, 0]}
+                rotation={t => [0, -t * 2, 0]}>
+                <array length={data.length} channels={3} data={data} />
+                <swizzle order={'zxyw'} />
                 <point size={1} color={[64 / 255, 128 / 255, 192 / 255]} blending={'add'}/>
               </spherical>
           </root>
