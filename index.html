@@ -220,7 +220,7 @@
               />
               <spherical range={[[x_min, x_max], [y_min, y_max], [z_min, Math.sqrt(z_max)], [x_min * y_min * z_min, x_max * y_max * z_max]]} scale={[16/9, 1 / 2, 100, 1/10]}
                 position={[0, 0, 0]}
-                bend={t => Math.pow(Math.E, t * Math.cos(t) * Math.sin(t)) / Math.PI / 100}
+                bend={t => Math.pow(Math.E, t * Math.sin(t) * Math.sin(t)) / Math.PI / 100}
                 quaternion={t => [
                   0, 0, Math.sin(t), 0
                 ]}
