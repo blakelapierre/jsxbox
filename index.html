@@ -170,7 +170,7 @@
     <div class="box">
       <mathbox tabindex="2">
         <script type="mathbox/jsx">
-          const position = [0, 0, 10, 0],
+          const position = [0, 1, 4, 0],
                 velocity = [0, 0, 0, 0];
 
           function cameraPosition(t, dt) {
@@ -209,12 +209,12 @@
 
           <root>
               <camera
-                lookAt={[Math.sqrt(Math.PI), 0, 0]}
+                lookAt={[0, 0, 0]}
                 position={cameraPosition}
-                fov={t => 30 * Math.sin(t / 2) + 60} />
+              />
               <spherical range={[[x_min, x_max], [y_min, y_max], [z_min, z_max], [-1, 1]]} scale={[16/9, 1, 1, 1]}
-                position={[Math.sqrt(Math.PI), 0, 0]}
-                rotation={t => [t / Math.PI / Math.PI, t * Math.PI * Math.PI * Math.PI * Math.PI, t / Math.PI / Math.PI]}>
+                position={[0, 0, 0]}
+                rotation={t => [0, t / 2, 0]}>
 
                 <array length={data.length} channels={3} data={data} />
                 <swizzle order={'xyzw'} />
