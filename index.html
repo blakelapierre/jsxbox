@@ -85,11 +85,11 @@
           const data = [],
                 x_min = 1, x_max = 128,
                 y_min = 1, y_max = 128,
-                z_min = 0, z_max = 2;
+                z_min = 0, z_max = 5;
 
-          for (let x = x_min; x < x_max; x++)
-            for (let y = y_min; y < y_max; y++)
-              for (let z = z_min; z < z_max; z++)
+          for (let x = x_min; x <= x_max; x++)
+            for (let y = y_min; y <=y_max; y++)
+              for (let z = z_min; z <= z_max; z++)
                 if (x !== 0 && y !== 0 && x % y === z) data.push([x, y, z, x * y * z]);
                 // if (x !== 0 && y !== 0 && x % y === z) data.push([x, y, z, x + y + z]);
 
@@ -114,7 +114,7 @@
                 rotation={t => [0, t / 8, 0]}
               >
                 <array length={data.length} channels={4} data={data} />
-                <swizzle order={'yxzw'} />
+                <swizzle order={'yxyx'} />
 
                 <point size={30} shape={'square'} color={[64 / 255, 128 / 255, 192 / 255]} blending={'add'}/>
               </spherical>
