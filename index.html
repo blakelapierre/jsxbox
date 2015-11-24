@@ -170,7 +170,7 @@
     <div class="box">
       <mathbox tabindex="2">
         <script type="mathbox/jsx">
-          const position = [128 * 4, 128 * 2, -128 * 2, 0],
+          const position = [128 * 16, 128 * 8, -128 * 8, 0],
                 velocity = [0, 0, 0, 0];
 
           function cameraPosition(t, dt) {
@@ -196,13 +196,13 @@
 
           const data = [],
                 x_min = 1, x_max = 256,
-                y_min = 128, y_max = 192,
+                y_min = 128, y_max = 256,
                 z_min = 0, z_max = 64;
 
           for (let x = x_min; x < x_max; x++)
             for (let y = y_min; y < y_max; y++)
               for (let z = z_min; z < z_max; z++)
-                if (x !== 0 && y !== 0 && x % y === z) data.push([x, y, z, x * y * z]);
+                if (x !== 0 && y !== 0 && x % y === z) data.push([x, Math.sqrt(y), Math.sqrt(z), x * y * z]);
 
           console.log(data.length, 'divisors!');
 
@@ -226,7 +226,7 @@
                 ]}
               >
                 <array length={data.length} channels={4} data={data} />
-                <swizzle order={'yzxw'} />
+                <swizzle order={'yxzw'} />
                 <point size={10} shape={'square'} color={[64 / 255, 128 / 255, 192 / 255]} blending={'add'}/>
               </spherical>
               <play target="spherical" script={sphericalScript} />
