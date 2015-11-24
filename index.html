@@ -103,18 +103,18 @@
           <root>
               <camera
                 lookAt={[0, 0, 0]}
-                position={t => [0, 512 + 2 * (t * t), -1024 - (t * t), 0]}
-                fov={t => Math.max(90, 60 + t / Math.sqrt(t))}
+                position={t => [0, 512, -1024, 0]}
               />
               <spherical
                 range={[[x_min, x_max], [y_min, y_max], [z_min, Math.sqrt(z_max)], [x_min * y_min * z_min, x_max * y_max * z_max]]}
-                scale={t => [16/9 * t, 1 / 2 * t, 100 * t, 1/10 * t]}
+                scale={t => [16/9, 1 / 2, 1, 1/10]}
                 position={[0, 0, 0]}
-                bend={t => t}
-                rotation={t => [0, t / 2, 0]}
+                bend={t => 100 / (1 + Math.pow(e, -t + 20))}
+                rotation={t => [0, 0, 0]}
               >
                 <array length={data.length} channels={4} data={data} />
-                <swizzle order={'xyzw'} />
+                <swizzle order={'yxwz'} />
+
                 <point size={30} shape={'square'} color={[64 / 255, 128 / 255, 192 / 255]} blending={'add'}/>
               </spherical>
               <play target="spherical" script={sphericalScript} />
