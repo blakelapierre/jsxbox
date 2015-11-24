@@ -170,7 +170,7 @@
     <div class="box">
       <mathbox tabindex="2">
         <script type="mathbox/jsx">
-          const position = [0, 1, 128 * 1.5, 0],
+          const position = [0, 1, -32, 0],
                 velocity = [0, 0, 0, 0];
 
           function cameraPosition(t, dt) {
@@ -202,46 +202,27 @@
           for (let x = x_min; x < x_max; x++)
             for (let y = y_min; y < y_max; y++)
               for (let z = z_min; z < z_max; z++)
-                if (x !== 0 && y !== 0 && x % y === z) data.push([x, y, Math.log(z)]);
+                if (x !== 0 && y !== 0 && x % y === z) data.push([x, y, z, x + y + z]);
 
           console.log(data.length, 'divisors!');
 
           const sphericalScript = [];
 
-          for (let i = 0; i < x_max; i++) sphericalScript.push([{range: [[x_min, x_min + i], [y_min, y_min + i], [z_min, Math.log(z_min + i)], [-1, 1]]}]);
+          for (let i = 0; i < x_max; i++) sphericalScript.push([{range: [[x_min, x_min + i], [y_min, y_min + i], [z_min, Math.sqrt(z_min + i)], [-1, 1]]}]);
 
 
           <root>
               <camera
                 lookAt={[0, 0, 0]}
                 position={cameraPosition}
-                rotation={t => [0, 0, t]}
               />
-              <spherical range={[[x_min, x_max], [y_min, y_max], [z_min, Math.log(z_max)], [-1, 1]]} scale={[16/9, 1, 1, 1]}
+              <spherical range={[[x_min, x_max], [y_min, y_max], [z_min, Math.sqrt(z_max)], [x_min * y_min * z_min, x_max * y_max * z_max]]} scale={[16/9, 1, 1, 1]}
                 position={[0, 0, 0]}
-                rotation={t => [0, t / 2, 0]}
+                quaternion={t => [Math.cos(t), Math.cos(t / Math.PI), Math.sin(t / Math.PI), Math.cos(t)]}
               >
-                <play ease={'linear'} loop={true} pace={4} speed={1} script={sphericalScript} />
-                <array length={data.length} channels={3} data={data} />
-                <swizzle order={'zyxw'} />
-                <point size={1} color={[64 / 255, 128 / 255, 192 / 255]} blending={'add'}/>
-              </spherical>
-
-              <spherical range={[[x_min, x_max], [y_min, y_max], [Math.log(z_min), Math.log(z_max)], [-1, 1]]} scale={[16/9, 1, 1, 1]}
-                position={[0, 0, 0]}
-                rotation={t => [0, -t * 2 + t / 2, t / 32]}>
-                <play ease={'linear'} loop={true} pace={4} speed={1} script={sphericalScript} />
-                <array length={data.length} channels={3} data={data} />
-                <swizzle order={'zyxw'} />
-                <point size={1} color={[64 / 255, 128 / 255, 192 / 255]} blending={'add'}/>
-              </spherical>
-
-              <spherical range={[[x_min, x_max], [y_min, y_max], [z_min, Math.log(z_max)], [-1, 1]]} scale={[16/9, 1, 1, 1]}
-                position={[0, 0, 0]}
-                rotation={t => [-t / 4, 0, t]}>
-                <play ease={'linear'} loop={true} pace={4} speed={1} script={sphericalScript} />
-                <array length={data.length} channels={3} data={data} />
-                <swizzle order={'zyxw'} />
+                <play ease={'linear'} loop={true} pace={1} speed={1} script={sphericalScript} />
+                <array length={data.length} channels={4} data={data} />
+                <swizzle order={'wyxz'} />
                 <point size={1} color={[64 / 255, 128 / 255, 192 / 255]} blending={'add'}/>
               </spherical>
           </root>
