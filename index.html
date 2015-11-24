@@ -110,11 +110,11 @@
                 range={[[x_min, x_max], [y_min, y_max], [z_min, Math.sqrt(z_max)], [x_min * y_min * z_min, x_max * y_max * z_max]]}
                 scale={t => [16/9, 1 / 2, 1, 1/10]}
                 position={[0, 0, 0]}
-                bend={t => t / (t + Math.pow(e, -t + 10))}
+                bend={t => 1 / t}
                 rotation={t => [0, 0, 0]}
               >
                 <array length={data.length} channels={4} data={data} />
-                <swizzle order={'zwxy'} />
+                <swizzle order={'wyxz'} />
 
                 <point size={30} shape={'square'} color={[64 / 255, 128 / 255, 192 / 255]} blending={'add'}/>
               </spherical>
