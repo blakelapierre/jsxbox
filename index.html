@@ -104,7 +104,7 @@
           <root>
               <camera
                 lookAt={[0, 0, 0]}
-                position={t => [0, 256, -512, 0]}
+                position={t => [0, 256, -512 * 8, 0]}
               />
               <spherical
                 range={[[x_min, x_max], [y_min, y_max], [z_min, Math.sqrt(z_max)], [x_min * y_min * z_min, x_max * y_max * z_max]]}
