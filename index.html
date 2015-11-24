@@ -195,9 +195,9 @@
           }
 
           const data = [],
-                x_min = 1, x_max = 128,
-                y_min = 1, y_max = 128,
-                z_min = 0, z_max = 128;
+                x_min = 1, x_max = 256,
+                y_min = 128, y_max = 192,
+                z_min = 0, z_max = 64;
 
           for (let x = x_min; x < x_max; x++)
             for (let y = y_min; y < y_max; y++)
@@ -220,13 +220,13 @@
               />
               <spherical range={[[x_min, x_max], [y_min, y_max], [z_min, Math.sqrt(z_max)], [x_min * y_min * z_min, x_max * y_max * z_max]]} scale={[16/9, 1 / 2, 100, 1/10]}
                 position={[0, 0, 0]}
-                bend={t => Math.pow(Math.E, t * Math.sin(t) * Math.sin(t)) / Math.PI / 100}
+                bend={t => Math.pow(Math.E, Math.sqrt(t) * Math.sin(t) * Math.sin(t)) / Math.PI / 100}
                 quaternion={t => [
                   0, 1, Math.cos(t), 0
                 ]}
               >
                 <array length={data.length} channels={4} data={data} />
-                <swizzle order={'yxzw'} />
+                <swizzle order={'yzxw'} />
                 <point size={10} shape={'square'} color={[64 / 255, 128 / 255, 192 / 255]} blending={'add'}/>
               </spherical>
               <play target="spherical" script={sphericalScript} />
