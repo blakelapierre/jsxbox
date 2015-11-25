@@ -100,7 +100,7 @@
                 position={cameraPosition} />
               <spherical range={[[x_min, x_max], [y_min, y_max], [z_min, z_max], [-1, 1]]} scale={[16/9, 1, 1, 1]}
                 position={[Math.sqrt(Math.PI), 0, 0]}
-                bend={t=> 1 / t}
+                bend={t=> 1 - (1 / t)}
                 rotation={t => [t / Math.PI, t / Math.PI, t / Math.PI]}>
 
                 <array length={data.length} channels={3} data={data} />
@@ -187,7 +187,7 @@
                 position={cameraPosition}/>
               <spherical range={[[x_min, x_max], [y_min, y_max], [z_min, z_max], [-1, 1]]} scale={[16/9, 1, 1, 1]}
                 position={[Math.sqrt(Math.PI), 0, 0]}
-                bend={t=> 1 / t}
+                bend={t=> 1 - (1 / t)}
                 rotation={t => [t / Math.PI, t / Math.PI, t / Math.PI]}>
 
                 <array length={data.length} channels={3} data={data} />
