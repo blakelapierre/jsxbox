@@ -57,7 +57,7 @@
     <div class="box">
       <mathbox tabindex="2">
         <script type="mathbox/jsx">
-          const position = [-5, 0, 5, 0],
+          const position = [0, 0, -5, 0],
                 velocity = [0, 0, 0, 0];
 
           function cameraPosition(t, dt) {
@@ -89,7 +89,7 @@
           for (let x = x_min; x < x_max; x++)
             for (let y = y_min; y < y_max; y++)
               for (let z = z_min; z < z_max; z++)
-                if (x !== 0 && y !== 0 && Math.random() < 0.001) data.push([x, y, z]);
+                if (x !== 0 && y !== 0 && Math.random() < 0.001) data.push([x, y, z+1]);
 
           console.log(data.length, 'divisors!');
 
@@ -101,7 +101,7 @@
                 fov={t => 60 * Math.sin(t)} />
               <spherical range={[[x_min, x_max], [y_min, y_max], [z_min, z_max], [-1, 1]]} scale={[16/9, 1, 1, 1]}
                 position={[Math.sqrt(Math.PI), 0, 0]}
-                bend={0}
+                bend={1}
                 rotation={t => [t / Math.PI, t / Math.PI, t / Math.PI]}>
 
                 <array length={data.length} channels={3} data={data} />
@@ -145,7 +145,7 @@
     <div class="box">
       <mathbox tabindex="2">
         <script type="mathbox/jsx">
-          const position = [-5, 0, 5, 0],
+          const position = [0, 0, -5, 0],
                 velocity = [0, 0, 0, 0];
 
           function cameraPosition(t, dt) {
@@ -177,7 +177,7 @@
           for (let x = x_min; x < x_max; x++)
             for (let y = y_min; y < y_max; y++)
               for (let z = z_min; z < z_max; z++)
-                if (x !== 0 && y !== 0 && x % y === z) data.push([x, y, z]);
+                if (x !== 0 && y !== 0 && x % y === z) data.push([x, y, 1]);
 
           console.log(data.length, 'divisors!');
 
@@ -189,7 +189,6 @@
                 fov={t => 60 * Math.sin(t)} />
               <spherical range={[[x_min, x_max], [y_min, y_max], [z_min, z_max], [-1, 1]]} scale={[16/9, 1, 1, 1]}
                 position={[Math.sqrt(Math.PI), 0, 0]}
-                bend={0}
                 rotation={t => [t / Math.PI, t / Math.PI, t / Math.PI]}>
 
                 <array length={data.length} channels={3} data={data} />
