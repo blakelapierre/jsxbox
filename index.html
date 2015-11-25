@@ -57,7 +57,7 @@
     <div class="box">
       <mathbox tabindex="2">
         <script type="mathbox/jsx">
-          const position = [0, 0, -5, 0],
+          const position = [0, 5, -5, 0],
                 velocity = [0, 0, 0, 0];
 
           function cameraPosition(t, dt) {
@@ -97,11 +97,10 @@
           <root>
               <camera
                 lookAt={[Math.sqrt(Math.PI), 0, 0]}
-                position={cameraPosition}
-                fov={t => 60 * Math.sin(t)} />
+                position={cameraPosition} />
               <spherical range={[[x_min, x_max], [y_min, y_max], [z_min, z_max], [-1, 1]]} scale={[16/9, 1, 1, 1]}
                 position={[Math.sqrt(Math.PI), 0, 0]}
-                bend={1}
+                bend={t=> 1 / t}
                 rotation={t => [t / Math.PI, t / Math.PI, t / Math.PI]}>
 
                 <array length={data.length} channels={3} data={data} />
@@ -145,7 +144,7 @@
     <div class="box">
       <mathbox tabindex="2">
         <script type="mathbox/jsx">
-          const position = [0, 0, -5, 0],
+          const position = [0, 5, -5, 0],
                 velocity = [0, 0, 0, 0];
 
           function cameraPosition(t, dt) {
@@ -185,10 +184,10 @@
           <root>
               <camera
                 lookAt={[Math.sqrt(Math.PI), 0, 0]}
-                position={cameraPosition}
-                fov={t => 60 * Math.sin(t)} />
+                position={cameraPosition}/>
               <spherical range={[[x_min, x_max], [y_min, y_max], [z_min, z_max], [-1, 1]]} scale={[16/9, 1, 1, 1]}
                 position={[Math.sqrt(Math.PI), 0, 0]}
+                bend={t=> 1 / t}
                 rotation={t => [t / Math.PI, t / Math.PI, t / Math.PI]}>
 
                 <array length={data.length} channels={3} data={data} />
