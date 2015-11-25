@@ -101,11 +101,12 @@
                 fov={t => 60 * Math.sin(t)} />
               <spherical range={[[x_min, x_max], [y_min, y_max], [z_min, z_max], [-1, 1]]} scale={[16/9, 1, 1, 1]}
                 position={[Math.sqrt(Math.PI), 0, 0]}
+                bend={0}
                 rotation={t => [t / Math.PI, t / Math.PI, t / Math.PI]}>
 
                 <array length={data.length} channels={3} data={data} />
                 <swizzle order={'zxyw'} />
-                <point size={10} color={[64 / 255, 128 / 255, 192 / 255]} blending={'add'}/>
+                <point size={1} color={[255 / 255, 96 / 255, 96 / 255]} blending={'add'}/>
               </spherical>
           </root>
 
@@ -188,6 +189,7 @@
                 fov={t => 60 * Math.sin(t)} />
               <spherical range={[[x_min, x_max], [y_min, y_max], [z_min, z_max], [-1, 1]]} scale={[16/9, 1, 1, 1]}
                 position={[Math.sqrt(Math.PI), 0, 0]}
+                bend={0}
                 rotation={t => [t / Math.PI, t / Math.PI, t / Math.PI]}>
 
                 <array length={data.length} channels={3} data={data} />
