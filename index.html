@@ -173,15 +173,15 @@
           }
 
           const data = [],
-                x_min = 1, x_max = 1536,
-                y_min = 1, y_max = 1536,
-                z_min = 2, z_max = 3;
+                x_min = 1, x_max = 512,
+                y_min = 1, y_max = 512,
+                z_min = 0, z_max = 3;
 
           for (let x = x_min; x < x_max; x++)
             for (let y = y_min; y < y_max; y++)
               for (let z = z_min; z < z_max; z++) {
-                if (x !== 0 && y !== 0 && x - y === z) data.push([x, y, z]);
-                if (x !== 0 && y !== 0 && x % y === z) data.push([x, y, z]);
+                if (x !== 0 && y !== 0 && x - y === z) data.push([x, y, 2]);
+                if (x !== 0 && y !== 0 && x % y === z) data.push([x, y, 2]);
               }
 
           console.log(data.length, 'divisors!');
