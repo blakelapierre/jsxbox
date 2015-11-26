@@ -57,7 +57,7 @@
     <div class="box">
       <mathbox tabindex="2">
         <script type="mathbox/jsx">
-          const position = [0, 5, -5, 0],
+          const position = [0, 0, -5, 0],
                 velocity = [0, 0, 0, 0];
 
           function cameraPosition(t, dt) {
@@ -105,7 +105,10 @@
 
                 <array length={data.length} channels={3} data={data} />
                 <swizzle order={'xyzw'} />
-                <point size={1} color={[255 / 255, 96 / 255, 96 / 255]} blending={'add'}/>
+                <point
+                  size={1}
+                  color={t => [((t) % 255) / 255, ((t * 4) % 255) / 255, ((t * 8) % 255) / 255]}
+                  blending={'add'}/>
               </spherical>
           </root>
 
@@ -144,7 +147,7 @@
     <div class="box">
       <mathbox tabindex="2">
         <script type="mathbox/jsx">
-          const position = [0, 5, -5, 0],
+          const position = [0, 0, -5, 0],
                 velocity = [0, 0, 0, 0];
 
           function cameraPosition(t, dt) {
@@ -176,7 +179,7 @@
           for (let x = x_min; x < x_max; x++)
             for (let y = y_min; y < y_max; y++)
               for (let z = z_min; z < z_max; z++)
-                if (x !== 0 && y !== 0 && x % y === z) data.push([x, y, 1]);
+                if (x !== 0 && y !== 0 && x - y === z) data.push([x, y, 1]);
 
           console.log(data.length, 'divisors!');
 
@@ -192,7 +195,10 @@
 
                 <array length={data.length} channels={3} data={data} />
                 <swizzle order={'xyzw'} />
-                <point size={1} color={[64 / 255, 128 / 255, 192 / 255]} blending={'add'}/>
+                <point
+                  size={1}
+                  color={t => [((t) % 255) / 255, ((t * 4) % 255) / 255, ((t * 8) % 255) / 255]}
+                  blending={'add'}/>
               </spherical>
           </root>
 
