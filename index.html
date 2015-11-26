@@ -1,0 +1,636 @@
+<html>
+  <head>
+    <title>mathbox/jsx</title>
+
+    <style>
+    body {
+      margin: 0;
+      padding: 0;
+
+      display: flex;
+      flex-wrap: wrap;
+
+      /*overflow: hidden;*/
+    }
+    </style>
+
+    <style>
+    .box {
+      position: relative;
+
+      display: flex;
+
+      flex: 1;
+    }
+
+    .box mathbox {
+      flex: 1;
+    }
+
+    .box .settings {
+      position: absolute;
+      top: 0;
+      right: 0;
+
+      color: #fff;
+
+      cursor: pointer;
+
+      user-select: none;
+    }
+    </style>
+
+    <style>
+      .box .panel {
+        display: none;
+        flex: 1;
+      }
+
+      .box.settings .panel {
+        display: block;
+      }
+    </style>
+  </head>
+  <body>
+    <script src="handler.js"></script>
+    <script src="mathbox-bundle.js"></script>
+
+    <table>
+      <tr>
+        <td>
+        <div class="box">
+          <mathbox tabindex="2">
+            <script type="mathbox/jsx">
+              const position = [0, 0, -5, 0],
+                    velocity = [0, 0, 0, 0];
+
+              function cameraPosition(t, dt) {
+                const [x, y, z, w] = position,
+                      [vx, vy, vz, vw] = velocity;
+
+                velocity[0] = vx - decay(vx, dt);
+                velocity[1] = vy - decay(vy, dt);
+                velocity[2] = vz - decay(vz, dt);
+                velocity[3] = vw - decay(vw, dt);
+
+                position[0] = x + vx * dt;
+                position[1] = y + vy * dt;
+                position[2] = z + vz * dt;
+                position[3] = w + vw * dt;
+
+                return position;
+              }
+
+              function decay(value, dt) {
+                return value * dt;
+              }
+
+              const data = [],
+                    x_min = 1, x_max = 1536,
+                    y_min = 1, y_max = 1536,
+                    z_min = 0, z_max = 1;
+
+              for (let x = x_min; x < x_max; x++)
+                for (let y = y_min; y < y_max; y++)
+                  for (let z = z_min; z < z_max; z++) {
+                    if (x !== 0 && y !== 0 && x % y === z) data.push([x, y, 1]);
+                  }
+
+              console.log(data.length, 'divisors!');
+
+
+              <root>
+                  <camera
+                    lookAt={[Math.sqrt(Math.PI), 0, 0]}
+                    position={cameraPosition}/>
+                  <spherical range={[[x_min, x_max], [y_min, y_max], [z_min, z_max], [-1, 1]]} scale={[16/9, 1, 1, 1]}
+                    position={[Math.sqrt(Math.PI), 0, 0]}
+                    bend={t=> (1 / (t))}
+                    rotation={t => [t / Math.PI, t / Math.PI / 3, t / Math.PI / 5]}>
+
+                    <array length={data.length} channels={3} data={data} />
+                    <swizzle order={'xyzw'} />
+                    <point
+                      size={1}
+                      color={[64 /255, 128 / 255, 196 /255]}
+                      blending={'add'}/>
+                  </spherical>
+              </root>
+
+              let modifier = identity,
+                  speed = 1;
+
+              module.exports = {
+                controls: [
+                  [ [16, 32],  'turbo' ],
+                  [ 65,  'left' ],
+                  [ 68,  'right' ],
+                  [ 81,  'up'],
+                  [ 83,  'backward' ],
+                  [ 87,  'forward' ],
+                  [ 90,  'down' ]
+                ],
+                commands: {
+                  'turbo': view => modifier = modifier === identity ? turbo : identity,
+                  'left': view => velocity[0] = modifier(-speed),
+                  'right': view => velocity[0] = modifier(speed),
+                  'up': view => velocity[1] = modifier(speed),
+                  'down': view => velocity[1] = modifier(-speed),
+                  'backward': view => velocity[2] = modifier(-speed),
+                  'forward': view => velocity[2] = modifier(speed)
+                }
+              };
+
+              function identity(value) { return value; }
+              function turbo(value) { return value * value * value / Math.abs(value); }
+            </script>
+          </mathbox>
+          <div class="panel"></div>
+          <div class="settings" onclick="expandPanel(event, this)">P</div>
+        </div>
+      </td>
+      <td>
+          <div class="box">
+            <mathbox tabindex="2">
+              <script type="mathbox/jsx">
+                const position = [0, 0, -5, 0],
+                      velocity = [0, 0, 0, 0];
+
+                function cameraPosition(t, dt) {
+                  const [x, y, z, w] = position,
+                        [vx, vy, vz, vw] = velocity;
+
+                  velocity[0] = vx - decay(vx, dt);
+                  velocity[1] = vy - decay(vy, dt);
+                  velocity[2] = vz - decay(vz, dt);
+                  velocity[3] = vw - decay(vw, dt);
+
+                  position[0] = x + vx * dt;
+                  position[1] = y + vy * dt;
+                  position[2] = z + vz * dt;
+                  position[3] = w + vw * dt;
+
+                  return position;
+                }
+
+                function decay(value, dt) {
+                  return value * dt;
+                }
+
+                const data = [],
+                      x_min = 1, x_max = 1536,
+                      y_min = 1, y_max = 1536,
+                      z_min = 0, z_max = 1;
+
+                for (let x = x_min; x < x_max; x++)
+                  for (let y = y_min; y < y_max; y++)
+                    for (let z = z_min; z < z_max; z++) {
+                      if (x !== 0 && y !== 0 && x % y === z) data.push([x, y, 1]);
+                    }
+
+                console.log(data.length, 'divisors!');
+
+
+                <root>
+                    <camera
+                      lookAt={[Math.sqrt(Math.PI), 0, 0]}
+                      position={cameraPosition}/>
+                    <spherical range={[[x_min, x_max], [y_min, y_max], [z_min, z_max], [-1, 1]]} scale={[16/9, 1, 1, 1]}
+                      position={[Math.sqrt(Math.PI), 0, 0]}
+                      bend={t=> (1 / (t))}
+                      rotation={t => [t / Math.PI, t / Math.PI / 3, t / Math.PI / 5]}>
+
+                      <array length={data.length} channels={3} data={data} />
+                      <swizzle order={'yxzw'} />
+                      <point
+                        size={1}
+                        color={[64 /255, 128 / 255, 196 /255]}
+                        blending={'add'}/>
+                    </spherical>
+                </root>
+
+                let modifier = identity,
+                    speed = 1;
+
+                module.exports = {
+                  controls: [
+                    [ [16, 32],  'turbo' ],
+                    [ 65,  'left' ],
+                    [ 68,  'right' ],
+                    [ 81,  'up'],
+                    [ 83,  'backward' ],
+                    [ 87,  'forward' ],
+                    [ 90,  'down' ]
+                  ],
+                  commands: {
+                    'turbo': view => modifier = modifier === identity ? turbo : identity,
+                    'left': view => velocity[0] = modifier(-speed),
+                    'right': view => velocity[0] = modifier(speed),
+                    'up': view => velocity[1] = modifier(speed),
+                    'down': view => velocity[1] = modifier(-speed),
+                    'backward': view => velocity[2] = modifier(-speed),
+                    'forward': view => velocity[2] = modifier(speed)
+                  }
+                };
+
+                function identity(value) { return value; }
+                function turbo(value) { return value * value * value / Math.abs(value); }
+              </script>
+            </mathbox>
+            <div class="panel"></div>
+            <div class="settings" onclick="expandPanel(event, this)">P</div>
+          </div>
+        </td>
+      </tr>
+
+      <tr>
+        <td>
+          <div class="box">
+            <mathbox tabindex="2">
+              <script type="mathbox/jsx">
+                const position = [0, 0, -5, 0],
+                      velocity = [0, 0, 0, 0];
+
+                function cameraPosition(t, dt) {
+                  const [x, y, z, w] = position,
+                        [vx, vy, vz, vw] = velocity;
+
+                  velocity[0] = vx - decay(vx, dt);
+                  velocity[1] = vy - decay(vy, dt);
+                  velocity[2] = vz - decay(vz, dt);
+                  velocity[3] = vw - decay(vw, dt);
+
+                  position[0] = x + vx * dt;
+                  position[1] = y + vy * dt;
+                  position[2] = z + vz * dt;
+                  position[3] = w + vw * dt;
+
+                  return position;
+                }
+
+                function decay(value, dt) {
+                  return value * dt;
+                }
+
+                const data = [],
+                      x_min = 1, x_max = 1536,
+                      y_min = 1, y_max = 1536,
+                      z_min = 0, z_max = 1;
+
+                for (let x = x_min; x < x_max; x++)
+                  for (let y = y_min; y < y_max; y++)
+                    for (let z = z_min; z < z_max; z++) {
+                      if (x !== 0 && y !== 0 && x - y === z) data.push([x, y, 1]);
+                    }
+
+                console.log(data.length, 'divisors!');
+
+
+                <root>
+                    <camera
+                      lookAt={[Math.sqrt(Math.PI), 0, 0]}
+                      position={cameraPosition}/>
+                    <spherical range={[[x_min, x_max], [y_min, y_max], [z_min, z_max], [-1, 1]]} scale={[16/9, 1, 1, 1]}
+                      position={[Math.sqrt(Math.PI), 0, 0]}
+                      bend={t=> (1 / (t))}
+                      rotation={t => [t / Math.PI, t / Math.PI / 3, t / Math.PI / 5]}>
+
+                      <array length={data.length} channels={3} data={data} />
+                      <swizzle order={'xyzw'} />
+                      <point
+                        size={1}
+                        color={[64 /255, 128 / 255, 196 /255]}
+                        blending={'add'}/>
+                    </spherical>
+                </root>
+
+                let modifier = identity,
+                    speed = 1;
+
+                module.exports = {
+                  controls: [
+                    [ [16, 32],  'turbo' ],
+                    [ 65,  'left' ],
+                    [ 68,  'right' ],
+                    [ 81,  'up'],
+                    [ 83,  'backward' ],
+                    [ 87,  'forward' ],
+                    [ 90,  'down' ]
+                  ],
+                  commands: {
+                    'turbo': view => modifier = modifier === identity ? turbo : identity,
+                    'left': view => velocity[0] = modifier(-speed),
+                    'right': view => velocity[0] = modifier(speed),
+                    'up': view => velocity[1] = modifier(speed),
+                    'down': view => velocity[1] = modifier(-speed),
+                    'backward': view => velocity[2] = modifier(-speed),
+                    'forward': view => velocity[2] = modifier(speed)
+                  }
+                };
+
+                function identity(value) { return value; }
+                function turbo(value) { return value * value * value / Math.abs(value); }
+              </script>
+            </mathbox>
+            <div class="panel"></div>
+            <div class="settings" onclick="expandPanel(event, this)">P</div>
+          </div>
+        </td>
+        <td>
+          <div class="box">
+            <mathbox tabindex="2">
+              <script type="mathbox/jsx">
+                const position = [0, 0, -5, 0],
+                      velocity = [0, 0, 0, 0];
+
+                function cameraPosition(t, dt) {
+                  const [x, y, z, w] = position,
+                        [vx, vy, vz, vw] = velocity;
+
+                  velocity[0] = vx - decay(vx, dt);
+                  velocity[1] = vy - decay(vy, dt);
+                  velocity[2] = vz - decay(vz, dt);
+                  velocity[3] = vw - decay(vw, dt);
+
+                  position[0] = x + vx * dt;
+                  position[1] = y + vy * dt;
+                  position[2] = z + vz * dt;
+                  position[3] = w + vw * dt;
+
+                  return position;
+                }
+
+                function decay(value, dt) {
+                  return value * dt;
+                }
+
+                const data = [],
+                      x_min = 1, x_max = 1536,
+                      y_min = 1, y_max = 1536,
+                      z_min = 0, z_max = 1;
+
+                for (let x = x_min; x < x_max; x++)
+                  for (let y = y_min; y < y_max; y++)
+                    for (let z = z_min; z < z_max; z++) {
+                      if (x !== 0 && y !== 0 && x - y === z) data.push([x, y, 1]);
+                    }
+
+                console.log(data.length, 'divisors!');
+
+
+                <root>
+                    <camera
+                      lookAt={[Math.sqrt(Math.PI), 0, 0]}
+                      position={cameraPosition}/>
+                    <spherical range={[[x_min, x_max], [y_min, y_max], [z_min, z_max], [-1, 1]]} scale={[16/9, 1, 1, 1]}
+                      position={[Math.sqrt(Math.PI), 0, 0]}
+                      bend={t=> (1 / (t))}
+                      rotation={t => [t / Math.PI, t / Math.PI / 3, t / Math.PI / 5]}>
+
+                      <array length={data.length} channels={3} data={data} />
+                      <swizzle order={'yxzw'} />
+                      <point
+                        size={1}
+                        color={[64 /255, 128 / 255, 196 /255]}
+                        blending={'add'}/>
+                    </spherical>
+                </root>
+
+                let modifier = identity,
+                    speed = 1;
+
+                module.exports = {
+                  controls: [
+                    [ [16, 32],  'turbo' ],
+                    [ 65,  'left' ],
+                    [ 68,  'right' ],
+                    [ 81,  'up'],
+                    [ 83,  'backward' ],
+                    [ 87,  'forward' ],
+                    [ 90,  'down' ]
+                  ],
+                  commands: {
+                    'turbo': view => modifier = modifier === identity ? turbo : identity,
+                    'left': view => velocity[0] = modifier(-speed),
+                    'right': view => velocity[0] = modifier(speed),
+                    'up': view => velocity[1] = modifier(speed),
+                    'down': view => velocity[1] = modifier(-speed),
+                    'backward': view => velocity[2] = modifier(-speed),
+                    'forward': view => velocity[2] = modifier(speed)
+                  }
+                };
+
+                function identity(value) { return value; }
+                function turbo(value) { return value * value * value / Math.abs(value); }
+              </script>
+            </mathbox>
+            <div class="panel"></div>
+            <div class="settings" onclick="expandPanel(event, this)">P</div>
+          </div>
+        </td>
+      </tr>
+
+      <tr>
+        <td>
+          <div class="box">
+            <mathbox tabindex="2">
+              <script type="mathbox/jsx">
+                const position = [0, 0, -5, 0],
+                      velocity = [0, 0, 0, 0];
+
+                function cameraPosition(t, dt) {
+                  const [x, y, z, w] = position,
+                        [vx, vy, vz, vw] = velocity;
+
+                  velocity[0] = vx - decay(vx, dt);
+                  velocity[1] = vy - decay(vy, dt);
+                  velocity[2] = vz - decay(vz, dt);
+                  velocity[3] = vw - decay(vw, dt);
+
+                  position[0] = x + vx * dt;
+                  position[1] = y + vy * dt;
+                  position[2] = z + vz * dt;
+                  position[3] = w + vw * dt;
+
+                  return position;
+                }
+
+                function decay(value, dt) {
+                  return value * dt;
+                }
+
+                const data = [],
+                      x_min = 1, x_max = 1536,
+                      y_min = 1, y_max = 1536,
+                      z_min = 0, z_max = 1;
+
+                for (let x = x_min; x < x_max; x++)
+                  for (let y = y_min; y < y_max; y++)
+                    for (let z = z_min; z < z_max; z++) {
+                      if (x !== 0 && y !== 0 && x - y === z) data.push([x, y, 1]);
+                      if (x !== 0 && y !== 0 && x % y === z) data.push([x, y, 1]);
+                    }
+
+                console.log(data.length, 'divisors!');
+
+
+                <root>
+                    <camera
+                      lookAt={[Math.sqrt(Math.PI), 0, 0]}
+                      position={cameraPosition}/>
+                    <spherical range={[[x_min, x_max], [y_min, y_max], [z_min, z_max], [-1, 1]]} scale={[16/9, 1, 1, 1]}
+                      position={[Math.sqrt(Math.PI), 0, 0]}
+                      bend={t=> (1 / (t))}
+                      rotation={t => [t / Math.PI, t / Math.PI / 3, t / Math.PI / 5]}>
+
+                      <array length={data.length} channels={3} data={data} />
+                      <swizzle order={'xyzw'} />
+                      <point
+                        size={1}
+                        color={[64 /255, 128 / 255, 196 /255]}
+                        blending={'add'}/>
+                    </spherical>
+                </root>
+
+                let modifier = identity,
+                    speed = 1;
+
+                module.exports = {
+                  controls: [
+                    [ [16, 32],  'turbo' ],
+                    [ 65,  'left' ],
+                    [ 68,  'right' ],
+                    [ 81,  'up'],
+                    [ 83,  'backward' ],
+                    [ 87,  'forward' ],
+                    [ 90,  'down' ]
+                  ],
+                  commands: {
+                    'turbo': view => modifier = modifier === identity ? turbo : identity,
+                    'left': view => velocity[0] = modifier(-speed),
+                    'right': view => velocity[0] = modifier(speed),
+                    'up': view => velocity[1] = modifier(speed),
+                    'down': view => velocity[1] = modifier(-speed),
+                    'backward': view => velocity[2] = modifier(-speed),
+                    'forward': view => velocity[2] = modifier(speed)
+                  }
+                };
+
+                function identity(value) { return value; }
+                function turbo(value) { return value * value * value / Math.abs(value); }
+              </script>
+            </mathbox>
+            <div class="panel"></div>
+            <div class="settings" onclick="expandPanel(event, this)">P</div>
+          </div>
+        </td>
+        <td>
+          <div class="box">
+            <mathbox tabindex="2">
+              <script type="mathbox/jsx">
+                const position = [0, 0, -5, 0],
+                      velocity = [0, 0, 0, 0];
+
+                function cameraPosition(t, dt) {
+                  const [x, y, z, w] = position,
+                        [vx, vy, vz, vw] = velocity;
+
+                  velocity[0] = vx - decay(vx, dt);
+                  velocity[1] = vy - decay(vy, dt);
+                  velocity[2] = vz - decay(vz, dt);
+                  velocity[3] = vw - decay(vw, dt);
+
+                  position[0] = x + vx * dt;
+                  position[1] = y + vy * dt;
+                  position[2] = z + vz * dt;
+                  position[3] = w + vw * dt;
+
+                  return position;
+                }
+
+                function decay(value, dt) {
+                  return value * dt;
+                }
+
+                const data = [],
+                      x_min = 1, x_max = 1536,
+                      y_min = 1, y_max = 1536,
+                      z_min = 0, z_max = 1;
+
+                for (let x = x_min; x < x_max; x++)
+                  for (let y = y_min; y < y_max; y++)
+                    for (let z = z_min; z < z_max; z++) {
+                      if (x !== 0 && y !== 0 && x - y === z) data.push([x, y, 1]);
+                      if (x !== 0 && y !== 0 && x % y === z) data.push([x, y, 1]);
+                    }
+
+                console.log(data.length, 'divisors!');
+
+
+                <root>
+                    <camera
+                      lookAt={[Math.sqrt(Math.PI), 0, 0]}
+                      position={cameraPosition}/>
+                    <spherical range={[[x_min, x_max], [y_min, y_max], [z_min, z_max], [-1, 1]]} scale={[16/9, 1, 1, 1]}
+                      position={[Math.sqrt(Math.PI), 0, 0]}
+                      bend={t=> (1 / (t))}
+                      rotation={t => [t / Math.PI, t / Math.PI / 3, t / Math.PI / 5]}>
+
+                      <array length={data.length} channels={3} data={data} />
+                      <swizzle order={'yxzw'} />
+                      <point
+                        size={1}
+                        color={[64 /255, 128 / 255, 196 /255]}
+                        blending={'add'}/>
+                    </spherical>
+                </root>
+
+                let modifier = identity,
+                    speed = 1;
+
+                module.exports = {
+                  controls: [
+                    [ [16, 32],  'turbo' ],
+                    [ 65,  'left' ],
+                    [ 68,  'right' ],
+                    [ 81,  'up'],
+                    [ 83,  'backward' ],
+                    [ 87,  'forward' ],
+                    [ 90,  'down' ]
+                  ],
+                  commands: {
+                    'turbo': view => modifier = modifier === identity ? turbo : identity,
+                    'left': view => velocity[0] = modifier(-speed),
+                    'right': view => velocity[0] = modifier(speed),
+                    'up': view => velocity[1] = modifier(speed),
+                    'down': view => velocity[1] = modifier(-speed),
+                    'backward': view => velocity[2] = modifier(-speed),
+                    'forward': view => velocity[2] = modifier(speed)
+                  }
+                };
+
+                function identity(value) { return value; }
+                function turbo(value) { return value * value * value / Math.abs(value); }
+              </script>
+            </mathbox>
+            <div class="panel"></div>
+            <div class="settings" onclick="expandPanel(event, this)">P</div>
+          </div>
+        </td>
+      </tr>
+    </table>
+
+    <script>
+      function expandPanel(event, settings) {
+        var box = settings.parentElement,
+            panel = box.getElementsByClassName('panel')[0],
+            canvas = box.getElementsByTagName('canvas')[0];
+
+        if (box.classList.contains('settings')) box.classList.remove('settings');
+        else box.classList.add('settings');
+
+        canvas.style.width = '100%';
+      }
+    </script>
+  </body>
+</html>
