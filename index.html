@@ -13,25 +13,43 @@
 
       <root focus={3}>
         <camera proxy={true} position={[0, 0, 3]} />
-        <cartesian range={[[1, fftSize], [-128, 1]]} scale={[2 * 16 / 9, 1]}>
+
+        <cartesian
+          position={[0, -1, 0]}
+          range={[[-fftSize / 2, fftSize / 2], [-128, 1]]}
+          scale={[2 * 16 / 9, 1]}>
           <axis axis={1} width={3} color="black" />
           <axis axis={2} width={3} color="black" />
           <grid width={2} divideX={20} divideY={10} />
 
           <array id="audioTime" data={[]} length={fftSize} channels={1} />
           <swizzle order="yx" />
-          <spread width={[fftSize, 0, 0, 0]} />
-          <point size={8} color="#FF0000" />
-
-          <array id="intTime" data={[]} length={fftSize} channels={1} />
-          <swizzle order="yx" />
-          <spread width={[fftSize, 0, 0, 0]} />
+          <spread width={[fftSize, 0, 0, 0]} height={[128, 0, 0, 0]} />
           <point size={8} color="#FF0000" />
 
           <array id="audioFreq" data={[]} length={fftSize / 2} channels={1} />
           <swizzle order={"yx"} />
           <spread width={[fftSize, 0, 0, 0]} />
           <point size={8} color="#0000DD" blending={'add'} opacity={0.5} />
+
+          <scale divide={10} />
+          <ticks width={5} size={15} color="black" />
+          <format digits={2} weight="bold" />
+          <label color="red" zIndex={1} size={10} />
+        </cartesian>
+
+        <polar
+          position={[0, 1, 0]}
+          range={[[-fftSize / 2, fftSize / 2], [0, 256]]}
+          scale={[2 * 16 / 9, 1]}>
+          <axis axis={1} width={3} color="#ffffff" />
+          <axis axis={2} width={3} color="#ffffff" />
+          <grid width={1} divideX={2 * Math.PI} divideY={5} />
+
+          <array id="intTime" data={[]} length={fftSize} channels={1} />
+          <swizzle order="yx" />
+          <spread width={[fftSize, 0, 0, 0]} />
+          <point size={8} color="#FF0000" />
 
           <array id="intFreq" data={[]} length={fftSize / 2} channels={1} />
           <swizzle order={"yx"} />
@@ -41,8 +59,8 @@
           <scale divide={10} />
           <ticks width={5} size={15} color="black" />
           <format digits={2} weight="bold" />
-          <label color="red" zIndex={1} />
-        </cartesian>
+          <label color="red" zIndex={1} size={10} />
+        </polar>
       </root>
 
       const context = new (window.AudioContext || window.webkitAudioContext)();
