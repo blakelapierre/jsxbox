@@ -7,6 +7,15 @@ var transformReactJsx = require('babel-plugin-transform-react-jsx');
 scriptHandler('mathbox/jsx', function(text, script) {
   var transformed = babel.transform(text, {presets: [es2015], plugins: [transformReactJsx]});
 
+  var mathbox = mathBox({
+        element: script.parentNode,
+        plugins: ['core', 'controls', 'cursor', 'stats'],
+        controls: {
+          klass: THREE.OrbitControls
+        },
+      }),
+      three = mathbox.three;
+
   var root,
       React = {
         createElement: function(name, props) {
@@ -25,13 +34,7 @@ scriptHandler('mathbox/jsx', function(text, script) {
   console.log(result);
 
 
-  var view = build(mathBox({
-    element: script.parentNode,
-    plugins: ['core', 'controls', 'cursor', 'stats'],
-    controls: {
-      klass: THREE.OrbitControls
-    },
-  }), root);
+  var view = build(mathbox, root);
 
   (result.onMathBoxViewBuilt || set)(view, controls, commands);
 
