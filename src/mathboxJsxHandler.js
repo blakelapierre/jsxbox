@@ -18,7 +18,7 @@ scriptHandler('mathbox/jsx', function(text, script) {
         }
       };
 
-  var result = eval(transformed.code),
+  var result = eval(transformed.code) || {},
       controls = result.controls,
       commands = result.commands;
 
