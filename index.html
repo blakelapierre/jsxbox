@@ -7,27 +7,105 @@
     <script src="mathbox-bundle.js"></script>
 
     <script type="mathbox/jsx">
+      const fftSize = 2048;
+
+      let analyze = () => {};
+
       <root focus={3}>
         <camera proxy={true} position={[0, 0, 3]} />
-        <cartesian range={[[-2, 2], [-1, 1]]} scale={[2, 1]}>
+        <cartesian range={[[1, fftSize], [-128, 1]]} scale={[2 * 16 / 9, 1]}>
           <axis axis={1} width={3} color="black" />
           <axis axis={2} width={3} color="black" />
           <grid width={2} divideX={20} divideY={10} />
-          <interval expr={(emit, x, i, t) => emit(x, Math.sin(x + t))} length={64} channels={2} />
-          <line width={5} color="#3090FF" />
-          <point size={8} color="#3090FF" />
-          <interval expr={(emit, x, i, t) => {
-                emit(x, 0);
-                emit(x, -Math.sin(x + t));
-              }} length={64} channels={2} items={2} />
-          <vector end={true} width={5} color="#50A000" />
+
+          <array id="audioTime" data={[]} length={fftSize} channels={1} />
+          <swizzle order="yx" />
+          <spread width={[fftSize, 0, 0, 0]} />
+          <point size={8} color="#FF0000" />
+
+          <array id="intTime" data={[]} length={fftSize} channels={1} />
+          <swizzle order="yx" />
+          <spread width={[fftSize, 0, 0, 0]} />
+          <point size={8} color="#FF0000" />
+
+          <array id="audioFreq" data={[]} length={fftSize / 2} channels={1} />
+          <swizzle order={"yx"} />
+          <spread width={[fftSize, 0, 0, 0]} />
+          <point size={8} color="#0000DD" blending={'add'} opacity={0.5} />
+
+          <array id="intFreq" data={[]} length={fftSize / 2} channels={1} />
+          <swizzle order={"yx"} />
+          <spread width={[fftSize, 0, 0, 0]} />
+          <point size={8} color="#0000DD" blending={'add'} opacity={0.5} />
+
           <scale divide={10} />
           <ticks width={5} size={15} color="black" />
           <format digits={2} weight="bold" />
           <label color="red" zIndex={1} />
         </cartesian>
-        <play target="cartesian" to={2} loop={true} pace={5} script={[{props: {range: [[-2, 2], [-1, 1]]}}, {props: {range: [[-4, 4], [-2, 2]]}}, {props: {range: [[-2, 2], [-1, 1]]}}]} />
       </root>
+
+      const context = new (window.AudioContext || window.webkitAudioContext)();
+
+      navigator.getUserMedia = navigator.getUserMedia
+                            || navigator.webkitGetUserMedia
+                            || navigator.mozGetUserMedia
+                            || navigator.msGetUserMedia;
+
+      navigator.getUserMedia({audio: true}, stream, error);
+
+      function stream(stream) {
+        const input = context.createMediaStreamSource(stream),
+              analyser = context.createAnalyser();
+
+        input.connect(analyser);
+
+        setAnalyser(analyser);
+      }
+
+      function error(error) {
+        console.log(error);
+      }
+
+      function setAnalyser(analyser) {
+        analyser.fftSize = fftSize;
+
+        const floatTime = new Float32Array(analyser.fftSize),
+              floatFreq = new Float32Array(analyser.frequencyBinCount),
+              intTime = new Uint8Array(analyser.fftSize),
+              intFreq = new Uint8Array(analyser.frequencyBinCount);
+
+        console.log(analyser.frequencyBinCount);
+
+        three.on('update', () => {
+          analyser.getFloatTimeDomainData(floatTime);
+          analyser.getFloatFrequencyData(floatFreq);
+
+          analyser.getByteTimeDomainData(intTime);
+          analyser.getByteFrequencyData(intFreq);
+
+          // console.log(floatFreq);
+
+          // console.log(floatTime);
+        });
+
+        mathbox.select('#audioTime').set('data', floatTime);
+        mathbox.select('#audioFreq').set('data', floatFreq);
+
+        mathbox.select('#intTime').set('data', intTime);
+        mathbox.select('#intFreq').set('data', intFreq);
+
+        analyze = (emit, x, i, t) => {
+          emit(x, Math.sin(x + t));
+
+          // console.log(x, i, t);
+        };
+      }
+
+      function analysis(emit, x, i, t) {
+        analyze(emit, x, i, t);
+      }
+
     </script>
   </body>
 </html>
