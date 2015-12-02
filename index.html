@@ -7,62 +7,53 @@
     <script src="mathbox-bundle.js"></script>
 
     <script type="mathbox/jsx">
-      const fftSize = 2048;
+      const fftSize = 256,
+            pointSize = 4;
 
       <root focus={3}>
-        <camera proxy={true} position={[0, 0, 3]} />
+        <camera proxy={true} position={[0, 0, 4]} />
 
         <polar
           position={[0, 1, 0]}
-          range={[[-fftSize / 2, fftSize / 2], [0, 256]]}
+          range={[[-fftSize / 2, fftSize / 2], [0, 255]]}
           scale={[2 * 16 / 9, 1]}>
-          <axis axis={1} width={3} color="#ffffff" />
-          <axis axis={2} width={3} color="#ffffff" />
-          <grid width={1} divideX={3} divideY={5} />
 
           <array id="intTime" data={[]} length={fftSize} channels={1} />
           <swizzle order="yx" />
           <spread width={[fftSize, 0, 0, 0]} />
-          <point size={8} color="#FF0000" />
+          <point size={pointSize} color="#FF0000" />
 
           <array id="intFreq" data={[]} length={fftSize / 2} channels={1} />
           <swizzle order={"yx"} />
           <spread width={[fftSize, 0, 0, 0]} />
-          <point size={8} color="#0000FF" blending={'add'} opacity={0.8} />
-
-          <scale divide={10} />
-          <ticks width={5} size={15} color="black" />
-          <format digits={2} weight="bold" />
-          <label color="red" zIndex={1} size={10} />
+          <point size={pointSize} color="#0000FF" blending={'add'} opacity={0.9} />
         </polar>
 
         <cartesian
-          position={[0, -1, 0]}
-          range={[[-fftSize / 2, fftSize / 2], [-196, 0]]}
-          scale={[2 * 16 / 9, 1]}>
-          <axis axis={1} width={3} color="black" />
-          <axis axis={2} width={3} color="black" />
-          <grid width={2} divideX={20} divideY={10} />
-
+          position={[0, 0, 0]}
+          range={[[-fftSize / 2, fftSize / 2], [-1, 1]]}
+          scale={[2 * 16 / 9, 1]}
+        >
           <array id="audioTime" data={[]} length={fftSize} channels={1} />
           <swizzle order="yx" />
           <spread width={[fftSize, 0, 0, 0]} />
           <point
-            size={1}
+            size={pointSize}
             color="#FF0000"
             blending={'add'}
             opacity={0.5}
           />
+        </cartesian>
 
+        <cartesian
+          position={[0, -1, 0]}
+          range={[[-fftSize / 2, fftSize / 2], [-196, 0]]}
+          scale={[2 * 16 / 9, 1]}
+        >
           <array id="audioFreq" data={[]} length={fftSize / 2} channels={1} />
           <swizzle order={"yx"} />
           <spread width={[fftSize, 0, 0, 0]} />
-          <point size={1} color="#0000FF" blending={'add'} opacity={0.8} />
-
-          <scale divide={10} />
-          <ticks width={5} size={15} color="black" />
-          <format digits={2} weight="bold" />
-          <label color="red" zIndex={1} size={10} />
+          <point size={pointSize} color="#0000FF" blending={'add'} opacity={0.8} />
         </cartesian>
       </root>
 
