@@ -10,8 +10,10 @@
       const fftSize = Math.pow(2, 10),
             pointSize = 4;
 
+      const speechCapacity = 5;
+
       <root focus={3}>
-        <camera proxy={true} position={[0, 0, 4]} />
+        <camera proxy={true} position={[0, 0, 10]} />
 
         <polar
           position={[0, 1, 0]}
@@ -76,11 +78,26 @@
           />
         </cartesian>
 
+
+
         <cartesian
           position={[0, -1, 0]}
           range={[[-fftSize / 2, fftSize / 2], [-196, 0]]}
           scale={[2 * 16 / 9, 1]}
         >
+          <interval length={speechCapacity} />
+          <text
+            width={speechCapacity}
+            expr={(emit, x) => emit(getSpeech(x))}
+          />
+          <swizzle order="yx" />
+
+          <label
+            size={12}
+            outline={0}
+            color="#FFFFFF"
+          />
+
           <array
             id="audioFreq"
             data={[]}
@@ -160,6 +177,8 @@
         }
       }
 
+      let speech = [],
+          nextIndex = 0;
       function recognizeSpeech() {
         const sr = new navigator.SpeechRecognition();
 
@@ -173,6 +192,12 @@
         sr.onresult = gotResult;
         sr.onerror = event => console.log('error', event);
         sr.onend = () => console.log('end') & sr.start();
+
+        sr.onspeechstart = event => console.log('speech start', event);
+        sr.onspeechend = event => console.log('speech end', event);
+
+        sr.onsoundstart = event => console.log('sound start', event);
+        sr.onsoundend = event => console.log('sound end', event);
 
         sr.start();
 
@@ -192,10 +217,17 @@
             function formatAlternative(alternative) {
               const {confidence, transcript} = alternative;
 
+              speech[nextIndex] = `${confidence} ${transcript}`;
+              nextIndex = (nextIndex + 1) % speechCapacity;
+
               return `${confidence} ${transcript}`;
             }
           }
         }
+      }
+
+      function getSpeech(x) {
+        return speech[x] || `speech ${x}`;
       }
 
     </script>
