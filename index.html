@@ -7,7 +7,7 @@
     <script src="mathbox-bundle.js"></script>
 
     <script type="mathbox/jsx">
-      const fftSize = 256,
+      const fftSize = Math.pow(2, 10),
             pointSize = 4;
 
       <root focus={3}>
@@ -16,17 +16,42 @@
         <polar
           position={[0, 1, 0]}
           range={[[-fftSize / 2, fftSize / 2], [0, 255]]}
-          scale={[2 * 16 / 9, 1]}>
+          scale={[2 * 16 / 9, 1]}
+        >
+          <array
+            id="intTime"data={[]}
+            length={fftSize}
+            channels={1}
+          />
+          <swizzle
+            order={"yx"}
+          />
+          <spread
+            width={[fftSize, 0, 0, 0]}
+          />
+          <point
+            size={pointSize}
+            color="#FF0000"
+          />
 
-          <array id="intTime" data={[]} length={fftSize} channels={1} />
-          <swizzle order="yx" />
-          <spread width={[fftSize, 0, 0, 0]} />
-          <point size={pointSize} color="#FF0000" />
-
-          <array id="intFreq" data={[]} length={fftSize / 2} channels={1} />
-          <swizzle order={"yx"} />
-          <spread width={[fftSize, 0, 0, 0]} />
-          <point size={pointSize} color="#0000FF" blending={'add'} opacity={0.9} />
+          <array
+            id="intFreq"
+            data={[]}
+            length={fftSize / 2}
+            channels={1}
+          />
+          <swizzle
+            order="yx"
+          />
+          <spread
+            width={[fftSize, 0, 0, 0]}
+          />
+          <point
+            size={pointSize}
+            color="#0000FF"
+            blending={'add'}
+            opacity={0.9}
+          />
         </polar>
 
         <cartesian
@@ -34,7 +59,13 @@
           range={[[-fftSize / 2, fftSize / 2], [-1, 1]]}
           scale={[2 * 16 / 9, 1]}
         >
-          <array id="audioTime" data={[]} length={fftSize} channels={1} />
+          <array
+            id="audioTime"
+            data={[]}
+            length={fftSize}
+            channels={1}
+            history={3}
+          />
           <swizzle order="yx" />
           <spread width={[fftSize, 0, 0, 0]} />
           <point
@@ -50,8 +81,17 @@
           range={[[-fftSize / 2, fftSize / 2], [-196, 0]]}
           scale={[2 * 16 / 9, 1]}
         >
-          <array id="audioFreq" data={[]} length={fftSize / 2} channels={1} />
-          <swizzle order={"yx"} />
+          <array
+            id="audioFreq"
+            data={[]}
+            length={fftSize / 2}
+            channels={1}
+            history={3}
+          />
+          <transpose
+            order="xwyz"
+          />
+          <swizzle order={"yxwz"} />
           <spread width={[fftSize, 0, 0, 0]} />
           <point size={pointSize} color="#0000FF" blending={'add'} opacity={0.8} />
         </cartesian>
@@ -64,7 +104,11 @@
                             || navigator.mozGetUserMedia
                             || navigator.msGetUserMedia;
 
+      navigator.SpeechRecognition = webkitSpeechRecognition;
+
       navigator.getUserMedia({audio: true}, stream, error);
+
+      recognizeSpeech();
 
       function stream(stream) {
         const input = context.createMediaStreamSource(stream),
@@ -80,6 +124,7 @@
       }
 
       function setAnalyser(analyser) {
+        console.dir(analyser);
         analyser.fftSize = fftSize;
 
         const floatTime = new Float32Array(analyser.fftSize),
@@ -93,6 +138,9 @@
 
           analyser.getByteTimeDomainData(intTime);
           analyser.getByteFrequencyData(intFreq);
+
+          const timePower = power(intTime),
+                freqPower = power(intFreq);
         });
 
         mathbox.select('#audioTime').set('data', floatTime);
@@ -100,6 +148,54 @@
 
         mathbox.select('#intTime').set('data', intTime);
         mathbox.select('#intFreq').set('data', intFreq);
+
+        function power(array) {
+          const {length} = array;
+
+          let sum = 0;
+
+          for (let i = 0; i < length; i++) sum += array[i] * array[i];
+
+          return sum / length;
+        }
+      }
+
+      function recognizeSpeech() {
+        const sr = new navigator.SpeechRecognition();
+
+        sr.continuous = true;
+        sr.intermResults = true;
+        sr.lang = 'en-US';
+
+        console.log(sr);
+
+        sr.onstart = () => console.log('start');
+        sr.onresult = gotResult;
+        sr.onerror = event => console.log('error', event);
+        sr.onend = () => console.log('end') & sr.start();
+
+        sr.start();
+
+        function gotResult(event) {
+          const {results} = event,
+                {length} = results;
+
+          if (results) {
+            for (let i = 0; i < length; i++) printResult(results[i]);
+          }
+
+          function printResult(result) {
+            const {length} = result;
+
+            for (let i = 0; i < length; i++) console.log(i + ' ' + formatAlternative(result[i]));
+
+            function formatAlternative(alternative) {
+              const {confidence, transcript} = alternative;
+
+              return `${confidence} ${transcript}`;
+            }
+          }
+        }
       }
 
     </script>
