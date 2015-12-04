@@ -17,8 +17,8 @@
   },
   "homepage": "https://github.com/blakelapierre/jsxbos",
   "dependencies": {
-    "babel-core": "^6.2.0",
-    "babel-plugin-transform-react-jsx": "^6.2.0",
-    "babel-preset-es2015": "^6.1.18"
+    "babel-core": "^6.3.13",
+    "babel-plugin-transform-react-jsx": "^6.3.13",
+    "babel-preset-es2015": "^6.3.13"
   }
 }
