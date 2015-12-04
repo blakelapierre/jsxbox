@@ -1,6 +1,4 @@
-const babel = require('babel-core');
-
-// import {babel} from 'babel-core'; // having issues with this...
+import {transform} from 'babel-core';
 import es2015 from 'babel-preset-es2015';
 import transformReactJsx from 'babel-plugin-transform-react-jsx';
 
@@ -29,7 +27,7 @@ scriptHandler('mathbox/jsx', (text, script) => {
     }
   };
 
-  const transformed = babel.transform(text, {
+  const transformed = transform(text, {
     presets: [es2015],
     plugins: [[transformReactJsx, {pragma: 'JMB.createElement'}]]
   });
