@@ -5,7 +5,6 @@ import transformReactJsx from 'babel-plugin-transform-react-jsx';
 import scriptHandler from './scriptHandler';
 
 scriptHandler('mathbox/jsx', (text, script) => {
-  console.log('mathbox/jsx', text);
   const mathbox = mathBox({
           element: script.parentNode,
           plugins: ['core', 'controls', 'cursor', 'stats'],
@@ -34,9 +33,6 @@ scriptHandler('mathbox/jsx', (text, script) => {
 
   const result = eval(transformed.code) || {},
         {commands, controls, onMathBoxViewBuilt} = result;
-
-  console.log(result);
-
 
   const view = build(mathbox, root);
 
