@@ -117,10 +117,10 @@ scriptHandler('mathbox/jsx', function(text, script) {
       view = view[name](props1, props2);
     }
 
-    (node.children || []).forEach(function(child) {
-      build(view, child);
-    });
+    (node.children || []).forEach(buildChildView);
 
     return view;
+
+    function buildChildView(child) { return build(view, child); }
   }
 });
