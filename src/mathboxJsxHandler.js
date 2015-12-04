@@ -5,7 +5,6 @@ var es2015 = require('babel-preset-es2015');
 var transformReactJsx = require('babel-plugin-transform-react-jsx');
 
 scriptHandler('mathbox/jsx', function(text, script) {
-  var transformed = babel.transform(text, {presets: [es2015], plugins: [transformReactJsx]});
 
   var mathbox = mathBox({
         element: script.parentNode,
@@ -17,7 +16,8 @@ scriptHandler('mathbox/jsx', function(text, script) {
       three = mathbox.three;
 
   var root,
-      React = {
+      React = { // react-jsx transform expects `React` to exist when the code is eval`d...
+        // We'll just assemble our VDOM-like here.
         createElement: function(name, props) {
           root = {name: name, props: props};
 
@@ -26,6 +26,8 @@ scriptHandler('mathbox/jsx', function(text, script) {
           return root;
         }
       };
+
+  var transformed = babel.transform(text, {presets: [es2015], plugins: [transformReactJsx]});
 
   var result = eval(transformed.code) || {},
       controls = result.controls,
