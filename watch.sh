@@ -1,7 +1,9 @@
 #!/bin/bash
 
-#try running: npm install -g watchify browser-sync
+#try running: npm install -g watchify browser-sync babel-cli
 echo "Building Handler..."
 
-tee >(read && browser-sync start --server --https --files "*.html|*.js") \
-  < <(watchify src/handler.js -o '> handler.js && echo "Start Watching"' -v)
+babel src --out-dir lib && \
+(babel src --out-dir lib --watch & \
+  tee >(read && browser-sync start --server --https --files "*.html|*.js") \
+    < <(watchify lib/handler.js -o '> handler.js && echo "Start Watching"' -v))
