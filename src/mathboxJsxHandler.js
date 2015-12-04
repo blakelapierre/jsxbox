@@ -18,7 +18,7 @@ scriptHandler('mathbox/jsx', (text, script) => {
         {three} = mathbox;
 
   let root;
-  const React = { // react-jsx transform expects `React` to exist when the code is eval`d...
+  const JMB = {
     // We'll just assemble our VDOM-like here.
     createElement: (name, props, ...rest) => {
       root = {name, props};
@@ -31,7 +31,7 @@ scriptHandler('mathbox/jsx', (text, script) => {
 
   const transformed = babel.transform(text, {
     presets: [es2015],
-    plugins: [transformReactJsx]
+    plugins: [[transformReactJsx, {pragma: 'JMB.createElement'}]]
   });
 
   const result = eval(transformed.code) || {},
