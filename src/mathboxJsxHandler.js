@@ -15,25 +15,27 @@ scriptHandler('mathbox/jsx', (text, script) => {
             klass: THREE.OrbitControls
           },
         }),
-        three = mathbox.three;
+        {three} = mathbox;
 
   let root;
   const React = { // react-jsx transform expects `React` to exist when the code is eval`d...
     // We'll just assemble our VDOM-like here.
-    createElement: function(name, props) {
-      root = {name: name, props: props};
+    createElement: (name, props, ...rest) => {
+      root = {name, props};
 
-      if (arguments.length > 2) root.children = Array.prototype.slice.call(arguments, 2);
+      root.children = rest;
 
       return root;
     }
   };
 
-  const transformed = babel.transform(text, {presets: [es2015], plugins: [transformReactJsx]});
+  const transformed = babel.transform(text, {
+    presets: [es2015],
+    plugins: [transformReactJsx]
+  });
 
   const result = eval(transformed.code) || {},
-        controls = result.controls,
-        commands = result.commands;
+        {commands, controls, onMathBoxViewBuilt} = result;
 
   console.log(result);
 
@@ -43,25 +45,25 @@ scriptHandler('mathbox/jsx', (text, script) => {
   (result.onMathBoxViewBuilt || set)(view, controls, commands);
 
   function set(view, controls, commands) {
-    console.log('set', view, controls, commands);
     if (controls === undefined || commands === undefined) return;
 
     const actionHandler = generateActionHandler(controls, define(commands));
 
-    view._context.canvas.parentElement.addEventListener('mousedown', function(event){ view._context.canvas.parentElement.focus(); });
-    window.addEventListener('keydown', function(event) { event.target === view._context.canvas.parentElement ? actionHandler(event.keyCode) : console.log(event, view); }); // this is a bit problematic...binding to global event, multiple timess
+    view._context.canvas.parentElement
+      .addEventListener('mousedown', event => view._context.canvas.parentElement.focus());
+    window.addEventListener('keydown', // this is a bit problematic...binding to global event, multiple timess
+      event => event.target === view._context.canvas.parentElement ?
+        actionHandler(event.keyCode)
+      : console.log(event, view));
 
     function generateActionHandler(controls, commands) {
       console.log(controls, commands);
-      const actions = controls.reduce(function(actions, commandLike) {
-          const keys = commandLike[0],
-              command = commandLike[1];
-
-          (typeof keys === 'number' ? [keys] : keys).forEach(function(key) { actions[key] = command; });
+      const actions = controls.reduce((actions, [keys, command]) => {
+          (typeof keys === 'number' ? [keys] : keys).forEach(key => actions[key] = command);
           return actions;
         }, {});
 
-      return function(keyCode) { return run(commands[actions[keyCode]]); };
+      return keyCode => run(commands[actions[keyCode]]);
     }
 
     function run(command) {
@@ -103,8 +105,7 @@ scriptHandler('mathbox/jsx', (text, script) => {
   window.view = view;
 
   function build(view, node) {
-    const name = node.name,
-        props = node.props;
+    const {name, props} = node;
 
     if (name !== 'root') {
       let props1 = {}, props2;
@@ -119,10 +120,8 @@ scriptHandler('mathbox/jsx', (text, script) => {
       view = view[name](props1, props2);
     }
 
-    (node.children || []).forEach(buildChildView);
+    (node.children || []).forEach(child => build(view, child));
 
     return view;
-
-    function buildChildView(child) { return build(view, child); }
   }
 });
