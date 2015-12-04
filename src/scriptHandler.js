@@ -1,9 +1,15 @@
-module.exports = function(type, fn) {
-  window.addEventListener('load', function() {
-    var scripts = document.getElementsByTagName('script');
+export default function(type, fn) {
+  window.addEventListener('load', load);
 
-    Array.prototype.forEach.call(scripts, function(script) {
-      if (script.type === type) fn(script.innerHTML, script); // Is there another way to select these?
-    });
-  });
-};
+  console.log(`Registered ${type}`);
+
+  function load() {
+    const scripts = document.getElementsByTagName('script');
+
+    console.log('handling', Array.prototype.map.call(scripts, ({src, type}) => `${type} ${src}`));
+
+    Array.prototype.forEach.call(scripts,
+      script => script.type === type ? fn(script.innerHTML, script)
+                                     : undefined);
+  }
+}

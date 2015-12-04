@@ -1,10 +1,6 @@
-var scriptHandler = require('./scriptHandler');
+import {babel} from 'babel-core';
+import es2015 from 'babel-preset-es2015';
 
-var babel = require('babel-core');
-var es2015 = require('babel-preset-es2015');
+import scriptHandler from './scriptHandler';
 
-scriptHandler('application/es2015', function(text) {
-  var result = babel.transform(text, {presets: [es2015]});
-
-  eval(result.code);
-});
+scriptHandler('application/es2015', text => eval(babel.transform(text, {presets: [es2015]}).code));
