@@ -63,56 +63,44 @@ scriptHandler('mathbox/jsx', (text, script) => {
         function setAction(key) { actions[key] = processCommand(commandName, commands[commandName]); }
 
         function processCommand(commandName, command) {
-          return typeof command === 'function' ? commandName : complexCommand(commandName, command);
+          return typeof command === 'function' ? commands[commandName] : complexCommand(commandName, command);
 
           function complexCommand(commandName, command) {
-            console.log('complex command!', command);
-            return commandName;
+            return multipleProps;
+
+            function multipleProps(view) {
+              for (let name in command) {
+                const props = command[name],
+                      element = proxied(view.select(name));
+                for (let propName in props) updateProp(propName, props[propName], element);
+              }
+            }
+
+            function updateProp(propName, action, {get, set}) {
+              set(propName, getNewValue(get(propName)));
+
+              function getNewValue(propValue) {
+                return typeof action === 'function' ? action(propValue) : getComplexPropValue(propValue);
+              }
+
+              function getComplexPropValue(propValue) {
+                const {length} = action,
+                      fn = action[length - 1],
+                      dependencies = action.slice(0, length - 1).map(get),
+                      parameters = [propValue, ...dependencies];
+
+                return fn.apply(undefined, parameters);
+              }
+            }
           }
         }
       }, {});
 
-      return keyCode => run(commands[actions[keyCode]]);
+      console.log('actions', actions);
+
+      return keyCode => (actions[keyCode] || (() => console.log('Undefined command!')))(view);
     }
 
-    function run(command) {
-      (typeof command === 'function' ? handleFunction : handleOther)();
-
-      function handleFunction() {
-        command(view);
-      }
-
-      function handleOther() {
-        for (let name in command) runCommand(name, command[name]);
-
-        function runCommand(name, props) {
-          (typeof props === 'function' ? props : multipleProps)(view);
-
-          function multipleProps(view) {
-            const element = proxied(view.select(name));
-
-            for (let propName in props) updateProp(propName, props[propName], element);
-          }
-        }
-      }
-
-      function updateProp(propName, action, {get, set}) {
-        set(propName, getNewValue(get(propName)));
-
-        function getNewValue(propValue) {
-          return typeof action === 'function' ? action(propValue) : getComplexPropValue(propValue);
-        }
-
-        function getComplexPropValue(propValue) {
-          const {length} = action,
-                fn = action[length - 1],
-                dependencies = action.slice(0, length - 1).map(get),
-                parameters = [propValue, ...dependencies];
-
-          return fn.apply(undefined, parameters);
-        }
-      }
-    }
 
     function define(commands) {
       //may want to do something fancier here, perhaps there are things in `run` that could be pre-cached?
