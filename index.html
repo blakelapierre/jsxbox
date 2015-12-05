@@ -159,7 +159,8 @@
               'lookAt': {'camera': {lookAt: lookAt => lookAt.addScalar(0.5)}},
               'prevSlide': {'present': {index: ['length', (index, length) => (length + index - 1) % length]}},
               'nextSlide': {'present': {index: ['length', (index, length) => (index + 1) % length]}}
-            }
+            },
+            plugins: ['core']
           };
         </script>
       </mathbox>
@@ -209,12 +210,17 @@
 
           <root>
               <camera
+                proxy={true}
                 lookAt={[Math.sqrt(Math.PI), 0, 0]}
-                position={cameraPosition} />
-              <spherical range={[[x_min, x_max], [y_min, y_max], [z_min, z_max], [-1, 1]]} scale={[16/9, 1, 1, 1]}
-                position={[Math.sqrt(Math.PI), 0, 0]}
-                rotation={t => [t / Math.PI, t / Math.PI, t / Math.PI]}>
+                position={cameraPosition}
+              />
 
+              <spherical
+                range={[[x_min, x_max], [y_min, y_max], [z_min, z_max], [-1, 1]]}
+                scale={[16/9, 1, 1, 1]}
+                position={[Math.sqrt(Math.PI), 0, 0]}
+                rotation={t => [t / Math.PI, t / Math.PI, t / Math.PI]}
+              >
                 <array length={data.length} channels={3} data={data} />
                 <swizzle order={'zxyw'} />
                 <point size={1} color={[64 / 255, 128 / 255, 192 / 255]} blending={'add'}/>
@@ -242,7 +248,8 @@
               'down': view => velocity[1] = modifier(-speed),
               'backward': view => velocity[2] = modifier(-speed),
               'forward': view => velocity[2] = modifier(speed)
-            }
+            },
+            cameraControls: THREE.OrbitControls
           };
 
           function identity(value) { return value; }

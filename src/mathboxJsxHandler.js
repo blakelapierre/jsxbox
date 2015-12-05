@@ -22,14 +22,6 @@ scriptHandler('mathbox/jsx', (text, script) => {
   }
 
   function handleMathBoxJsx(code) {
-    const mathbox = mathBox({
-      element: script.parentNode,
-      plugins: ['core', 'controls', 'cursor', 'stats'],
-      controls: {
-        klass: THREE.OrbitControls
-      },
-    });
-
     let root;
     const JMB = {
       // We'll just assemble our VDOM-like here.
@@ -42,7 +34,18 @@ scriptHandler('mathbox/jsx', (text, script) => {
       }
     };
 
-    return {mathbox, result: eval(code) || {}, root}; // possibly dangerous semantics...
+    const result = eval(code) || {},
+          {cameraControls, plugins} = result;
+
+    const mathbox = mathBox({
+      element: script.parentNode,
+      plugins: plugins || ['core', 'controls', 'cursor', 'stats'],
+      controls: {
+        klass: cameraControls || THREE.OrbitControls
+      },
+    });
+
+    return {mathbox, result, root}; // possibly dangerous semantics...
   }
 
   function build(view, node) {
