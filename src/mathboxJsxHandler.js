@@ -52,9 +52,11 @@ scriptHandler('mathbox/jsx', (text, script) => {
 
     function generateActionHandler(controls, commands) {
       const actions = controls.reduce((actions, [keys, command]) => {
-        keys = typeof keys === 'number' ? [keys] : keys;
-        keys.forEach(key => actions[key] = command);
+        (typeof keys === 'number' ? [keys] : keys).forEach(setAction);
+
         return actions;
+
+        function setAction(key) { actions[key] = command; }
       }, {});
 
       return keyCode => run(commands[actions[keyCode]]);
