@@ -55,54 +55,64 @@ scriptHandler('mathbox/jsx', (text, script) => {
     }
 
     function generateActionHandler(controls, commands) {
-      const actions = controls.reduce((actions, [keys, commandName]) => {
-        (typeof keys === 'number' ? [keys] : keys).forEach(setAction);
-
-        return actions;
-
-        function setAction(key) { actions[typeof key === 'number' ? key : key.charCodeAt(0)] = processCommand(commandName, commands[commandName]); }
-
-        function processCommand(commandName, command) {
-          return typeof command === 'function' ? commands[commandName] : complexCommand(commandName, command);
-
-          function complexCommand(commandName, command) {
-            return multipleProps;
-
-            function multipleProps(view) {
-              for (let name in command) {
-                const props = command[name],
-                      element = proxied(view.select(name));
-                for (let propName in props) updateProp(propName, props[propName], element);
-              }
-            }
-
-            function updateProp(propName, action, {get, set}) {
-              set(propName, getNewValue(get(propName)));
-
-              function getNewValue(propValue) {
-                return typeof action === 'function' ? action(propValue) : getComplexPropValue(propValue);
-              }
-
-              function getComplexPropValue(propValue) {
-                const {length} = action,
-                      fn = action[length - 1],
-                      dependencies = action.slice(0, length - 1).map(get),
-                      parameters = [propValue, ...dependencies];
-
-                return fn.apply(undefined, parameters);
-              }
-            }
-          }
-        }
-      }, {});
+      const actions = buildActions();
 
       console.log('actions', actions);
 
       return keyCode => (actions[keyCode] || (() => console.log('Undefined command!')))(view);
+
+      function buildActions() {
+        return controls.reduce((actions, [keys, commandName]) => {
+          (typeof keys === 'number' ? [keys] : keys).forEach(setAction);
+
+          return actions;
+
+          function setAction(key) { actions[typeof key === 'number' ? key : key.charCodeAt(0)] = commands[commandName]; }
+
+          function processCommand(commandName, command) {
+            return typeof command === 'function' ? commands[commandName] : complexCommand(commandName, command);
+          }
+        }, {});
+      }
     }
 
 
     function define(commands) {
+      for (let commandName in commands) commands[commandName] = process(commandName, commands[commandName]);
+
+      return commands;
+
+      function process(commandName, command) {
+        return typeof command === 'function' ? command : multipleProps;
+
+        function multipleProps(view) {
+          for (let name in command) {
+            const props = command[name],
+                  element = proxied(view.select(name));
+            for (let propName in props) updateProp(propName, props[propName], element);
+          }
+        }
+
+        function updateProp(propName, action, {get, set}) {
+          set(propName, getNewValue(get(propName)));
+
+          function getNewValue(propValue) {
+            return typeof action === 'function' ? action(propValue) : getComplexPropValue(propValue);
+          }
+
+          function getComplexPropValue(propValue) {
+            const {length} = action,
+                  fnIndex = length - 1,
+                  fn = action[fnIndex],
+                  dependencies = action.slice(0, fnIndex).map(get),
+                  parameters = [propValue, ...dependencies];
+
+            return fn.apply(undefined, parameters);
+          }
+        }
+      }
+
+      for (let name in commands)
       //may want to do something fancier here, perhaps there are things in `run` that could be pre-cached?
       return commands;
     }
