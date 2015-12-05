@@ -43,38 +43,6 @@ scriptHandler('mathbox/jsx', (text, script) => {
 
     addListeners(generateActionHandler(controls, define(commands)));
 
-    function addListeners(actionHandler) {
-      const box = view._context.canvas.parentElement;
-      focusOn(box, 'mousedown');
-
-      window.addEventListener('keydown', // this is a bit problematic...binding to global event, multiple timess
-        event => event.target === box ? actionHandler(event.keyCode)
-                                      : console.log(event, view));
-
-      function focusOn(el, eventName) { return el.addEventListener(eventName, () => el.focus()); }
-    }
-
-    function generateActionHandler(controls, commands) {
-      const actions = buildActions();
-
-      console.log('actions', actions);
-
-      return keyCode => (actions[keyCode] || noActionHandler)(view, keyCode);
-
-      function buildActions() {
-        return controls.reduce((actions, [keys, commandName]) => {
-          (typeof keys === 'number' ? [keys] : keys).forEach(setAction);
-
-          return actions;
-
-          function setAction(key) { actions[typeof key === 'number' ? key : key.charCodeAt(0)] = commands[commandName]; }
-        }, {});
-      }
-
-      function noActionHandler(view, keyCode) { console.log(`No action for ${keyCode} on ${view}`); }
-    }
-
-
     function define(commands) {
       for (let commandName in commands) commands[commandName] = process(commandName, commands[commandName]);
 
@@ -113,6 +81,37 @@ scriptHandler('mathbox/jsx', (text, script) => {
       for (let name in commands)
       //may want to do something fancier here, perhaps there are things in `run` that could be pre-cached?
       return commands;
+    }
+
+    function generateActionHandler(controls, commands) {
+      const actions = buildActions();
+
+      console.log('actions', actions);
+
+      return keyCode => (actions[keyCode] || noActionHandler)(view, keyCode);
+
+      function buildActions() {
+        return controls.reduce((actions, [keys, commandName]) => {
+          (typeof keys === 'number' ? [keys] : keys).forEach(setAction);
+
+          return actions;
+
+          function setAction(key) { actions[typeof key === 'number' ? key : key.charCodeAt(0)] = commands[commandName]; }
+        }, {});
+      }
+
+      function noActionHandler(view, keyCode) { console.log(`No action for ${keyCode} on ${view}`); }
+    }
+
+    function addListeners(actionHandler) {
+      const box = view._context.canvas.parentElement;
+      focusOn(box, 'mousedown');
+
+      window.addEventListener('keydown', // this is a bit problematic...binding to global event, multiple timess
+        event => event.target === box ? actionHandler(event.keyCode)
+                                      : console.log(event, view));
+
+      function focusOn(el, eventName) { return el.addEventListener(eventName, () => el.focus()); }
     }
   }
 
