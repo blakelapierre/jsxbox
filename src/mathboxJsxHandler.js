@@ -22,30 +22,60 @@ scriptHandler('mathbox/jsx', (text, script) => {
   }
 
   function handleMathBoxJsx(code) {
-    let root;
-    const JMB = {
-      // We'll just assemble our VDOM-like here.
-      createElement: (name, props, ...rest) => {
-        root = {name, props};
-
-        root.children = rest;
-
-        return root;
-      }
-    };
-
-    const result = eval(code) || {},
-          {attachTo, cameraControls, plugins} = result;
+    const {result, root} = runMathBoxJsx(code),
+          {attachTo, cameraControls, editorPanel, plugins} = result,
+          element = attachTo || script.parentNode;
 
     const mathbox = mathBox({
-      element: attachTo || script.parentNode,
+      element,
       plugins: plugins || ['core', 'controls', 'cursor', 'stats'],
       controls: {
         klass: cameraControls || THREE.OrbitControls
       },
     });
 
+    if (editorPanel) attachPanel(element, root);
+
     return {mathbox, result, root}; // possibly dangerous semantics...
+
+    function runMathBoxJsx(code) {
+      let root;
+      const JMB = {
+        // We'll just assemble our VDOM-like here.
+        createElement: (name, props, ...rest) => {
+          root = {name, props};
+
+          root.children = rest;
+
+          return root;
+        }
+      };
+
+      const result = eval(code) || {};
+
+      return {result, root};
+    }
+
+    function attachPanel(element, currentRoot) {
+      const panel = document.createElement('div');
+
+      panel.className = 'editor-panel hidden';
+
+      panel.innerText = text;
+
+      panel.contentEditable = true;
+
+      panel.addEventListener('keydown', update);
+
+      element.appendChild(panel);
+
+      function update(event) {
+        const code = panel.innerText,
+              {result, root} = runMathBoxJsx(compile(code).code);
+
+        console.log({result, currentRoot, root});
+      }
+    }
   }
 
   function build(view, node) {

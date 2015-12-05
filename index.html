@@ -48,6 +48,25 @@
       .box.settings .panel {
         display: block;
       }
+
+      .editor-panel {
+        position: absolute;
+
+        top: 0;
+        left: 0;
+
+        bottom: 0;
+        right: 0;
+
+        color: #fff;
+
+        white-space: pre-wrap;
+        font-family: monospace;
+
+        overflow: auto;
+
+        cursor: text;
+      }
     </style>
   </head>
   <body>
@@ -251,7 +270,8 @@
               'backward': view => velocity[2] = modifier(-speed),
               'forward': view => velocity[2] = modifier(speed)
             },
-            cameraControls: THREE.OrbitControls
+            cameraControls: THREE.OrbitControls,
+            editorPanel: true
           };
 
           function identity(value) { return value; }
