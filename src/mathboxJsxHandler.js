@@ -59,7 +59,7 @@ scriptHandler('mathbox/jsx', (text, script) => {
 
       console.log('actions', actions);
 
-      return keyCode => (actions[keyCode] || (() => console.log('Undefined command!')))(view);
+      return keyCode => (actions[keyCode] || noActionHandler)(view, keyCode);
 
       function buildActions() {
         return controls.reduce((actions, [keys, commandName]) => {
@@ -70,6 +70,8 @@ scriptHandler('mathbox/jsx', (text, script) => {
           function setAction(key) { actions[typeof key === 'number' ? key : key.charCodeAt(0)] = commands[commandName]; }
         }, {});
       }
+
+      function noActionHandler(view, keyCode) { console.log(`No action for ${keyCode} on ${view}`); }
     }
 
 
@@ -81,7 +83,7 @@ scriptHandler('mathbox/jsx', (text, script) => {
       function process(commandName, command) {
         return typeof command === 'function' ? command : multipleProps;
 
-        function multipleProps(view) {
+        function multipleProps(view, keyCode) { // shouldn't be keycode here...
           for (let name in command) {
             const props = command[name],
                   element = proxied(view.select(name));
