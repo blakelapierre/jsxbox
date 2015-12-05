@@ -43,15 +43,15 @@ scriptHandler('mathbox/jsx', (text, script) => {
   }
 
   function build(view, node) {
-    const {name, props} = node;
+    const {name} = node;
 
-    if (name !== 'root') handleChild();
+    if (name !== 'root') handleChild(node);
 
     (node.children || []).forEach(child => build(view, child));
 
     return view;
 
-    function handleChild() {
+    function handleChild({name, props}) {
       let props1 = {}, props2;
 
       for (let propName in props) handleProp(propName, props[propName]);
