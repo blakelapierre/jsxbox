@@ -5,22 +5,12 @@ import transformReactJsx from 'babel-plugin-transform-react-jsx';
 import scriptHandler from './scriptHandler';
 
 scriptHandler('mathbox/jsx', (text, script) => {
-  const mathbox = mathBox({
-          element: script.parentNode,
-          plugins: ['core', 'controls', 'cursor', 'stats'],
-          controls: {
-            klass: THREE.OrbitControls
-          },
-        }),
-        {three} = mathbox;
-
-
   const transformed = transform(text, {
     presets: [es2015],
     plugins: [[transformReactJsx, {pragma: 'JMB.createElement'}]]
   });
 
-  const {result, root} = handleMathBoxJsx(transformed.code),
+  const {mathbox, result, root} = handleMathBoxJsx(transformed.code),
         {commands, controls, onMathBoxViewBuilt} = result,
         view = build(mathbox, root);
 
@@ -29,6 +19,15 @@ scriptHandler('mathbox/jsx', (text, script) => {
   (onMathBoxViewBuilt || set)(view, controls, commands);
 
   function handleMathBoxJsx(code) {
+    const mathbox = mathBox({
+            element: script.parentNode,
+            plugins: ['core', 'controls', 'cursor', 'stats'],
+            controls: {
+              klass: THREE.OrbitControls
+            },
+          }),
+          {three} = mathbox;
+
     let root;
     const JMB = {
       // We'll just assemble our VDOM-like here.
@@ -41,7 +40,7 @@ scriptHandler('mathbox/jsx', (text, script) => {
       }
     };
 
-    return {result: eval(code) || {}, root}; // possibly dangerous semantics...
+    return {mathbox, result: eval(code) || {}, root}; // possibly dangerous semantics...
   }
 
   function build(view, node) {
