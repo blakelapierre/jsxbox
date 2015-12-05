@@ -44,49 +44,48 @@ scriptHandler('mathbox/jsx', (text, script) => {
     addListeners(generateActionHandler(controls, define(commands)));
 
     function define(commands) {
-      for (let commandName in commands) commands[commandName] = process(commandName, commands[commandName]);
+      return mapValues(commands, process);
 
-      return commands;
+      function mapValues(obj, t) {
+        const ret = {};
+        for (let name in obj) ret[name] = t(name, obj[name]);
+        return ret;
+      }
 
       function process(commandName, command) {
         return typeof command === 'function' ? command : multipleProps;
 
         function multipleProps(view, keyCode) { // shouldn't be keycode here...
-          for (let name in command) {
+          for (let name in command) runCommand(name, command);
+
+          function runCommand(name, command) {
             const props = command[name],
                   element = proxied(view.select(name));
             for (let propName in props) updateProp(propName, props[propName], element);
           }
         }
-
-        function updateProp(propName, action, {get, set}) {
-          set(propName, getNewValue(get(propName)));
-
-          function getNewValue(propValue) {
-            return typeof action === 'function' ? action(propValue) : getComplexPropValue(propValue);
-          }
-
-          function getComplexPropValue(propValue) {
-            const {length} = action,
-                  fnIndex = length - 1,
-                  fn = action[fnIndex],
-                  dependencies = action.slice(0, fnIndex).map(get),
-                  parameters = [propValue, ...dependencies];
-
-            return fn.apply(undefined, parameters);
-          }
-        }
       }
 
-      for (let name in commands)
-      //may want to do something fancier here, perhaps there are things in `run` that could be pre-cached?
-      return commands;
+      function updateProp(propName, action, {get, set}) {
+        let isComplex = action !== 'function',
+            getNewValue = isComplex ? getComplexPropValue : action;
+
+        set(propName, getNewValue(get(propName)));
+
+        function getComplexPropValue(propValue) {
+          const {length} = action,
+                fnIndex = length - 1,
+                fn = action[fnIndex],
+                dependencies = action.slice(0, fnIndex).map(get),
+                parameters = [propValue, ...dependencies];
+
+          return fn.apply(undefined, parameters);
+        }
+      }
     }
 
     function generateActionHandler(controls, commands) {
       const actions = buildActions();
-
-      console.log('actions', actions);
 
       return keyCode => (actions[keyCode] || noActionHandler)(view, keyCode);
 
