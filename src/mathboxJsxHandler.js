@@ -45,22 +45,24 @@ scriptHandler('mathbox/jsx', (text, script) => {
   function build(view, node) {
     const {name, props} = node;
 
-    if (name !== 'root') {
-      let props1 = {}, props2;
-
-      for (let propName in props) {
-        const prop = props[propName];
-
-        if (typeof prop === 'function' && (name === 'camera' || (propName !== 'expr'))) (props2 = (props2 || {}))[propName] = prop;
-        else (props1 = (props1 || {}))[propName] = prop;
-      }
-
-      view = view[name](props1, props2);
-    }
+    if (name !== 'root') handleChild();
 
     (node.children || []).forEach(child => build(view, child));
 
     return view;
+
+    function handleChild() {
+      let props1 = {}, props2;
+
+      for (let propName in props) handleProp(propName, props[propName]);
+
+      view = view[name](props1, props2);
+
+      function handleProp(propName, prop) {
+        if (typeof prop === 'function' && (name === 'camera' || (propName !== 'expr'))) (props2 = (props2 || {}))[propName] = prop;
+        else (props1 = (props1 || {}))[propName] = prop;
+      }
+    }
   }
 
   function set(view, controls, commands) {
