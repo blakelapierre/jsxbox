@@ -51,11 +51,11 @@ scriptHandler('mathbox/jsx', (text, script) => {
       : console.log(event, view));
 
     function generateActionHandler(controls, commands) {
-      console.log(controls, commands);
       const actions = controls.reduce((actions, [keys, command]) => {
-          (typeof keys === 'number' ? [keys] : keys).forEach(key => actions[key] = command);
-          return actions;
-        }, {});
+        keys = typeof keys === 'number' ? [keys] : keys;
+        keys.forEach(key => actions[key] = command);
+        return actions;
+      }, {});
 
       return keyCode => run(commands[actions[keyCode]]);
     }
@@ -79,7 +79,8 @@ scriptHandler('mathbox/jsx', (text, script) => {
               else {
                 const parameters = [propValue];
 
-                for (let i = 0; i < action.length - 1; i++) parameters.push(element.get(action[i]));
+                let i = 0;
+                for (; i < action.length - 1; i++) parameters.push(element.get(action[i]));
                 element.set(propName, action[i].apply(undefined, parameters));
               }
             }
