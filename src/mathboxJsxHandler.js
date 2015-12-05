@@ -44,13 +44,14 @@ scriptHandler('mathbox/jsx', (text, script) => {
     addListeners(generateActionHandler(controls, define(commands)));
 
     function addListeners(actionHandler) {
-      view._context.canvas.parentElement
-        .addEventListener('mousedown', event => view._context.canvas.parentElement.focus());
+      const box = view._context.canvas.parentElement;
+      focusOn(box, 'mousedown');
 
       window.addEventListener('keydown', // this is a bit problematic...binding to global event, multiple timess
-        event => event.target === view._context.canvas.parentElement ?
-          actionHandler(event.keyCode)
-        : console.log(event, view));
+        event => event.target === box ? actionHandler(event.keyCode)
+                                      : console.log(event, view));
+
+      function focusOn(el, eventName) { return el.addEventListener(eventName, () => el.focus()); }
     }
 
     function generateActionHandler(controls, commands) {
