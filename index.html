@@ -53,6 +53,7 @@
   <body>
     <script src="handler.js"></script>
     <script src="mathbox-bundle.js"></script>
+    <div class="box" id="whole-nother-other-place"></div>
 
     <div class="box">
       <mathbox tabindex="1">
@@ -231,6 +232,7 @@
               speed = 2;
 
           module.exports = {
+            attachTo: document.getElementById('whole-nother-other-place'),
             controls: [
               [ [16, 32],  'turbo' ],
               [ 65,  'left' ],

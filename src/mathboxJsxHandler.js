@@ -35,10 +35,10 @@ scriptHandler('mathbox/jsx', (text, script) => {
     };
 
     const result = eval(code) || {},
-          {cameraControls, plugins} = result;
+          {attachTo, cameraControls, plugins} = result;
 
     const mathbox = mathBox({
-      element: script.parentNode,
+      element: attachTo || script.parentNode,
       plugins: plugins || ['core', 'controls', 'cursor', 'stats'],
       controls: {
         klass: cameraControls || THREE.OrbitControls
