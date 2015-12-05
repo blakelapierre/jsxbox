@@ -14,27 +14,31 @@ scriptHandler('mathbox/jsx', (text, script) => {
         }),
         {three} = mathbox;
 
-  let root;
-  const JMB = {
-    // We'll just assemble our VDOM-like here.
-    createElement: (name, props, ...rest) => {
-      root = {name, props};
-
-      root.children = rest;
-
-      return root;
-    }
-  };
 
   const transformed = transform(text, {
     presets: [es2015],
     plugins: [[transformReactJsx, {pragma: 'JMB.createElement'}]]
   });
 
-  const result = eval(transformed.code) || {},
-        {commands, controls, onMathBoxViewBuilt} = result;
+  function something() {
+    let root;
+    const JMB = {
+      // We'll just assemble our VDOM-like here.
+      createElement: (name, props, ...rest) => {
+        root = {name, props};
 
-  const view = build(mathbox, root);
+        root.children = rest;
+
+        return root;
+      }
+    };
+
+    return {result: eval(transformed.code) || {}, root}; // possibly dangerous semantics...
+  }
+
+  const {result, root} = something(),
+        {commands, controls, onMathBoxViewBuilt} = result,
+        view = build(mathbox, root);
 
   (onMathBoxViewBuilt || set)(view, controls, commands);
 
