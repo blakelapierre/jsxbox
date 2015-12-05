@@ -5,78 +5,14 @@ import transformReactJsx from 'babel-plugin-transform-react-jsx';
 import scriptHandler from './scriptHandler';
 
 scriptHandler('mathbox/jsx', (text, script) => {
-  const mathBoxJsx = compile(text);
+  const {view, result, root} = handleMathBoxJsx(text, script.parentNode),
+        {commands, controls, onMathBoxViewBuilt} = result;
 
-  const {mathbox, result: {commands, controls, onMathBoxViewBuilt}, root} = handleMathBoxJsx(mathBoxJsx.code),
-        view = build(mathbox, root);
+  build(view, root);
 
   window.view = view;
 
   (onMathBoxViewBuilt || set)(view, controls, commands);
-
-  function compile(text) {
-    return transform(text, {
-      presets: [es2015],
-      plugins: [[transformReactJsx, {pragma: 'JMB.createElement'}]]
-    });
-  }
-
-  function handleMathBoxJsx(code) {
-    const {result, root} = runMathBoxJsx(code),
-          {attachTo, cameraControls, editorPanel, plugins} = result,
-          element = attachTo || script.parentNode;
-
-    const mathbox = mathBox({
-      element,
-      plugins: plugins || ['core', 'controls', 'cursor', 'stats'],
-      controls: {
-        klass: cameraControls || THREE.OrbitControls
-      },
-    });
-
-    if (editorPanel) attachPanel(element, root);
-
-    return {mathbox, result, root}; // possibly dangerous semantics...
-
-    function runMathBoxJsx(code) {
-      let root;
-      const JMB = {
-        // We'll just assemble our VDOM-like here.
-        createElement: (name, props, ...rest) => {
-          root = {name, props};
-
-          root.children = rest;
-
-          return root;
-        }
-      };
-
-      const result = eval(code) || {};
-
-      return {result, root};
-    }
-
-    function attachPanel(element, currentRoot) {
-      const panel = document.createElement('div');
-
-      panel.className = 'editor-panel hidden';
-
-      panel.innerText = text;
-
-      panel.contentEditable = true;
-
-      panel.addEventListener('keydown', update);
-
-      element.appendChild(panel);
-
-      function update(event) {
-        const code = panel.innerText,
-              {result, root} = runMathBoxJsx(compile(code).code);
-
-        console.log({result, currentRoot, root});
-      }
-    }
-  }
 
   function build(view, node) {
     const {name, children} = node;
@@ -184,3 +120,202 @@ scriptHandler('mathbox/jsx', (text, script) => {
     return ret;
   }
 });
+
+function handleMathBoxJsx(code, parentNode) { //get rid of parentNode
+  const {result, root} = runMathBoxJsx(compile(code).code),
+        {attachTo, cameraControls, editorPanel, plugins} = result,
+        element = attachTo || parentNode;
+
+  const view = mathBox({
+    element,
+    plugins: plugins || ['core', 'controls', 'cursor', 'stats'],
+    controls: {
+      klass: cameraControls || THREE.OrbitControls
+    },
+  });
+
+  if (editorPanel) attachPanel(element, root);
+
+  console.log(root);
+
+  return {view, result, root}; // possibly dangerous semantics...
+
+  function runMathBoxJsx(code) {
+    let root;
+    const JMB = {
+      // We'll just assemble our VDOM-like here.
+      createElement: (name, props, ...rest) => {
+        root = {name, props};
+
+        root.children = rest;
+
+        return root;
+      }
+    };
+
+    const result = eval(code) || {};
+
+    return {result, root};
+  }
+
+  function attachPanel(element, currentRoot) {
+    const panel = document.createElement('div');
+
+    panel.className = 'editor-panel hidden';
+
+    panel.innerText = code;
+
+    panel.contentEditable = true;
+
+    panel.addEventListener('keyup', update);
+
+    element.appendChild(panel);
+
+    function update(event) {
+      const code = panel.innerText,
+            {result, root} = runMathBoxJsx(compile(code).code);
+
+      console.log({result, currentRoot, root});
+
+      patch(view, diff(currentRoot, root));
+    }
+  }
+}
+
+function compile(text) {
+  return transform(text, {
+    presets: [es2015],
+    plugins: [[transformReactJsx, {pragma: 'JMB.createElement'}]]
+  });
+}
+
+function diff(oldObj, newObj) {
+  console.log('diffing', oldObj, newObj);
+
+  const oo = prep(oldObj),
+        no = prep(newObj),
+        changedKeys = difference(oo, no);
+
+
+  console.log({changedKeys});
+
+
+
+  // check for removals
+  // check for adds
+  // check adds to see if they contain a removed, if so, mark as moved
+  return changedKeys;
+
+  function prep(obj = {}) {
+    return {keys: Object.keys(obj), obj};
+  }
+
+  function difference(oo, no) {
+    const oldKeys = oo.keys.sort(),
+          newKeys = no.keys.sort(),
+          removedKeys = differenceSortedList1FromSortedList2(oldKeys, newKeys),
+          addedKeys = differenceSortedList1FromSortedList2(newKeys, oldKeys),
+          keysToCheck = differenceSortedList1FromSortedList2(differenceSortedList1FromSortedList2(newKeys, removedKeys), addedKeys),
+          modifiedKeys = modifications(keysToCheck, oo.obj, no.obj);
+
+
+    return {addedKeys, modifiedKeys, removedKeys};
+  }
+
+  function differenceSortedList1FromSortedList2(l1, l2) {
+    const d = [];
+
+    let j = 0,
+        item2 = l2[j];
+    for (let i = 0; i < l1.length; i++) {
+      const item1 = l1[i];
+
+      if (item1 !== item2) d.push(item1);
+      else item2 = l2[++j];
+    }
+
+    // for (; j < l2.length; j++) d.push(l2[j]);
+
+    return d;
+  }
+
+  function totalDifferenceOfSortedLists(l1, l2) {
+    const d = [];
+
+    let j = 0,
+        item2 = l2[j];
+    for (let i = 0; i < l1.length; i++) {
+      const item1 = l1[i];
+
+      if (item1 !== item2) d.push(item1);
+      else item2 = l2[++j];
+    }
+
+    for (; j < l2.length; j++) d.push(l2[j]);
+
+    return d;
+  }
+
+  function modifications(keys, oldObj, newObj) {
+    const m = [];
+
+    keys.forEach(key => {
+      const newValue = newObj[key],
+            oldValue = oldObj[key];
+
+      if (newValue !== oldValue) m.push(key);
+    });
+
+    return m;
+  }
+}
+
+function patch(view, changes) {
+  changes.forEach(applyToView);
+
+  function applyToView(change) {
+    const {type} = change;
+
+    switch(type) {
+      case 'remove': remove(view, change); break;
+      case 'add': add(view, change); break;
+      case 'move': move(view, change); break;
+      case 'modify': modify(view, change); break;
+    }
+
+    function remove(view, change) {
+
+    }
+
+    function add(view, change) {
+
+    }
+
+    function move(view, change) {
+
+    }
+
+    function modify(view, change) {
+
+    }
+
+    function walkPath(view, path) {
+      // should return the element selected by path
+    }
+  }
+}
+
+const obj1 = {
+        // name: 'root',
+        props: null,
+        children: [{
+          name: 'camera',
+          props: {lookAt: [0, 0, 0]}
+        }]
+      },
+      obj2 = {
+        name: 'root',
+        children: []
+      };
+
+diff(obj1, obj2);
