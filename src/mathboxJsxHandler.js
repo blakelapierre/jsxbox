@@ -42,6 +42,26 @@ scriptHandler('mathbox/jsx', (text, script) => {
     return {result: eval(code) || {}, root}; // possibly dangerous semantics...
   }
 
+  function build(view, node) {
+    const {name, props} = node;
+
+    if (name !== 'root') {
+      let props1 = {}, props2;
+
+      for (let propName in props) {
+        const prop = props[propName];
+
+        if (typeof prop === 'function' && (name === 'camera' || (propName !== 'expr'))) (props2 = (props2 || {}))[propName] = prop;
+        else (props1 = (props1 || {}))[propName] = prop;
+      }
+
+      view = view[name](props1, props2);
+    }
+
+    (node.children || []).forEach(child => build(view, child));
+
+    return view;
+  }
 
   function set(view, controls, commands) {
     if (controls === undefined || commands === undefined) return;
@@ -129,25 +149,4 @@ scriptHandler('mathbox/jsx', (text, script) => {
 
 
   window.view = view;
-
-  function build(view, node) {
-    const {name, props} = node;
-
-    if (name !== 'root') {
-      let props1 = {}, props2;
-
-      for (let propName in props) {
-        const prop = props[propName];
-
-        if (typeof prop === 'function' && (name === 'camera' || (propName !== 'expr'))) (props2 = (props2 || {}))[propName] = prop;
-        else (props1 = (props1 || {}))[propName] = prop;
-      }
-
-      view = view[name](props1, props2);
-    }
-
-    (node.children || []).forEach(child => build(view, child));
-
-    return view;
-  }
 });
