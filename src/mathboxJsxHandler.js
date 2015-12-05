@@ -20,13 +20,12 @@ scriptHandler('mathbox/jsx', (text, script) => {
 
   function handleMathBoxJsx(code) {
     const mathbox = mathBox({
-            element: script.parentNode,
-            plugins: ['core', 'controls', 'cursor', 'stats'],
-            controls: {
-              klass: THREE.OrbitControls
-            },
-          }),
-          {three} = mathbox;
+      element: script.parentNode,
+      plugins: ['core', 'controls', 'cursor', 'stats'],
+      controls: {
+        klass: THREE.OrbitControls
+      },
+    });
 
     let root;
     const JMB = {
