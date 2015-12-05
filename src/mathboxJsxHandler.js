@@ -4,6 +4,8 @@ import transformReactJsx from 'babel-plugin-transform-react-jsx';
 
 import scriptHandler from './scriptHandler';
 
+let boxes = [];
+
 scriptHandler('mathbox/jsx', (text, script) => {
   const {view, result, root} = handleMathBoxJsx(text, script.parentNode),
         {commands, controls, onMathBoxViewBuilt} = result;
@@ -78,11 +80,11 @@ scriptHandler('mathbox/jsx', (text, script) => {
     }
 
     function generateActionHandler(controls, commands) {
-      const actions = buildActions();
+      const actions = buildActions(controls, commands);
 
       return keyCode => (actions[keyCode] || noActionHandler)(view, keyCode);
 
-      function buildActions() {
+      function buildActions(controls, commands) {
         return controls.reduce((actions, [keys, commandName]) => {
           (typeof keys === 'number' ? [keys] : keys).forEach(setAction);
 
@@ -99,9 +101,13 @@ scriptHandler('mathbox/jsx', (text, script) => {
       const box = view._context.canvas.parentElement;
       focusOn(box, 'mousedown');
 
-      window.addEventListener('keydown', // this is a bit problematic...binding to global event, multiple timess
-        event => event.target === box ? actionHandler(event.keyCode)
-                                      : console.log(event, view));
+      if (boxes.length === 0) window.addEventListener('keydown', windowKeydownListener);
+
+      boxes.push({box, actionHandler});
+
+      // window.addEventListener('keydown', // this is a bit problematic...binding to global event, multiple timess
+      //   event => event.target === box ? actionHandler(event.keyCode)
+      //                                 : console.log(event, view));
 
       function focusOn(el, eventName) { return el.addEventListener(eventName, () => el.focus()); }
     }
@@ -119,6 +125,24 @@ scriptHandler('mathbox/jsx', (text, script) => {
     for (let name in obj) ret[name] = t(name, obj[name]);
     return ret;
   }
+
+  function windowKeydownListener(event) {
+    const {length} = boxes,
+          {target} = event;
+
+    console.log(event);
+
+    for (let i = 0; i < length; i++) {
+      const {box, actionHandler} = boxes[i]; // don't need to pull actionHandler out here for most cases
+      console.log(i, target, box, target === box, actionHandler);
+      if (target === box) {
+        actionHandler(event.keyCode);
+        return;
+      }
+    }
+
+    console.log('no handler', event, boxes);
+  }
 });
 
 function handleMathBoxJsx(code, parentNode) { //get rid of parentNode
@@ -128,7 +152,7 @@ function handleMathBoxJsx(code, parentNode) { //get rid of parentNode
 
   const view = mathBox({
     element,
-    plugins: plugins || ['core', 'controls', 'cursor', 'stats'],
+    plugins: plugins || ['core', 'cursor', 'stats'],
     controls: {
       klass: cameraControls || THREE.OrbitControls
     },
