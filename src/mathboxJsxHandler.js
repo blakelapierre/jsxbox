@@ -61,9 +61,13 @@ scriptHandler('mathbox/jsx', (text, script) => {
     }
 
     function run(command) {
-      console.log('command', command);
-      if (typeof command === 'function') command(view);
-      else {
+      (typeof command === 'function' ? handleFunction : handleOther)();
+
+      function handleFunction() {
+        command(view);
+      }
+
+      function handleOther() {
         for (let name in command) {
           const props = command[name];
 
