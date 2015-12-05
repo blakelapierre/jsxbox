@@ -87,8 +87,7 @@ scriptHandler('mathbox/jsx', (text, script) => {
         set(propName, getNewValue(get(propName)));
 
         function getNewValue(propValue) {
-          if (typeof action === 'function') return propValue;
-          else return getComplexPropValue(propValue);
+          return typeof action === 'function' ? propValue : getComplexPropValue(propValue);
         }
 
         function getComplexPropValue(propValue) {
