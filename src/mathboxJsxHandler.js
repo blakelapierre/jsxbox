@@ -24,6 +24,8 @@ scriptHandler('mathbox/jsx', (text, script) => {
         {commands, controls, onMathBoxViewBuilt} = result,
         view = build(mathbox, root);
 
+  window.view = view;
+
   (onMathBoxViewBuilt || set)(view, controls, commands);
 
   function handleMathBoxJsx(code) {
@@ -145,8 +147,4 @@ scriptHandler('mathbox/jsx', (text, script) => {
       set: (...args) => obj.set.apply(obj, args)
     };
   }
-
-
-
-  window.view = view;
 });
