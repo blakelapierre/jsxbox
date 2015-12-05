@@ -83,13 +83,11 @@ scriptHandler('mathbox/jsx', (text, script) => {
       }
 
       function updateProp(propName, action, element) {
-        const propValue = element.get(propName);
+        (typeof action === 'function' ? update : updateDependent)(element.get(propName));
 
-        (typeof action === 'function' ? update : updateDependent)();
+        function update(propValue) { element.set(propName, action(propValue)); }
 
-        function update() { element.set(propName, action(propValue)); }
-
-        function updateDependent() {
+        function updateDependent(propValue) {
           const {length} = action,
                 fn = action[length - 1],
                 dependencies = action.slice(0, length - 1).map(name => element.get(name)),
