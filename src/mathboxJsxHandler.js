@@ -70,11 +70,12 @@ scriptHandler('mathbox/jsx', (text, script) => {
       }
 
       function handleOther() {
-        for (let name in command) {
-          const props = command[name];
+        for (let name in command) runCommand(name, command[name]);
 
-          if (typeof props === 'function') props(view); // not sure what, if anything, should be passed in here
-          else {
+        function runCommand(name, props) {
+          (typeof props === 'function' ? props : multipleProps)(view);
+
+          function multipleProps(view) {
             const element = view.select(name);
 
             for (let propName in props) updateProp(propName, props[propName], element);
