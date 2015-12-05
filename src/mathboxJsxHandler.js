@@ -75,21 +75,22 @@ scriptHandler('mathbox/jsx', (text, script) => {
           else {
             const element = view.select(name);
 
-            for (let propName in props) {
-              const action = props[propName],
-                    propValue = element.get(propName);
-
-              if (typeof action === 'function') element.set(propName, action(propValue));
-              else {
-                const {length} = action,
-                      fn = action[length - 1],
-                      dependencies = action.slice(0, length - 1).map(name => element.get(name)),
-                      parameters = [propValue, ...dependencies];
-
-                element.set(propName, fn.apply(undefined, parameters));
-              }
-            }
+            for (let propName in props) updateProp(propName, props[propName], element);
           }
+        }
+      }
+
+      function updateProp(propName, action, element) {
+        const propValue = element.get(propName);
+
+        if (typeof action === 'function') element.set(propName, action(propValue));
+        else {
+          const {length} = action,
+                fn = action[length - 1],
+                dependencies = action.slice(0, length - 1).map(name => element.get(name)),
+                parameters = [propValue, ...dependencies];
+
+          element.set(propName, fn.apply(undefined, parameters));
         }
       }
     }
