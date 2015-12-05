@@ -55,15 +55,20 @@ scriptHandler('mathbox/jsx', (text, script) => {
     }
 
     function generateActionHandler(controls, commands) {
-      const actions = controls.reduce((actions, [keys, command]) => {
+      const actions = controls.reduce((actions, [keys, commandName]) => {
         (typeof keys === 'number' ? [keys] : keys).forEach(setAction);
 
         return actions;
 
-        function setAction(key) { actions[key] = processCommand(command); }
+        function setAction(key) { actions[key] = processCommand(commandName, commands[commandName]); }
 
-        function processCommand(command) {
-          return command;
+        function processCommand(commandName, command) {
+          return typeof command === 'function' ? commandName : complexCommand(commandName, command);
+
+          function complexCommand(commandName, command) {
+            console.log('complex command!', command);
+            return commandName;
+          }
         }
       }, {});
 
