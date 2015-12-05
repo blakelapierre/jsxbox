@@ -84,17 +84,20 @@ scriptHandler('mathbox/jsx', (text, script) => {
       }
 
       function updateProp(propName, action, {get, set}) {
-        (typeof action === 'function' ? update : updateDependent)(get(propName));
+        set(propName, getNewValue(get(propName)));
 
-        function update(propValue) { set(propName, action(propValue)); }
+        function getNewValue(propValue) {
+          if (typeof action === 'function') return propValue;
+          else return getComplexPropValue(propValue);
+        }
 
-        function updateDependent(propValue) {
+        function getComplexPropValue(propValue) {
           const {length} = action,
                 fn = action[length - 1],
                 dependencies = action.slice(0, length - 1).map(name => get(name)),
                 parameters = [propValue, ...dependencies];
 
-          set(propName, fn.apply(undefined, parameters));
+          return fn.apply(undefined, parameters);
         }
       }
     }
