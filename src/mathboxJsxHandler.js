@@ -68,10 +68,6 @@ scriptHandler('mathbox/jsx', (text, script) => {
           return actions;
 
           function setAction(key) { actions[typeof key === 'number' ? key : key.charCodeAt(0)] = commands[commandName]; }
-
-          function processCommand(commandName, command) {
-            return typeof command === 'function' ? commands[commandName] : complexCommand(commandName, command);
-          }
         }, {});
       }
     }
