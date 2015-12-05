@@ -76,25 +76,25 @@ scriptHandler('mathbox/jsx', (text, script) => {
           (typeof props === 'function' ? props : multipleProps)(view);
 
           function multipleProps(view) {
-            const element = view.select(name);
+            const element = proxied(view.select(name));
 
             for (let propName in props) updateProp(propName, props[propName], element);
           }
         }
       }
 
-      function updateProp(propName, action, element) {
-        (typeof action === 'function' ? update : updateDependent)(element.get(propName));
+      function updateProp(propName, action, {get, set}) {
+        (typeof action === 'function' ? update : updateDependent)(get(propName));
 
-        function update(propValue) { element.set(propName, action(propValue)); }
+        function update(propValue) { set(propName, action(propValue)); }
 
         function updateDependent(propValue) {
           const {length} = action,
                 fn = action[length - 1],
-                dependencies = action.slice(0, length - 1).map(name => element.get(name)),
+                dependencies = action.slice(0, length - 1).map(name => get(name)),
                 parameters = [propValue, ...dependencies];
 
-          element.set(propName, fn.apply(undefined, parameters));
+          set(propName, fn.apply(undefined, parameters));
         }
       }
     }
@@ -103,6 +103,13 @@ scriptHandler('mathbox/jsx', (text, script) => {
       //may want to do something fancier here, perhaps there are things in `run` that could be pre-cached?
       return commands;
     }
+  }
+
+  function proxied(obj) {
+    return {
+      get: (...args) => obj.get.apply(obj, args),
+      set: (...args) => obj.set.apply(obj, args)
+    };
   }
 
 
