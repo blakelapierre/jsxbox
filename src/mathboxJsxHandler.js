@@ -5,18 +5,21 @@ import transformReactJsx from 'babel-plugin-transform-react-jsx';
 import scriptHandler from './scriptHandler';
 
 scriptHandler('mathbox/jsx', (text, script) => {
-  const mathBoxJsx = transform(text, {
-    presets: [es2015],
-    plugins: [[transformReactJsx, {pragma: 'JMB.createElement'}]]
-  });
+  const mathBoxJsx = compile(text);
 
-  const {mathbox, result, root} = handleMathBoxJsx(mathBoxJsx.code),
-        {commands, controls, onMathBoxViewBuilt} = result,
+  const {mathbox, result: {commands, controls, onMathBoxViewBuilt}, root} = handleMathBoxJsx(mathBoxJsx.code),
         view = build(mathbox, root);
 
   window.view = view;
 
   (onMathBoxViewBuilt || set)(view, controls, commands);
+
+  function compile(text) {
+    return transform(text, {
+      presets: [es2015],
+      plugins: [[transformReactJsx, {pragma: 'JMB.createElement'}]]
+    });
+  }
 
   function handleMathBoxJsx(code) {
     const mathbox = mathBox({
@@ -72,12 +75,6 @@ scriptHandler('mathbox/jsx', (text, script) => {
 
     function define(commands) {
       return mapValues(commands, process);
-
-      function mapValues(obj, t) {
-        const ret = {};
-        for (let name in obj) ret[name] = t(name, obj[name]);
-        return ret;
-      }
 
       function process(commandName, command) {
         return typeof command === 'function' ? command : multipleProps;
@@ -146,5 +143,11 @@ scriptHandler('mathbox/jsx', (text, script) => {
       get: (...args) => obj.get.apply(obj, args),
       set: (...args) => obj.set.apply(obj, args)
     };
+  }
+
+  function mapValues(obj, t) {
+    const ret = {};
+    for (let name in obj) ret[name] = t(name, obj[name]);
+    return ret;
   }
 });
