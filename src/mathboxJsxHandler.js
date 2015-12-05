@@ -43,11 +43,11 @@ scriptHandler('mathbox/jsx', (text, script) => {
   }
 
   function build(view, node) {
-    const {name} = node;
+    const {name, children} = node;
 
     if (name !== 'root') handleChild(node);
 
-    (node.children || []).forEach(child => build(view, child));
+    (children || []).forEach(child => build(view, child));
 
     return view;
 
