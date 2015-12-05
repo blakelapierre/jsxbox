@@ -20,7 +20,13 @@ scriptHandler('mathbox/jsx', (text, script) => {
     plugins: [[transformReactJsx, {pragma: 'JMB.createElement'}]]
   });
 
-  function something() {
+  const {result, root} = handleMathBoxJsx(transformed.code),
+        {commands, controls, onMathBoxViewBuilt} = result,
+        view = build(mathbox, root);
+
+  (onMathBoxViewBuilt || set)(view, controls, commands);
+
+  function handleMathBoxJsx(code) {
     let root;
     const JMB = {
       // We'll just assemble our VDOM-like here.
@@ -33,14 +39,9 @@ scriptHandler('mathbox/jsx', (text, script) => {
       }
     };
 
-    return {result: eval(transformed.code) || {}, root}; // possibly dangerous semantics...
+    return {result: eval(code) || {}, root}; // possibly dangerous semantics...
   }
 
-  const {result, root} = something(),
-        {commands, controls, onMathBoxViewBuilt} = result,
-        view = build(mathbox, root);
-
-  (onMathBoxViewBuilt || set)(view, controls, commands);
 
   function set(view, controls, commands) {
     if (controls === undefined || commands === undefined) return;
