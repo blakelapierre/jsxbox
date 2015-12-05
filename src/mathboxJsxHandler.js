@@ -5,12 +5,12 @@ import transformReactJsx from 'babel-plugin-transform-react-jsx';
 import scriptHandler from './scriptHandler';
 
 scriptHandler('mathbox/jsx', (text, script) => {
-  const transformed = transform(text, {
+  const mathBoxJsx = transform(text, {
     presets: [es2015],
     plugins: [[transformReactJsx, {pragma: 'JMB.createElement'}]]
   });
 
-  const {mathbox, result, root} = handleMathBoxJsx(transformed.code),
+  const {mathbox, result, root} = handleMathBoxJsx(mathBoxJsx.code),
         {commands, controls, onMathBoxViewBuilt} = result,
         view = build(mathbox, root);
 
