@@ -77,11 +77,12 @@ scriptHandler('mathbox/jsx', (text, script) => {
 
               if (typeof action === 'function') element.set(propName, action(propValue));
               else {
-                const parameters = [propValue];
+                const {length} = action,
+                      fn = action[length - 1],
+                      dependencies = action.slice(0, length - 1).map(name => element.get(name)),
+                      parameters = [propValue, ...dependencies];
 
-                let i = 0;
-                for (; i < action.length - 1; i++) parameters.push(element.get(action[i]));
-                element.set(propName, action[i].apply(undefined, parameters));
+                element.set(propName, fn.apply(undefined, parameters));
               }
             }
           }
