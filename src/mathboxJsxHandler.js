@@ -94,7 +94,7 @@ scriptHandler('mathbox/jsx', (text, script) => {
         function getComplexPropValue(propValue) {
           const {length} = action,
                 fn = action[length - 1],
-                dependencies = action.slice(0, length - 1).map(name => get(name)),
+                dependencies = action.slice(0, length - 1).map(get),
                 parameters = [propValue, ...dependencies];
 
           return fn.apply(undefined, parameters);
