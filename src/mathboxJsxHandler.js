@@ -36,19 +36,22 @@ scriptHandler('mathbox/jsx', (text, script) => {
 
   const view = build(mathbox, root);
 
-  (result.onMathBoxViewBuilt || set)(view, controls, commands);
+  (onMathBoxViewBuilt || set)(view, controls, commands);
 
   function set(view, controls, commands) {
     if (controls === undefined || commands === undefined) return;
 
-    const actionHandler = generateActionHandler(controls, define(commands));
+    addListeners(generateActionHandler(controls, define(commands)));
 
-    view._context.canvas.parentElement
-      .addEventListener('mousedown', event => view._context.canvas.parentElement.focus());
-    window.addEventListener('keydown', // this is a bit problematic...binding to global event, multiple timess
-      event => event.target === view._context.canvas.parentElement ?
-        actionHandler(event.keyCode)
-      : console.log(event, view));
+    function addListeners(actionHandler) {
+      view._context.canvas.parentElement
+        .addEventListener('mousedown', event => view._context.canvas.parentElement.focus());
+
+      window.addEventListener('keydown', // this is a bit problematic...binding to global event, multiple timess
+        event => event.target === view._context.canvas.parentElement ?
+          actionHandler(event.keyCode)
+        : console.log(event, view));
+    }
 
     function generateActionHandler(controls, commands) {
       const actions = controls.reduce((actions, [keys, command]) => {
@@ -56,7 +59,11 @@ scriptHandler('mathbox/jsx', (text, script) => {
 
         return actions;
 
-        function setAction(key) { actions[key] = command; }
+        function setAction(key) { actions[key] = processCommand(command); }
+
+        function processCommand(command) {
+          return command;
+        }
       }, {});
 
       return keyCode => run(commands[actions[keyCode]]);
@@ -87,7 +94,7 @@ scriptHandler('mathbox/jsx', (text, script) => {
         set(propName, getNewValue(get(propName)));
 
         function getNewValue(propValue) {
-          return typeof action === 'function' ? propValue : getComplexPropValue(propValue);
+          return typeof action === 'function' ? action(propValue) : getComplexPropValue(propValue);
         }
 
         function getComplexPropValue(propValue) {
