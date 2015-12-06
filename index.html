@@ -267,7 +267,8 @@
               'down': view => velocity[1] = modifier(-speed),
               'backward': view => velocity[2] = modifier(-speed),
               'forward': view => velocity[2] = modifier(speed)
-            }
+            },
+            editorPanel: true
           };
 
           function identity(value) { return value; }
