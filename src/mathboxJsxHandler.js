@@ -280,15 +280,10 @@ function diff(oldObj, newObj) {
     return d;
   }
 
-  function modifications(keys, oldObj, newObj) {
+  function modifications(keysToCheck, oldObj, newObj) {
     const m = [];
 
-    keys.forEach(key => {
-      const newValue = newObj[key],
-            oldValue = oldObj[key];
-
-      if (newValue !== oldValue) m.push(key);
-    });
+    keysToCheck.forEach(key => (newObj[key] !== oldObj[key]) ? m.push(key) : undefined);
 
     return m;
   }
