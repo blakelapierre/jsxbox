@@ -193,7 +193,7 @@
           const position = [-5, 0, 5, 0],
                 velocity = [0, 0, 0, 0];
 
-          function cameraPosition(t, dt) {
+          function projectionPosition(t, dt) {
             const [x, y, z, w] = position,
                   [vx, vy, vz, vw] = velocity;
 
@@ -230,14 +230,14 @@
           <root>
               <camera
                 proxy={true}
-                lookAt={[Math.sqrt(Math.PI), 0, 0]}
-                position={cameraPosition}
+                lookAt={projectionPosition}
+                position={[0, 0, 5]}
               />
 
               <spherical
                 range={[[x_min, x_max], [y_min, y_max], [z_min, z_max], [-1, 1]]}
                 scale={[16/9, 1, 1, 1]}
-                position={[Math.sqrt(Math.PI), 0, 0]}
+                position={projectionPosition}
                 rotation={t => [t / Math.PI, t / Math.PI, t / Math.PI]}
               >
                 <array length={data.length} channels={3} data={data} />
