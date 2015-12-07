@@ -9,7 +9,7 @@ const timeToUpdate = 1000; // In milliseconds
 let boxes = [];
 
 scriptHandler('mathbox/jsx', (text, script) => {
-  const {view, result, root} = handleMathBoxJsx(text, script.parentNode),
+  const {view, result, root} = handleMathBoxJsx(beautify(text), script.parentNode),
         {commands, controls, onMathBoxViewBuilt} = result;
 
   window.mathboxes = boxes;
@@ -26,7 +26,7 @@ function handleMathBoxJsx(code, parentNode) { //get rid of parentNode
 
   const view = mathBox({
     element,
-    plugins: plugins || ['core', 'cursor', 'stats'],
+    plugins: plugins || ['core', 'cursor'],
     controls: {
       klass: cameraControls || THREE.OrbitControls
     },
@@ -225,6 +225,27 @@ function attachControls(view, controls, commands) {
   }
 }
 
+function beautify(text) {
+  console.log('Initial text', text);
+  let inferredIndentation = 0;
+  for (let i = text.startsWith('\n') ? 1 : 0; i < text.length; i++) {
+    const char = text.charAt(i);
+
+    if (char === ' ') inferredIndentation++;
+    else break;
+  }
+
+  console.log('indentation', inferredIndentation);
+
+  if (inferredIndentation > 0) {
+    const regex = new RegExp(`^ {${inferredIndentation}}`, 'gm');
+
+    console.log(regex);
+    return text.substr(text.startsWith('\n')).replace(regex, '');
+  }
+
+  return text;
+}
 
 // https://davidwalsh.name/javascript-debounce-function
 function debounce(func, wait, immediate) {
