@@ -193,6 +193,7 @@
     <div class="box">
       <mathbox tabindex="2">
         <script type="mathbox/jsx">
+
           const position = [-5, 0, 5, 0],
                 velocity = [0, 0, 0, 0];
 
@@ -220,7 +221,7 @@
           const data = [],
                 x_min = 1, x_max = 128,
                 y_min = 1, y_max = 128,
-                z_min = 0, z_max = 128;
+                z_min = 0, z_max = 64;
 
           for (let x = x_min; x < x_max; x++)
             for (let y = y_min; y < y_max; y++)
@@ -234,18 +235,40 @@
               <camera
                 proxy={true}
                 lookAt={projectionPosition}
-                position={[0, 0, 5]}
+                position={[0, 0, 25]}
               />
 
               <spherical
-                range={[[x_min, x_max], [y_min, y_max], [z_min, z_max], [-1, 1]]}
-                scale={[16/9, 1, 1, 1]}
+                range={[[-1, 1], [-1, 1], [-1, 1], [-1, 1]]}
+                scale={[1, 1, 1, 1]}
+                bend={t=>t/(t-1)}
                 position={projectionPosition}
-                rotation={t => [t / Math.PI, t / Math.PI, t / Math.PI]}
               >
-                <array length={data.length} channels={3} data={data} />
-                <swizzle order={'zxyw'} />
-                <point size={1} color={[64 / 255, 128 / 255, 192 / 255]} blending={'add'}/>
+
+                <polar
+                  range={[[x_min, x_max], [y_min, y_max], [z_min, z_max], [-1, 1]]}
+                  scale={[16/9, 1, 1, 1]}
+                  position={projectionPosition}
+                  bend={1}
+                  helix={1}
+                  rotation={t => [-t / Math.PI, -t / Math.PI, -t / Math.PI]}
+                >
+                  <array length={data.length} channels={3} data={data} />
+                  <swizzle order={'xyzw'} />
+                  <point size={1} color={[64 / 255, 128 / 255, 192 / 255]} blending={'add'}/>
+                </polar>
+
+                <spherical
+                  range={[[x_min, x_max], [y_min, y_max], [z_min, z_max], [-1, 1]]}
+                  scale={[16/9, 1, 1, 1]}
+                  position={projectionPosition}
+                  rotation={t => [t / Math.PI, t / Math.PI, t / Math.PI]}
+                >
+                  <array length={data.length} channels={3} data={data} />
+                  <swizzle order={'zxyw'} />
+                  <point size={1} color={[64 / 255, 128 / 255, 192 / 255]} blending={'add'}/>
+                </spherical>
+
               </spherical>
           </root>
 
@@ -276,6 +299,7 @@
 
           function identity(value) { return value; }
           function turbo(value) { return value * value * value / Math.abs(value); }
+
         </script>
       </mathbox>
       <div class="panel"></div>
