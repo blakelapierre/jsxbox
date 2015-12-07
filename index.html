@@ -225,7 +225,7 @@
           for (let x = x_min; x < x_max; x++)
             for (let y = y_min; y < y_max; y++)
               for (let z = z_min; z < z_max; z++)
-                if (x !== 0 && y !== 0 && x % y === z) data.push([x, y, z, Math.log(x*x + y*y + z*z)]);
+                if (x !== 0 && y !== 0 && x % y === z) data.push([x, y, z, Math.log(Math.pow(x, x) + Math.pow(y,y) + Math.pow(z,z))]);
 
           console.log(data.length, 'divisors!');
 
@@ -234,7 +234,7 @@
               <camera
                 proxy={true}
                 lookAt={projectionPosition}
-                position={t=>[0, 0, (Math.sin(t / 4) + 1) * 100]}
+                position={t=>[0, 0, (Math.sin(t / 4) + 1) * 1000]}
               />
 
 
@@ -342,7 +342,6 @@
 
           function identity(value) { return value; }
           function turbo(value) { return value * value * value / Math.abs(value); }
-
         </script>
       </mathbox>
       <div class="panel"></div>
