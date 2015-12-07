@@ -35,25 +35,26 @@ scriptHandler('mathbox/jsx', (text, script) => {
           function runCommand(name, command) {
             const props = command[name],
                   element = proxied(view.select(name));
+
             for (let propName in props) updateProp(propName, props[propName], element);
+
+            function updateProp(propName, action, {get, set}) {
+              let isComplex = action !== 'function',
+                  getNewValue = isComplex ? getComplexPropValue : action;
+
+              set(propName, getNewValue(get(propName)));
+
+              function getComplexPropValue(propValue) {
+                const {length} = action,
+                      fnIndex = length - 1,
+                      fn = action[fnIndex],
+                      dependencies = action.slice(0, fnIndex).map(get),
+                      parameters = [propValue, ...dependencies];
+
+                return fn.apply(undefined, parameters);
+              }
+            }
           }
-        }
-      }
-
-      function updateProp(propName, action, {get, set}) {
-        let isComplex = action !== 'function',
-            getNewValue = isComplex ? getComplexPropValue : action;
-
-        set(propName, getNewValue(get(propName)));
-
-        function getComplexPropValue(propValue) {
-          const {length} = action,
-                fnIndex = length - 1,
-                fn = action[fnIndex],
-                dependencies = action.slice(0, fnIndex).map(get),
-                parameters = [propValue, ...dependencies];
-
-          return fn.apply(undefined, parameters);
         }
       }
     }
