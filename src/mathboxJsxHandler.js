@@ -107,11 +107,9 @@ scriptHandler('mathbox/jsx', (text, script) => {
     const {length} = boxes,
           {target} = event;
 
-    console.log(event);
-
     for (let i = 0; i < length; i++) {
       const {box, actionHandler} = boxes[i]; // don't need to pull actionHandler out here for most cases
-      console.log(i, target, box, target === box, actionHandler);
+
       if (target === box) {
         actionHandler(event.keyCode);
         return;
@@ -173,17 +171,23 @@ function handleMathBoxJsx(code, parentNode) { //get rid of parentNode
     element.appendChild(panel);
 
     function update(event) {
-      try {
-        const code = panel.innerText,
-              {result, root} = runMathBoxJsx(compile(code).code);
+      const newCode = panel.innerText;
 
-        view.remove('*');
-        build(view, root);
-        console.log({result, currentRoot, root});
-       // patch(view, diff(currentRoot, root));
-      }
-      catch (e) {
-        console.log('Failed to update', e);
+      if (newCode !== code) updateScene(newCode); // possibly not the most efficient comparison? (might be!)
+
+      function updateScene(code) {
+        console.log('updating scene');
+        try {
+          const {result, root} = runMathBoxJsx(compile(code).code);
+
+          view.remove('*');
+          build(view, root);
+
+         // patch(view, diff(currentRoot, root));
+        }
+        catch (e) {
+          console.log('Failed to update', e);
+        }
       }
     }
   }
