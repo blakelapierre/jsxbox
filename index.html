@@ -275,7 +275,7 @@
                   >
                     <array length={data.length} channels={4} data={data} />
                     <swizzle order={'xywz'} />
-                    <point size={1} color={[64 / 255, 128 / 255, 192 / 255]} blending={'add'}/>
+                    <point size={1} color={[128 / 255, 192 / 255, 64 / 255]} blending={'add'}/>
                   </polar>
 
                   <spherical
@@ -285,8 +285,8 @@
                     rotation={t => [t / Math.PI, t / Math.PI, t / Math.PI]}
                   >
                     <array length={data.length} channels={4} data={data} />
-                    <swizzle order={'xywz'} />
-                    <point size={1} color={[64 / 255, 128 / 255, 192 / 255]} blending={'add'}/>
+                    <swizzle order={'wxww'} />
+                    <point size={1} color={[64 / 255, 192 / 255, 128 / 255]} blending={'add'}/>
                   </spherical>
 
                   <spherical
@@ -296,19 +296,19 @@
                     rotation={t => [t / Math.PI, t / Math.PI, t / Math.PI]}
                   >
                     <array length={data.length} channels={4} data={data} />
-                    <swizzle order={'xywz'} />
-                    <point size={1} color={[64 / 255, 128 / 255, 192 / 255]} blending={'add'}/>
+                    <swizzle order={'yxzw'} />
+                    <point size={1} color={[192 / 255, 64 / 255, 128 / 255]} blending={'add'}/>
                   </spherical>
 
                   <spherical
                     range={[[x_min, x_max], [y_min, y_max], [z_min, z_max], [-1, 1]]}
                     scale={[16/9, 1, 1, 1]}
                     position={projectionPosition}
-                    rotation={t => [t / Math.PI, -t / Math.PI, t / Math.PI]}
+                    rotation={t => [-t / Math.PI, -t / Math.PI, -t / Math.PI]}
                   >
                     <array length={data.length} channels={4} data={data} />
                     <swizzle order={'xywz'} />
-                    <point size={1} color={[64 / 255, 128 / 255, 192 / 255]} blending={'add'}/>
+                    <point size={1} color={[192 / 255, 128 / 255, 64 / 255]} blending={'add'}/>
                   </spherical>
 
                 </spherical>
