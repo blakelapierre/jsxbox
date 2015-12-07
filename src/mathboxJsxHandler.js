@@ -16,29 +16,6 @@ scriptHandler('mathbox/jsx', (text, script) => {
 
   (onMathBoxViewBuilt || set)(view, controls, commands);
 
-  function build(view, node) {
-    const {name, children} = node;
-
-    if (name !== 'root') handleChild(node);
-
-    (children || []).forEach(child => build(view, child));
-
-    return view;
-
-    function handleChild({name, props}) {
-      let props1 = {}, props2;
-
-      for (let propName in props) handleProp(propName, props[propName]);
-
-      view = view[name](props1, props2);
-
-      function handleProp(propName, prop) {
-        if (typeof prop === 'function' && (name === 'camera' || (propName !== 'expr'))) (props2 = (props2 || {}))[propName] = prop;
-        else (props1 = (props1 || {}))[propName] = prop;
-      }
-    }
-  }
-
   function set(view, controls, commands) {
     if (controls === undefined || commands === undefined) return;
 
@@ -196,12 +173,18 @@ function handleMathBoxJsx(code, parentNode) { //get rid of parentNode
     element.appendChild(panel);
 
     function update(event) {
-      const code = panel.innerText,
-            {result, root} = runMathBoxJsx(compile(code).code);
+      try {
+        const code = panel.innerText,
+              {result, root} = runMathBoxJsx(compile(code).code);
 
-      console.log({result, currentRoot, root});
-
-      patch(view, diff(currentRoot, root));
+        view.remove('*');
+        build(view, root);
+        console.log({result, currentRoot, root});
+       // patch(view, diff(currentRoot, root));
+      }
+      catch (e) {
+        console.log('Failed to update', e);
+      }
     }
   }
 }
@@ -211,6 +194,29 @@ function compile(text) {
     presets: [es2015],
     plugins: [[transformReactJsx, {pragma: 'JMB.createElement'}]]
   });
+}
+
+function build(view, node) {
+  const {name, children} = node;
+
+  if (name !== 'root') handleChild(node);
+
+  (children || []).forEach(child => build(view, child));
+
+  return view;
+
+  function handleChild({name, props}) {
+    let props1 = {}, props2;
+
+    for (let propName in props) handleProp(propName, props[propName]);
+
+    view = view[name](props1, props2);
+
+    function handleProp(propName, prop) {
+      if (typeof prop === 'function' && (name === 'camera' || (propName !== 'expr'))) (props2 = (props2 || {}))[propName] = prop;
+      else (props1 = (props1 || {}))[propName] = prop;
+    }
+  }
 }
 
 function diff(oldObj, newObj) {
