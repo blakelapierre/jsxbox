@@ -16,9 +16,9 @@ scriptHandler('mathbox/jsx', (text, script) => {
 
   window.view = view;
 
-  (onMathBoxViewBuilt || set)(view, controls, commands);
+  (onMathBoxViewBuilt || attachControls)(view, controls, commands);
 
-  function set(view, controls, commands) {
+  function attachControls(view, controls, commands) {
     if (controls === undefined || commands === undefined) return;
 
     addListeners(generateActionHandler(controls, define(commands)));
