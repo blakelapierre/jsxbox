@@ -36,7 +36,7 @@ function handleMathBoxJsx(code, parentNode) { //get rid of parentNode
 
   console.log(root);
 
-  return {view, result, root}; // possibly dangerous semantics...
+  return {view, result, root};
 
   function runMathBoxJsx(code) {
     let root;
