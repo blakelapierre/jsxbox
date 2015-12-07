@@ -61,10 +61,7 @@ function handleMathBoxJsx(code, parentNode) { //get rid of parentNode
 
     panel.className = 'editor-panel hidden';
 
-    // panel.innerText = code;
     panel.value = code;
-
-    panel.contentEditable = true;
 
     panel.addEventListener('keyup', debounce(update, timeToUpdate));
 
