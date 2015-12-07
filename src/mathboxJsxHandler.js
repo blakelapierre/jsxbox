@@ -4,6 +4,8 @@ import transformReactJsx from 'babel-plugin-transform-react-jsx';
 
 import scriptHandler from './scriptHandler';
 
+const timeToUpdate = 1000; // In milliseconds
+
 let boxes = [];
 
 scriptHandler('mathbox/jsx', (text, script) => {
@@ -158,30 +160,32 @@ function handleMathBoxJsx(code, parentNode) { //get rid of parentNode
   }
 
   function attachPanel(element, currentRoot) {
-    const panel = document.createElement('div');
+    const panel = document.createElement('textarea');
 
     panel.className = 'editor-panel hidden';
 
-    panel.innerText = code;
+    // panel.innerText = code;
+    panel.value = code;
 
     panel.contentEditable = true;
 
-    panel.addEventListener('keyup', update);
+    panel.addEventListener('keyup', debounce(update, timeToUpdate));
 
     element.appendChild(panel);
 
     function update(event) {
-      const newCode = panel.innerText;
+      const newCode = panel.value;
 
       if (newCode !== code) updateScene(newCode); // possibly not the most efficient comparison? (might be!)
 
-      function updateScene(code) {
+      function updateScene(newCode) {
         console.log('updating scene');
         try {
-          const {result, root} = runMathBoxJsx(compile(code).code);
+          const {result, root} = runMathBoxJsx(compile(newCode).code);
 
           view.remove('*');
           build(view, root);
+          code = newCode; // should be somehwere else
 
          // patch(view, diff(currentRoot, root));
         }
@@ -221,6 +225,25 @@ function build(view, node) {
       else (props1 = (props1 || {}))[propName] = prop;
     }
   }
+}
+
+
+// https://davidwalsh.name/javascript-debounce-function
+function debounce(func, wait, immediate) {
+  let timeout;
+  return function() {
+    const context = this, args = arguments;
+
+    const later = function() {
+      timeout = null;
+      if (!immediate) func.apply(context, args);
+    };
+
+    const callNow = immediate && !timeout;
+    clearTimeout(timeout);
+    timeout = setTimeout(later, wait);
+    if (callNow) func.apply(context, args);
+  };
 }
 
 function diff(oldObj, newObj) {
