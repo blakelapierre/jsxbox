@@ -3,6 +3,7 @@ import es2015 from 'babel-preset-es2015';
 import transformReactJsx from 'babel-plugin-transform-react-jsx';
 
 import debounce from './debounce';
+import unindent from './unindent';
 import scriptHandler from './scriptHandler';
 
 const timeToUpdate = 1000; // In milliseconds
@@ -10,7 +11,7 @@ const timeToUpdate = 1000; // In milliseconds
 let boxes = [];
 
 scriptHandler('mathbox/jsx', (text, script) => {
-  const {view, result, root} = handleMathBoxJsx(beautify(text), script.parentNode),
+  const {view, result, root} = handleMathBoxJsx(unindent(text), script.parentNode),
         {commands, controls, onMathBoxViewBuilt} = result;
 
   window.mathboxes = boxes;
@@ -224,26 +225,6 @@ function attachControls(view, controls, commands) {
 
     console.log('no handler', event, boxes);
   }
-}
-
-function beautify(text) {
-  let inferredIndentation = 0;
-  for (let i = text.startsWith('\n') ? 1 : 0; i < text.length; i++) {
-    const char = text.charAt(i);
-
-    if (char === ' ') inferredIndentation++;
-    else break;
-  }
-
-  console.log('indentation', inferredIndentation);
-
-  if (inferredIndentation > 0) {
-    const regex = new RegExp(`^ {${inferredIndentation}}`, 'gm');
-
-    return text.substr(text.startsWith('\n')).replace(regex, '');
-  }
-
-  return text;
 }
 
 
