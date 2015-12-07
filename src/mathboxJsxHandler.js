@@ -226,7 +226,6 @@ function attachControls(view, controls, commands) {
 }
 
 function beautify(text) {
-  console.log('Initial text', text);
   let inferredIndentation = 0;
   for (let i = text.startsWith('\n') ? 1 : 0; i < text.length; i++) {
     const char = text.charAt(i);
@@ -240,7 +239,6 @@ function beautify(text) {
   if (inferredIndentation > 0) {
     const regex = new RegExp(`^ {${inferredIndentation}}`, 'gm');
 
-    console.log(regex);
     return text.substr(text.startsWith('\n')).replace(regex, '');
   }
 
