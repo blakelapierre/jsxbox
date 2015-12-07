@@ -2,6 +2,7 @@ import {transform} from 'babel-core';
 import es2015 from 'babel-preset-es2015';
 import transformReactJsx from 'babel-plugin-transform-react-jsx';
 
+import debounce from './debounce';
 import scriptHandler from './scriptHandler';
 
 const timeToUpdate = 1000; // In milliseconds
@@ -245,23 +246,6 @@ function beautify(text) {
   return text;
 }
 
-// https://davidwalsh.name/javascript-debounce-function
-function debounce(func, wait, immediate) {
-  let timeout;
-  return function() {
-    const context = this, args = arguments;
-
-    const later = function() {
-      timeout = null;
-      if (!immediate) func.apply(context, args);
-    };
-
-    const callNow = immediate && !timeout;
-    clearTimeout(timeout);
-    timeout = setTimeout(later, wait);
-    if (callNow) func.apply(context, args);
-  };
-}
 
 function diff(oldObj, newObj) {
   console.log('diffing', oldObj, newObj);
