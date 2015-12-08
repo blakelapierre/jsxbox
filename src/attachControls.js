@@ -7,12 +7,11 @@ export default function attachControls(view, controls, commands) {
   addListeners(generateActionHandler(controls, define(commands)));
 
   function define(commands) {
-    return mapValues(commands, process);
+    console.log('commands', commands);
+    return dispatch(commands, value => typeof value, {'function': command => command}, createMultiplePropsHandler);
 
-    function process(commandName, command) {
-      return typeof command === 'function' ? command : multipleProps;
-
-      function multipleProps(view, keyCode) { // shouldn't be keycode here...
+    function createMultiplePropsHandler(command) {
+      return function multipleProps(view, keyCode) { // shouldn't be keycode here...
         for (let name in command) runCommand(name, command);
 
         function runCommand(name, command) {
@@ -43,8 +42,12 @@ export default function attachControls(view, controls, commands) {
             }
           }
         }
-      }
+      };
     }
+  }
+
+  function dispatch(obj, selector, handlers, defaultHandler) {
+    return mapValues(obj, (name, value) => (handlers[selector(value, name)] || defaultHandler)(value));
   }
 
   function generateActionHandler(controls, commands) {

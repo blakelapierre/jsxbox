@@ -115,9 +115,11 @@
 
         module.exports = {
           controls: [
+            [['D'], 'debugmessage'],
             [['F'], 'fovchange']
           ],
           commands: {
+            'debugmessage': () => console.log('it worked'),
             'fovchange': {camera: {fov: nextFov}}
 
             // Alternatives
