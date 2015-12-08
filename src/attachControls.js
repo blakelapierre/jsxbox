@@ -44,10 +44,6 @@ export default function attachControls(view, controls, commands) {
     }
   }
 
-  function dispatch(obj, tagger, handlers, defaultHandler) {
-    return mapValues(obj, (name, value) => (handlers[tagger(value, name)] || defaultHandler)(value));
-  }
-
   function generateActionHandler(controls, commands) {
     const actions = buildActions(controls, commands);
 
@@ -78,45 +74,49 @@ export default function attachControls(view, controls, commands) {
 
     boxes.push({box, actionHandler, view});
   }
+}
 
-  function proxied(obj) {
-    return {
-      get: (...args) => obj.get.apply(obj, args),
-      set: (...args) => obj.set.apply(obj, args)
-    };
-  }
+function windowKeydownListener(event) {
+  const {length} = boxes,
+        {target} = event;
 
-  function mapValues(obj, t) {
-    const ret = {};
-    for (let key in obj) ret[key] = t(key, obj[key]);
-    return ret;
-  }
+  for (let i = 0; i < length; i++) {
+    const {box, actionHandler} = boxes[i]; // don't need to pull actionHandler out here for most cases
 
-  function updateValues(obj, t) {
-    for (let key in obj) obj[key] = t(key, obj[key]);
-    return obj;
-  }
-
-  function forEach(obj, fn) {
-    for (let key in obj) fn(key, obj[key]);
-    return obj;
-  }
-
-  function windowKeydownListener(event) {
-    const {length} = boxes,
-          {target} = event;
-
-    for (let i = 0; i < length; i++) {
-      const {box, actionHandler} = boxes[i]; // don't need to pull actionHandler out here for most cases
-
-      if (target === box) {
-        actionHandler(event.keyCode);
-        return;
-      }
+    if (target === box) {
+      actionHandler(event.keyCode);
+      return;
     }
-
-    console.log('no handler', event, boxes);
   }
+
+  console.log('no handler', event, boxes);
+}
+
+function dispatch(obj, tagger, handlers, defaultHandler) {
+  return mapValues(obj, (name, value) => (handlers[tagger(value, name)] || defaultHandler)(value));
+}
+
+function proxied(obj) {
+  return {
+    get: (...args) => obj.get.apply(obj, args),
+    set: (...args) => obj.set.apply(obj, args)
+  };
+}
+
+function mapValues(obj, t) {
+  const ret = {};
+  for (let key in obj) ret[key] = t(key, obj[key]);
+  return ret;
+}
+
+function updateValues(obj, t) {
+  for (let key in obj) obj[key] = t(key, obj[key]);
+  return obj;
+}
+
+function forEach(obj, fn) {
+  for (let key in obj) fn(key, obj[key]);
+  return obj;
 }
 
 function focusOn(el, eventName) { return el.addEventListener(eventName, () => el.focus()); }
