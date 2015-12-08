@@ -66,10 +66,6 @@ export default function attachControls(view, controls, commands) {
 
     boxes.push({box, actionHandler, view});
 
-    // window.addEventListener('keydown', // this is a bit problematic...binding to global event, multiple timess
-    //   event => event.target === box ? actionHandler(event.keyCode)
-    //                                 : console.log(event, view));
-
     function focusOn(el, eventName) { return el.addEventListener(eventName, () => el.focus()); }
   }
 
