@@ -15,7 +15,6 @@ let boxes = [];
 
 scriptHandler('mathbox/jsx', (text, script) => {
   const {view, result, root} = handleMathBoxJsx(unindent(text))(script.parentNode),
-  // const {view, result, root} = handleMathBoxJsx(unindent(text), script.parentNode),
         {commands, controls, onMathBoxViewBuilt} = result;
 
   window.mathboxes = boxes;
