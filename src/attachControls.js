@@ -65,8 +65,6 @@ export default function attachControls(view, controls, commands) {
     if (boxes.length === 0) window.addEventListener('keydown', windowKeydownListener);
 
     boxes.push({box, actionHandler, view});
-
-    function focusOn(el, eventName) { return el.addEventListener(eventName, () => el.focus()); }
   }
 
   function proxied(obj) {
@@ -98,3 +96,5 @@ export default function attachControls(view, controls, commands) {
     console.log('no handler', event, boxes);
   }
 }
+
+function focusOn(el, eventName) { return el.addEventListener(eventName, () => el.focus()); }
