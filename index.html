@@ -120,7 +120,9 @@
           ],
           commands: {
             'debugmessage': () => console.log('it worked'),
-            'fovchange': {camera: {fov: nextFov}}
+            'fovchange': {'camera': {fov: nextFov}}
+
+            // 'fovchange': ['camera', {fov: nextFov}]// Should this be allowed?
 
             // Alternatives
 

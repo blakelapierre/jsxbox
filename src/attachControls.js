@@ -13,8 +13,8 @@ export default function attachControls(view, controls, commands) {
       return view => {
         forEach(command, executeCommand);
 
-        function executeCommand(name, props) {
-          const {get, set} = proxied(view.select(name));
+        function executeCommand(selector, props) {
+          const {get, set} = proxied(view.select(selector));
 
           forEach(props, updateProp);
 
