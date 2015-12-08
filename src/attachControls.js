@@ -28,16 +28,17 @@ export default function attachControls(view, controls, commands) {
             set(propName, getNewValue(get(propName)));
 
             function getComplexPropValue(propValue) {
-              if (typeof action === 'function') return action(propValue);
-              else if (typeof action === 'number') return action;
-              else {
-                const {length} = action,
-                      fnIndex = length - 1,
-                      fn = action[fnIndex],
-                      dependencies = action.slice(0, fnIndex).map(get),
-                      parameters = [propValue, ...dependencies];
+              switch (typeof action) {
+                case 'function': return action(propValue);
+                case 'number': return action;
+                default:
+                  const {length} = action,
+                        fnIndex = length - 1,
+                        fn = action[fnIndex],
+                        dependencies = action.slice(0, fnIndex).map(get),
+                        parameters = [propValue, ...dependencies];
 
-                return fn.apply(undefined, parameters);
+                  return fn.apply(undefined, parameters);
               }
             }
           }
