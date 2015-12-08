@@ -80,7 +80,13 @@
     <div class="box">
       <mathbox tabindex="2">
         <script type="mathbox/jsx">
-        const {data, x_min, y_min, z_min, x_max, y_max, z_max, width, height, depth} = generateData(1, 1, 0, 256, 256, 16);
+        const {
+          data,
+          domain: {x_min, y_min, z_min, x_max, y_max, z_max, width, height, depth},
+          range
+        } = generateData(1, 1, 2, 1024, 1024, 3);
+
+        console.log({range});
 
         <root>
             <camera
@@ -91,7 +97,7 @@
             />
 
             <spherical
-              range={[[x_min, x_max], [y_min, y_max], [z_min, z_max], [-1, 1]]}
+              range={[[range.min_x, range.max_x], [range.min_y, range.max_y], [range.min_z, range.max_z], [-1, 1]]}
               scale={[16/9, 1, 1, 1]}
               position={[-5, 0, 5, 0]}
               bend={t=> (Math.sin(t / 5) + 1) / 0.25}
@@ -110,12 +116,34 @@
                 z_max = z_min + depth - 1,
                 data = [];
 
+          let min_x = Number.MAX_VALUE, max_x = Number.MIN_VALUE,
+              min_y = Number.MAX_VALUE, max_y = Number.MIN_VALUE,
+              min_z = Number.MAX_VALUE, max_z = Number.MIN_VALUE;
+
           for (let x = x_min; x < x_max; x++)
             for (let y = y_min; y < y_max; y++)
               for (let z = z_min; z < z_max; z++)
-                if (selector(x, y, z)) data.push(transform(x, y, z));
+                if (selector(x, y, z)) {
+                  const transformed = transform(x, y, z),
+                        [tx, ty, tz, tw] = transformed;
 
-          return {data, x_min, y_min, z_min, x_max, y_max, z_max, width, height, depth};
+                  if (tx < min_x) min_x = tx;
+                  if (tx > max_x) max_x = tx;
+
+                  if (ty < min_y) min_y = ty;
+                  if (ty > max_y) max_y = ty;
+
+                  if (tz < min_z) min_z = tz;
+                  if (tz > max_z) max_z = tz;
+
+                  data.push(transformed);
+                }
+
+          return {
+            data,
+            domain: {x_min, y_min, z_min, x_max, y_max, z_max, width, height, depth},
+            range: {min_x, min_y, min_z, max_x, max_y, max_z}
+          };
         }
 
         function divisors(x, y, z) {
@@ -123,7 +151,7 @@
         }
 
         function scaledWFrom3Items(x, y, z) {
-          return [x, y, z, 1 + x * y * z];
+          return [x, y, z, 1 + x / y * z];
         }
 
         module.exports = {
@@ -162,6 +190,7 @@
           index = (index + 1 ) % fovs.length;
           return thisFov;
         }
+
         </script>
       </mathbox>
       <div class="panel"></div>
