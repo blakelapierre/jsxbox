@@ -73,3 +73,18 @@ export default function diff(oldObj, newObj) {
     return m;
   }
 }
+
+const obj1 = {
+        // name: 'root',
+        props: null,
+        children: [{
+          name: 'camera',
+          props: {lookAt: [0, 0, 0]}
+        }]
+      },
+      obj2 = {
+        name: 'root',
+        children: []
+      };
+
+diff(obj1, obj2);
