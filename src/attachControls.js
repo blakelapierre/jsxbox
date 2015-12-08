@@ -7,24 +7,19 @@ export default function attachControls(view, controls, commands) {
   addListeners(generateActionHandler(controls, define(commands)));
 
   function define(commands) {
-    console.log('commands', commands);
     return dispatch(commands, value => typeof value, {'function': command => command}, createMultiplePropsHandler);
 
     function createMultiplePropsHandler(command) {
       return function multipleProps(view) {
-        console.log({command, view});
         forEach(command, executeCommand);
-        // for (let name in command) executeCommand(name, command);
 
         function executeCommand(name, comfmand) {
           const props = command[name],
                 {get, set} = proxied(view.select(name));
-console.log({name, command, props});
+
           forEach(props, updateProp);
-          // for (let propName in props) updateProp(propName, props[propName], element);
 
           function updateProp(propName, action) {
-            console.log({propName, action});
             let isComplex = typeof action !== 'function',
                 getNewValue = isComplex ? getComplexPropValue : action;
 
@@ -55,7 +50,6 @@ console.log({name, command, props});
   }
 
   function generateActionHandler(controls, commands) {
-    console.log('commands', {commands});
     const actions = buildActions(controls, commands);
 
     return keyCode => (actions[keyCode] || noActionHandler)(view, keyCode);
