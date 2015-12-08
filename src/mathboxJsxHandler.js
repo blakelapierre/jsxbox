@@ -62,6 +62,11 @@ function handleMathBoxJsx(code, parentNode) { //get rid of parentNode
   }
 
   function attachPanel(element, currentRoot) {
+    const updateStrategies = {
+      'replace': replaceStrategy,
+      'diffpatch': diffpatchStrategy
+    }, currentUpdateStrategy = 'replace';
+
     const panel = document.createElement('textarea');
 
     panel.className = 'editor-panel hidden';
@@ -82,16 +87,23 @@ function handleMathBoxJsx(code, parentNode) { //get rid of parentNode
         try {
           const {result, root} = runMathBoxJsx(compile(newCode).code);
 
-          view.remove('*');
-          build(view, root);
-          code = newCode; // should be somehwere else
+          updateStrategies[currentUpdateStrategy](view, root, newCode);
 
-         // patch(view, diff(currentRoot, root));
+          code = newCode;
         }
         catch (e) {
           console.log('Failed to update', e);
         }
       }
+    }
+
+    function replaceStrategy(view, root, newCode) {
+      view.remove('*');
+      build(view, root);
+    }
+
+    function diffpatchStrategy(view, root, newCode) {
+      patch(view, diff(currentRoot, root));
     }
   }
 }
