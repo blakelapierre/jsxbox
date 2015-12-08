@@ -9,9 +9,15 @@ export default function debounce(func, wait, immediate) {
       if (!immediate) func.apply(context, args);
     };
 
-    const callNow = immediate && !timeout;
-    clearTimeout(timeout);
+    if (timeout) clearTimeout(timeout);
+
+    const callNow = immediate && !timeout,
+          now = new Date().getTime();
+
     timeout = setTimeout(later, wait);
+
     if (callNow) func.apply(context, args);
+
+    return now + wait;
   };
 }

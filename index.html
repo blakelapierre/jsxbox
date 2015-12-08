@@ -114,8 +114,37 @@
         </root>
 
         module.exports = {
-          editorPanel: true
+          controls: [
+            [['F'], 'fovchange']
+          ],
+          commands: {
+            // 'fovchange': {camera: {fov: nextFov}}
+
+            // Alternatives
+
+            // Apply changes from last value
+            // 'fovchange': {camera: {fov: fov => fov - 10}}
+
+            // Use other properties
+            // 'fovchange': {camera: {fov: ['position', (fov, position) => fov + position.z * 5]}}
+
+            // Use constants
+            // 'fovchange': {camera: {fov: 10}}
+
+            // Don't need to request other properties to use array syntax
+            // 'fovchange': {camera: {fov: [nextFov]}}
+          },
+          editorPanel: false
         };
+
+        let index = 0;
+        const fovs = [30, 60, 90, 120];
+        function nextFov() {
+          console.log('next', fovs, index);
+          const thisFov = fovs[index];
+          index = (index + 1 ) % fovs.length;
+          return thisFov;
+        }
         </script>
       </mathbox>
       <div class="panel"></div>
