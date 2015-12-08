@@ -12,15 +12,19 @@ export default function attachControls(view, controls, commands) {
 
     function createMultiplePropsHandler(command) {
       return function multipleProps(view) {
-        for (let name in command) runCommand(name, command);
+        console.log({command, view});
+        forEach(command, executeCommand);
+        // for (let name in command) executeCommand(name, command);
 
-        function runCommand(name, command) {
+        function executeCommand(name, comfmand) {
           const props = command[name],
-                element = proxied(view.select(name));
+                {get, set} = proxied(view.select(name));
+console.log({name, command, props});
+          forEach(props, updateProp);
+          // for (let propName in props) updateProp(propName, props[propName], element);
 
-          for (let propName in props) updateProp(propName, props[propName], element);
-
-          function updateProp(propName, action, {get, set}) {
+          function updateProp(propName, action) {
+            console.log({propName, action});
             let isComplex = typeof action !== 'function',
                 getNewValue = isComplex ? getComplexPropValue : action;
 
@@ -46,17 +50,20 @@ export default function attachControls(view, controls, commands) {
     }
   }
 
-  function dispatch(obj, selector, handlers, defaultHandler) {
-    return mapValues(obj, (name, value) => (handlers[selector(value, name)] || defaultHandler)(value));
+  function dispatch(obj, tagger, handlers, defaultHandler) {
+    return mapValues(obj, (name, value) => (handlers[tagger(value, name)] || defaultHandler)(value));
   }
 
   function generateActionHandler(controls, commands) {
+    console.log('commands', {commands});
     const actions = buildActions(controls, commands);
 
     return keyCode => (actions[keyCode] || noActionHandler)(view, keyCode);
 
     function buildActions(controls, commands) {
-      return controls.reduce((actions, [keys, commandName]) => {
+      return controls.reduce(addAction, {});
+
+      function addAction(actions, [keys, commandName]) {
         (typeof keys !== 'object' ? [keys] : keys).forEach(setAction);
 
         return actions;
@@ -64,7 +71,7 @@ export default function attachControls(view, controls, commands) {
         function setAction(key) {
           actions[typeof key === 'number' ? key : key.charCodeAt(0)] = commands[commandName];
         }
-      }, {});
+      }
     }
 
     function noActionHandler(view, keyCode) { console.log(`No action for ${keyCode} on ${view}`); }
@@ -88,8 +95,18 @@ export default function attachControls(view, controls, commands) {
 
   function mapValues(obj, t) {
     const ret = {};
-    for (let name in obj) ret[name] = t(name, obj[name]);
+    for (let key in obj) ret[key] = t(key, obj[key]);
     return ret;
+  }
+
+  function updateValues(obj, t) {
+    for (let key in obj) obj[key] = t(key, obj[key]);
+    return obj;
+  }
+
+  function forEach(obj, fn) {
+    for (let key in obj) fn(key, obj[key]);
+    return obj;
   }
 
   function windowKeydownListener(event) {
