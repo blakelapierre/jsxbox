@@ -10,7 +10,7 @@ export default function attachControls(view, controls, commands) {
     return dispatch(commands, value => typeof value, {'function': command => command}, createMultiplePropsHandler);
 
     function createMultiplePropsHandler(command) {
-      return function multipleProps(view) {
+      return view => {
         forEach(command, executeCommand);
 
         function executeCommand(name, comfmand) {
