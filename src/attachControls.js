@@ -11,7 +11,7 @@ export default function attachControls(view, controls, commands) {
     return dispatch(commands, value => typeof value, {'function': command => command}, createMultiplePropsHandler);
 
     function createMultiplePropsHandler(command) {
-      return function multipleProps(view, keyCode) { // shouldn't be keycode here...
+      return function multipleProps(view) {
         for (let name in command) runCommand(name, command);
 
         function runCommand(name, command) {
