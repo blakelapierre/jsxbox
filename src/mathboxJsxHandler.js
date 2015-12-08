@@ -14,7 +14,8 @@ const timeToUpdate = 1000; // In milliseconds
 let boxes = [];
 
 scriptHandler('mathbox/jsx', (text, script) => {
-  const {view, result, root} = handleMathBoxJsx(unindent(text), script.parentNode),
+  const {view, result, root} = handleMathBoxJsx(unindent(text))(script.parentNode),
+  // const {view, result, root} = handleMathBoxJsx(unindent(text), script.parentNode),
         {commands, controls, onMathBoxViewBuilt} = result;
 
   window.mathboxes = boxes;
@@ -24,24 +25,73 @@ scriptHandler('mathbox/jsx', (text, script) => {
   (onMathBoxViewBuilt || attachControls)(view, controls, commands);
 });
 
-function handleMathBoxJsx(code, parentNode) { //get rid of parentNode
+function handleMathBoxJsx(code) {
   const {result, root} = runMathBoxJsx(compile(code).code),
-        {attachTo, cameraControls, editorPanel, plugins} = result,
-        element = attachTo || parentNode;
+        {attachTo, cameraControls, editorPanel, plugins} = result;
 
-  const view = mathBox({
-    element,
-    plugins: plugins || ['core', 'cursor'],
-    controls: {
-      klass: cameraControls || THREE.OrbitControls
-    },
-  });
+  return parentNode => {
+    const element = attachTo || parentNode; // kind of strange. oh well
 
-  if (editorPanel) attachPanel(element, root);
+    const view = mathBox({
+      element,
+      plugins: plugins || ['core', 'cursor'],
+      controls: {
+        klass: cameraControls || THREE.OrbitControls
+      },
+    });
 
-  console.log(root);
+    if (editorPanel) attachPanel(element, root);
 
-  return {view, result, root};
+    console.log(root);
+
+    return {view, result, root};
+
+    function attachPanel(element, currentRoot) {
+      const updateStrategies = {
+        'replace': replaceStrategy,
+        'diffpatch': diffpatchStrategy
+      }, currentUpdateStrategy = 'replace';
+
+      const panel = document.createElement('textarea');
+
+      panel.className = 'editor-panel hidden';
+
+      panel.value = code;
+
+      panel.addEventListener('keyup', debounce(update, timeToUpdate));
+
+      element.appendChild(panel);
+
+      function update(event) {
+        const newCode = panel.value;
+
+        if (newCode !== code) updateScene(newCode); // possibly not the most efficient comparison? (might be!)
+
+        function updateScene(newCode) {
+          console.log('updating scene');
+          try {
+            const {result, root} = runMathBoxJsx(compile(newCode).code);
+
+            updateStrategies[currentUpdateStrategy](view, root, newCode);
+
+            code = newCode;
+          }
+          catch (e) {
+            console.log('Failed to update', e);
+          }
+        }
+      }
+
+      function replaceStrategy(view, root, newCode) {
+        view.remove('*');
+        build(view, root);
+      }
+
+      function diffpatchStrategy(view, root, newCode) {
+        patch(view, diff(currentRoot, root));
+      }
+    }
+  };
 
   function runMathBoxJsx(code) {
     let root;
@@ -59,52 +109,6 @@ function handleMathBoxJsx(code, parentNode) { //get rid of parentNode
     const result = eval(code) || {};
 
     return {result, root};
-  }
-
-  function attachPanel(element, currentRoot) {
-    const updateStrategies = {
-      'replace': replaceStrategy,
-      'diffpatch': diffpatchStrategy
-    }, currentUpdateStrategy = 'replace';
-
-    const panel = document.createElement('textarea');
-
-    panel.className = 'editor-panel hidden';
-
-    panel.value = code;
-
-    panel.addEventListener('keyup', debounce(update, timeToUpdate));
-
-    element.appendChild(panel);
-
-    function update(event) {
-      const newCode = panel.value;
-
-      if (newCode !== code) updateScene(newCode); // possibly not the most efficient comparison? (might be!)
-
-      function updateScene(newCode) {
-        console.log('updating scene');
-        try {
-          const {result, root} = runMathBoxJsx(compile(newCode).code);
-
-          updateStrategies[currentUpdateStrategy](view, root, newCode);
-
-          code = newCode;
-        }
-        catch (e) {
-          console.log('Failed to update', e);
-        }
-      }
-    }
-
-    function replaceStrategy(view, root, newCode) {
-      view.remove('*');
-      build(view, root);
-    }
-
-    function diffpatchStrategy(view, root, newCode) {
-      patch(view, diff(currentRoot, root));
-    }
   }
 }
 
