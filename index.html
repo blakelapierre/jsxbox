@@ -80,13 +80,7 @@
     <div class="box">
       <mathbox tabindex="2">
         <script type="mathbox/jsx">
-        const {
-          data,
-          domain: {x_min, y_min, z_min, x_max, y_max, z_max, width, height, depth},
-          range
-        } = generateData(1, 1, 2, 1024, 1024, 3);
-
-        console.log({range});
+        const {data, domain, range} = generateData(1, 1, 2, 1024, 1024, 3);
 
         <root>
             <camera
