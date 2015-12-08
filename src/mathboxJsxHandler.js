@@ -14,14 +14,19 @@ const timeToUpdate = 1000; // In milliseconds
 let boxes = [];
 
 scriptHandler('mathbox/jsx', (text, script) => {
-  const {view, result, root} = handleMathBoxJsx(unindent(text))(script.parentNode),
-        {commands, controls, onMathBoxViewBuilt} = result;
-
   window.mathboxes = boxes;
 
-  build(view, root);
+  attachMathBox(text, script.parentNode);
 
-  (onMathBoxViewBuilt || attachControls)(view, controls, commands);
+  function attachMathBox(code, parentNode) {
+    const {view, result, root} = handleMathBoxJsx(unindent(code))(parentNode),
+          {commands, controls, onMathBoxViewBuilt} = result;
+
+    build(view, root);
+
+    if (onMathBoxViewBuilt) onMathBoxViewBuilt(view, controls, commands);
+    if (attachControls) attachControls(view, controls, commands);
+  }
 });
 
 function handleMathBoxJsx(code) {
