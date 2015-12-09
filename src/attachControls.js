@@ -45,9 +45,11 @@ export default function attachControls(view, controls, commands) {
   }
 
   function generateActionHandler(controls, commands) {
-    const actions = buildActions(controls, commands);
+    return generateHandler(buildActions(controls, commands));
 
-    return keyCode => (actions[keyCode] || noActionHandler)(view, keyCode);
+    function generateHandler(actions) {
+      return keyCode => (actions[keyCode] || noActionHandler)(view, keyCode);
+    }
 
     function buildActions(controls, commands) {
       return controls.reduce(addAction, {});
