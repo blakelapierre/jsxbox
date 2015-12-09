@@ -7,7 +7,7 @@ export default function attachControls(view, controls, commands) {
   addListeners(generateActionHandler(controls, define(commands)));
 
   function define(commands) {
-    return dispatch(commands, value => typeof value, {'function': command => command}, createMultiplePropsHandler);
+    return dispatch(commands, value => typeof value, {'function': identity}, createMultiplePropsHandler);
 
     function createMultiplePropsHandler(command) {
       return view => {
@@ -97,6 +97,8 @@ function windowKeydownListener(event) {
 function dispatch(obj, tagger, handlers, defaultHandler) {
   return mapValues(obj, (name, value) => (handlers[tagger(value, name)] || defaultHandler)(value));
 }
+
+function identity(value) { return value; }
 
 function proxied(obj) {
   return {
