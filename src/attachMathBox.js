@@ -53,32 +53,56 @@ function handleMathBoxJsx(code) {
         'diffpatch': diffpatchStrategy
       }, currentUpdateStrategy = 'replace';
 
-      const panel = document.createElement('textarea');
+      const panel = element.getElementsByTagName('panel')[0],
+            textarea = panel.getElementsByTagName('textarea')[0],
+            updateNotifier = panel.getElementsByTagName('update-notifier')[0];
 
-      panel.className = 'editor-panel hidden';
+      let hasError = false,
+          oldCode = '';
 
-      panel.value = code;
+      // const panel = document.createElement('div'),
+      //       textarea = document.createElement('textarea');
 
-      panel.addEventListener('keyup', debounce(update, timeToUpdate));
+      // panel.appendChild(textarea);
 
-      element.appendChild(panel);
+      // panel.className = 'panel hidden before';
+
+      textarea.value = code;
+
+      const signalUpdate = debounce(update, timeToUpdate);
+
+      textarea.addEventListener('keyup', (...args) => willUpdateAt(signalUpdate(args)));
+
+      // element.appendChild(panel);
+
+      function willUpdateAt(time) {
+        console.log('will update at', time);
+      }
 
       function update(event) {
-        const newCode = panel.value;
+        const newCode = textarea.value;
 
-        if (newCode !== code) updateScene(newCode); // possibly not the most efficient comparison? (might be!)
+        if (newCode !== oldCode) updateScene(newCode); // possibly not the most efficient comparison? (might be!)
 
         function updateScene(newCode) {
           console.log('updating scene');
+          oldCode = newCode;
           try {
             const {result, root} = runMathBoxJsx(compile(newCode).code);
 
             updateStrategies[currentUpdateStrategy](view, root, newCode);
 
             code = newCode;
+
+            hasError = false;
+            updateNotifier.innerText = '';
+            panel.className = 'panel after';
           }
           catch (e) {
             console.log('Failed to update', e);
+            hasError = true;
+            updateNotifier.innerText = e.toString();
+            panel.className = 'panel after has-error';
           }
         }
       }
