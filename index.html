@@ -2,7 +2,7 @@
   <head>
     <title>mathbox/jsx</title>
 
-    <style>
+    <style type="text/less">
     body {
       margin: 0;
       padding: 0;
@@ -11,66 +11,63 @@
 
       overflow: hidden;
     }
-    </style>
 
-    <style>
     .box {
       position: relative;
 
       display: flex;
 
       flex: 1;
-    }
 
-    .box mathbox {
-      flex: 1;
-    }
 
-    .box .settings {
-      position: absolute;
-      top: 0;
-      right: 0;
-
-      color: #fff;
-
-      cursor: pointer;
-
-      user-select: none;
-    }
-    </style>
-
-    <style>
-      .box .panel {
-        display: none;
+      mathbox {
         flex: 1;
       }
 
-      .box.settings .panel {
-        display: block;
-      }
-
-      .editor-panel {
+      .settings {
         position: absolute;
-
         top: 0;
-        left: 0;
-
-        bottom: 0;
         right: 0;
-
-        width: 100%;
-
-        background: none;
 
         color: #fff;
 
-        white-space: pre-wrap;
-        font-family: monospace;
+        cursor: pointer;
 
-        overflow: auto;
+        user-select: none;
 
-        cursor: text;
+        .panel {
+          display: block;
+        }
       }
+
+      .panel {
+        display: none;
+        flex: 1;
+      }
+    }
+
+    .editor-panel {
+      position: absolute;
+
+      top: 0;
+      left: 0;
+
+      bottom: 0;
+      right: 0;
+
+      width: 100%;
+
+      background: none;
+
+      color: #fff;
+
+      white-space: pre-wrap;
+      font-family: monospace;
+
+      overflow: auto;
+
+      cursor: text;
+    }
     </style>
   </head>
   <body>
