@@ -7,116 +7,145 @@
     <script src="mathbox-bundle.js"></script>
 
     <script type="mathbox/jsx">
-      const fftSize = Math.pow(2, 10),
-            pointSize = 4;
+      const fftSize = Math.pow(2, 6),
+            pointSize = 1;
 
       const speechCapacity = 5;
 
-      <root focus={3}>
-        <camera proxy={true} position={[0, 0, 10]} />
 
+      const settings = {
+        int: {
+          time: {
+            fftSize,
+            history: 480,
+            spread: 2,
+            size: 1,
+            shape: 'square',
+            color: '#993333'
+          },
+
+          freq: {
+            fftSize,
+            history: 480,
+            spread: 1,
+            size: 1,
+            shape: 'square',
+            // color: '#0000FF',
+            color: t => freqPower,
+            opacity: 0.85
+          }
+        },
+
+        float: {
+          freq: {
+            fftSize,
+            history: 480,
+            spread: 1,
+            shape: 'circle',
+            color: '#FFFFFF',
+            opacity: 0.66,
+            size: 1
+          }
+        }
+      };
+
+      <root focus={3}>
+        <camera proxy={true}
+                position={[-3, 0.1, 0]} />
         <polar
           position={[0, 3, 0]}
-          range={[[-fftSize / 2, fftSize / 2], [0, 255]]}
-          scale={[8 * 16 / 9, 3]}
+          range={[[-settings.int.time.fftSize / 2, settings.int.time.fftSize / 2], [0, settings.int.time.fftSize]]}
+          scale={[16 / 9, 1]}
         >
           <array
-            id="intTime"data={[]}
-            length={fftSize}
+            length={settings.int.time.fftSize}
             channels={1}
+            history={settings.int.time.history}
+            expr={(emit, x, i, time) => emit(intTime[x])}
           />
+          <transpose order='xw' />
           <swizzle
             order={"yx"}
           />
           <spread
-            width={[fftSize, 0, 0, 0]}
+            width={[settings.int.time.fftSize, 0, 0, 0]}
+            depth={[0, 0, settings.int.time.spread, 0]}
           />
           <point
-            size={pointSize}
-            color="#FF0000"
+            size={settings.int.time.size}
+            shape={settings.int.time.shape}
+            color={settings.int.time.color}
           />
+        </polar>
 
+
+        <polar
+          position={[0, 0.25, 0]}
+          range={[[-settings.int.time.fftSize / 2, settings.int.time.fftSize / 2], [0, 1024]]}
+          scale={[16 / 9, 1]}
+        >
           <array
-            id="intFreq"
-            data={[]}
-            length={fftSize / 2}
+            length={settings.int.freq.fftSize / 2}
             channels={1}
+            history={settings.int.freq.history}
+            expr={(emit, x, i, time) => emit(intFreq[x])}
           />
-          <swizzle
-            order="yx"
-          />
+          <transpose order="xw" />
+          <swizzle order='yx' />
           <spread
-            width={[fftSize, 0, 0, 0]}
+            width={[settings.int.freq.fftSize, 0, 0, 0]}
+            depth={[0, 0, settings.int.freq.spread, 0]}
           />
           <point
-            size={pointSize + pointSize}
-            color="#0000FF"
+            size={settings.int.freq.size}
+            color={settings.int.freq.color}
+            opacity={settings.int.freq.opacity}
             blending={'add'}
-            opacity={0.9}
           />
         </polar>
 
         <cartesian
           position={[0, 0, 0]}
           range={[[-fftSize / 2, fftSize / 2], [-1, 1]]}
-          scale={[8 * 16 / 9, 1]}
+          scale={[16 / 9, 1]}
         >
           <array
-            id="audioTime"
-            data={[]}
             length={fftSize}
             channels={1}
-            history={3}
+            history={120}
+            expr={(emit, x, i, time) => emit(floatTime[x])}
           />
+          <transpose order="xw"/>
           <swizzle order="yx" />
-          <spread width={[fftSize, 0, 0, 0]} />
+          <spread width={[fftSize, 0, 0, 0]} depth={[0, 0, 1, 0]} />
           <point
             size={pointSize}
             color="#FF0000"
             blending={'add'}
-            opacity={0.5}
+            opacity={1}
           />
         </cartesian>
 
         <cartesian
-          position={[0, 0, 0]}
-          range={[[-fftSize / 2, fftSize / 2], [-196, 0]]}
-          scale={[16 * 16 / 9, 1]}
-        >
-          <interval length={speechCapacity} />
-          <text
-            width={speechCapacity}
-            expr={(emit, x) => emit(getSpeech(x))}
-          />
-          <swizzle order="yx" />
-          <spread width={[1, 0, 0, 0]} />
-          <label
-            size={24 * 2}
-            outline={0}
-            color="#22DD22"
-          />
-        </cartesian>
-
-        <cartesian
-          position={[0, -3, 0]}
-          range={[[-fftSize / 2, fftSize / 2], [-196, 0], [1, 3]]}
-          scale={[8 * 16 / 9, 3]}
+          position={[0, 0, 1]}
+          range={[[-settings.float.freq.fftSize / 2, 0], [-196, 0], [0, 1]]}
+          scale={[16 / 9, 1]}
         >
           <array
-            id="audioFreq"
-            data={[]}
-            length={fftSize / 2}
+            length={settings.float.freq.fftSize / 2}
             channels={1}
-            history={3}
+            expr={(emit, x, i, time) => emit(floatFreq[x])}
+            history={settings.float.freq.history}
           />
-          <transpose
-            order="xwyz"
-          />
-          <swizzle order={"yxwz"} />
-          <spread width={[fftSize, 0, 0, 0]} depth={[3, 0, 0, 0]} />
-          <point size={pointSize} color="#0000FF" blending={'add'} opacity={0.8} />
+          <transpose order="xw" />
+          <swizzle order={"yx"} />
+          <spread width={[settings.float.freq.fftSize, 0, 0, 0]} depth={[0, 0, settings.float.freq.spread, 0]} />
+          <point size={settings.float.freq.size} color={settings.float.freq.color} blending={'normal'} opacity={settings.float.freq.opacity} shape={settings.float.freq.shape} />
         </cartesian>
+
       </root>
+
+      let floatTime, floatFreq, intTime, intFreq, timePower, freqPower;
 
       const context = new (window.AudioContext || window.webkitAudioContext)();
 
@@ -146,10 +175,10 @@
         console.dir(analyser);
         analyser.fftSize = fftSize;
 
-        const floatTime = new Float32Array(analyser.fftSize),
-              floatFreq = new Float32Array(analyser.frequencyBinCount),
-              intTime = new Uint8Array(analyser.fftSize),
-              intFreq = new Uint8Array(analyser.frequencyBinCount);
+        floatTime = new Float32Array(analyser.fftSize);
+        floatFreq = new Float32Array(analyser.frequencyBinCount);
+        intTime = new Uint8Array(analyser.fftSize);
+        intFreq = new Uint8Array(analyser.frequencyBinCount);
 
         three.on('update', () => {
           analyser.getFloatTimeDomainData(floatTime);
@@ -158,15 +187,10 @@
           analyser.getByteTimeDomainData(intTime);
           analyser.getByteFrequencyData(intFreq);
 
-          const timePower = power(intTime),
-                freqPower = power(intFreq);
+          timePower = power(intTime);
+          freqPower = power(intFreq);
         });
 
-        mathbox.select('#audioTime').set('data', floatTime);
-        mathbox.select('#audioFreq').set('data', floatFreq);
-
-        mathbox.select('#intTime').set('data', intTime);
-        mathbox.select('#intFreq').set('data', intFreq);
 
         function power(array) {
           const {length} = array;
