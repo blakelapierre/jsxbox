@@ -7,14 +7,21 @@ var transformReactJsx = require('babel-plugin-transform-react-jsx');
 scriptHandler('mathbox/jsx', function(text, script) {
   var transformed = babel.transform(text, {presets: [es2015], plugins: [transformReactJsx]});
 
+  var element = document.createElement('div');
+  element.className = "mathbox-container";
+
+  script.parentNode.insertBefore(element, script);
+
   var mathbox = mathBox({
-        element: script.parentNode,
+        element,
         plugins: ['core', 'controls', 'cursor', 'stats'],
         controls: {
           klass: THREE.OrbitControls
         },
       }),
       three = mathbox.three;
+
+  element.addEventListener('resize', () => console.log('resize', element));
 
   var root,
       React = {
