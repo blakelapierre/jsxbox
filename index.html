@@ -24,18 +24,26 @@
       left: 0;
       right: 0;
 
-      height: 2em;
-
       text-align: center;
 
       font-size: 2em;
       font-weight: bold;
+
+      text-shadow: 0px 0px 5px #fff;
+    }
+
+    .not-final {
+      background-color: #ff0;
+    }
+
+    .alternatives {
+      border: solid 2px #f00;
     }
     </style>
 
     <script type="mathbox/jsx">
-      const fftSize = Math.pow(2, 7),
-            history = 1024 * 4,
+      const fftSize = Math.pow(2, 5),
+            history = 1200,
             pointSize = 1;
 
       const speechCapacity = 5;
@@ -47,20 +55,20 @@
             fftSize,
             history,
             spread: 1,
-            size: 1,
+            size: 2,
             shape: 'square',
             color: '#993333',
-            opacity: 0.25
+            opacity: 0.05
           },
 
           freq: {
             fftSize,
             history,
             spread: 1,
-            size: 1,
+            size: 12,
             shape: 'square',
             // color: '#0000FF',
-            color: t => freqPower,
+            color: t => freqPower * freqPower,
             opacity: 0.25
           }
         },
@@ -72,8 +80,8 @@
             spread: 1,
             shape: 'circle',
             color: '#FFFFFF',
-            opacity: 0.25,
-            size: 1
+            opacity: 0.75,
+            size: 2
           }
         }
       };
@@ -81,16 +89,18 @@
       <root focus={3}>
         <camera proxy={true}
                 position={[0, 0, 4]}
-                lookAt={[0, 0, 0]}
+                lookAt={t => [0, 3 * Math.cos(t / 7), 0]}
                 fov={40}
         />
         <cartesian
-          rotation={t => [Math.cos(t / 5) * Math.PI / 16, -Math.sin(t / 20) * Math.PI / 2, 0]}
+          rotation={t => [Math.cos(t / 5) * Math.PI / 13, -Math.sin(t / 23) * Math.PI / 2, 0]}
+          position={t => [0, 3 * Math.cos(t / 7), 0]}
         >
           <polar
             position={[0, 0, 0]}
-            range={[[-settings.int.time.fftSize / 2, settings.int.time.fftSize / 2], [0, settings.int.time.fftSize]]}
-            scale={[16 / 9, 1]}
+            range={[[-settings.int.time.fftSize / 2, settings.int.time.fftSize / 2], [-127, 127]]}
+            bend={2 * Math.PI / settings.int.time.fftSize}
+            scale={[16 / 9, 1, 2]}
           >
             <array
               length={settings.int.time.fftSize}
@@ -99,10 +109,11 @@
               expr={(emit, x, i, time) => emit(intTime[x])}
             />
             <transpose order='xw' />
-            <swizzle order={"yx"} />
+            <swizzle order={"yxy"} />
             <spread
               width={[settings.int.time.fftSize, 0, 0, 0]}
               depth={[0, 0, settings.int.time.spread, 0]}
+              height={[0, settings.int.time.fftsize, 0, 0]}
             />
             <point
               size={settings.int.time.size}
@@ -114,7 +125,7 @@
 
           <polar
             position={[0, 0, 0]}
-            range={t => [[-(intFreq || []).length, (intFreq || []).length], [(analyser || {}).minDecibels || 0, (analyser || {}).maxDecibels || 1]]}
+            range={t => [[-(intFreq || [0]).length / 2, (intFreq || [0]).length / 2], [(analyser || {}).minDecibels || 0, (analyser || {}).maxDecibels || 1]]}
             scale={[16 / 9, 2]}
           >
             <array
@@ -140,7 +151,7 @@
           <cartesian
             position={[0, 0, 0]}
             range={[[-fftSize / 2, fftSize / 2], [-1, 1]]}
-            scale={[16 / 9, 1]}
+            scale={[16 / 9, 2]}
           >
             <array
               length={fftSize}
@@ -161,7 +172,7 @@
 
           <cartesian
             position={[0, 0, 0]}
-            range={[[-settings.float.freq.fftSize / 2, settings.float.freq.fftSize / 2], [-196, 0], [-1, 0]]}
+            range={[[-settings.float.freq.fftSize / 2, settings.float.freq.fftSize / 2], [-196, 0], [-1, 1]]}
             scale={[16 / 9, 1]}
           >
             <array
@@ -233,7 +244,7 @@
           timePower = power(intTime);
           freqPower = power(intFreq);
 
-          three.renderer.setClearColor(freqPower);
+          // three.renderer.setClearColor(freqPower);
 
           function power(array) {
             const {length} = array;
@@ -260,12 +271,10 @@
         sr.interimResults = true;
         sr.lang = 'en-US';
 
-        console.log(sr);
-
         sr.onstart = () => console.log('start');
         sr.onresult = gotResult;
         sr.onerror = event => console.dir(event);
-        sr.onend = () => console.log('end') & setTimeout(() => sr.start(), 1000);
+        sr.onend = () => setTimeout(() => sr.start(), 1000);
 
         sr.onspeechstart = event => console.log('speech start', event);
         sr.onspeechend = event => console.log('speech end', event);
@@ -279,30 +288,26 @@
           const {results, resultIndex, timeStamp} = event,
                 {length} = results;
 
+          console.log('Got results', {results});
+
           if (results) {
-            text.innerHTML = map(results, result => map(result, alternative => alternative.transcript).join(','));
+            text.innerHTML = map(results, createResult).join('<br>');
 
-            const r = new Date(timeStamp).toString() + printResult(results[resultIndex]);
-            // const r = map(results, printResult);
+            // const r = new Date(timeStamp).toString() + printResult(results[resultIndex]);
 
-            let alt = speech[nextIndex] = r;
-            nextIndex = (nextIndex + 1) % speechCapacity;
+            // let alt = speech[nextIndex] = r;
+            // nextIndex = (nextIndex + 1) % speechCapacity;
           }
 
-          console.log(event);
+          function createResult(result) {
+            var alternatives = map(result, alternative => createAlternative(alternative, result.isFinal));
 
-          function printResult(result) {
-            const {length} = result;
+            if (alternatives.length > 1) return `<span class="alternatives">${alternatives.join('')}</span>`;
+            return `${alternatives.join('')}`;
+          }
 
-            console.log(result);
-
-            return result.isFinal ? map(result, formatAlternative) : [];
-
-            function formatAlternative(alternative) {
-              const {confidence, transcript} = alternative;
-
-              return `${confidence} ${transcript}`;
-            }
+          function createAlternative(alternative, isFinal) {
+            return `<span class="${isFinal ? 'final' : 'not-final'}">${alternative.transcript}</span>`;
           }
         }
       }
