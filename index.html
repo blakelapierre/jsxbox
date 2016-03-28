@@ -2,6 +2,8 @@
   <head>
     <title>mathbox/jsx</title>
 
+    <script>less = {async: true}; //wot</script>
+
     <style type="text/less">
     body {
       margin: 0;
@@ -15,26 +17,19 @@
     mathbox {
       display: flex;
 
-      flex: 1;
+      flex: 1 1 auto;
 
-      canvas {
-        flex: 1;
+      mathbox-container {
+        width: 50%;
       }
 
       panel {
-        position: relative;
+        flex: 1 1 auto;
+
+        min-width: 50%;
 
         display: flex;
         flex-direction: column;
-
-        flex: 1;
-        /*position: absolute;
-
-        top: 0;
-        left: 0;
-
-        bottom: 0;
-        right: 0;*/
 
         overflow: auto;
 
@@ -43,7 +38,7 @@
         }
 
         textarea {
-          flex: 1;
+          flex: 1 1 auto;
 
           background: #000;
 
@@ -67,7 +62,6 @@
           flex: 0 0 auto;
 
           width: 100%;
-
           background-color: #cc6666;
 
           transition: all 0.25s ease-in-out;
@@ -201,11 +195,6 @@
       }
 
       </script>
-
-      <panel class="panel hidden after">
-        <textarea value="{code}"></textarea>
-        <update-notifier></update-notifier>
-      </panel>
     </mathbox>
   </body>
 </html>
