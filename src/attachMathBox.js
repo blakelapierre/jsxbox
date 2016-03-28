@@ -33,13 +33,21 @@ function handleMathBoxJsx(code) {
   return parentNode => {
     const element = attachTo || parentNode; // kind of strange. oh well
 
+    const container = document.createElement('mathbox-container');
+    element.appendChild(container);
+
     const view = mathBox({
-      element,
+      // element,
+      element: container,
       plugins: plugins || ['core', 'cursor'],
       controls: {
         klass: cameraControls || THREE.OrbitControls
       },
     });
+
+    console.log({element});
+
+    element.addEventListener('resize', event => console.log('resize', event));
 
     if (editorPanel) attachPanel(element, root);
 
@@ -53,19 +61,21 @@ function handleMathBoxJsx(code) {
         'diffpatch': diffpatchStrategy
       }, currentUpdateStrategy = 'replace';
 
-      const panel = element.getElementsByTagName('panel')[0],
-            textarea = panel.getElementsByTagName('textarea')[0],
-            updateNotifier = panel.getElementsByTagName('update-notifier')[0];
+      // const panel = element.getElementsByTagName('panel')[0],
+      //       textarea = panel.getElementsByTagName('textarea')[0],
+      //       updateNotifier = panel.getElementsByTagName('update-notifier')[0];
 
       let hasError = false,
           oldCode = '';
 
-      // const panel = document.createElement('div'),
-      //       textarea = document.createElement('textarea');
+      const panel = document.createElement('panel'),
+            textarea = document.createElement('textarea'),
+            updateNotifier = document.createElement('update-notifier');
 
-      // panel.appendChild(textarea);
+      panel.appendChild(textarea);
+      panel.appendChild(updateNotifier);
 
-      // panel.className = 'panel hidden before';
+      panel.className = 'panel before';
 
       textarea.value = code;
 
@@ -73,7 +83,7 @@ function handleMathBoxJsx(code) {
 
       textarea.addEventListener('keyup', (...args) => willUpdateAt(signalUpdate(args)));
 
-      // element.appendChild(panel);
+      element.appendChild(panel);
 
       function willUpdateAt(time) {
         console.log('will update at', time);
@@ -96,13 +106,13 @@ function handleMathBoxJsx(code) {
 
             hasError = false;
             updateNotifier.innerText = '';
-            panel.className = 'panel after';
+            panel.className = 'panel';
           }
           catch (e) {
             console.log('Failed to update', e);
             hasError = true;
             updateNotifier.innerText = e.toString();
-            panel.className = 'panel after has-error';
+            panel.className = 'panel has-error';
           }
         }
       }

@@ -69,7 +69,7 @@ export default function attachControls(view, controls, commands) {
   }
 
   function addListeners(actionHandler) {
-    const box = view._context.canvas.parentElement;
+    const box = view._context.canvas.parentElement.parentElement;
     focusOn(box, 'mousedown');
 
     if (boxes.length === 0) window.addEventListener('keydown', windowKeydownListener);
@@ -81,7 +81,7 @@ export default function attachControls(view, controls, commands) {
 function windowKeydownListener(event) {
   const {length} = boxes,
         {target} = event;
-
+console.log({event, boxes});
   for (let i = 0; i < length; i++) {
     const {box, actionHandler} = boxes[i]; // don't need to pull actionHandler out here for most cases
 
