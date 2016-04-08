@@ -3223,7 +3223,7 @@ var _unindent = require('./unindent');
 
 var _unindent2 = _interopRequireDefault(_unindent);
 
-var _diffpatch = require('./diffpatch');
+var _index = require('./diffpatch/index');
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -3348,7 +3348,7 @@ function handleMathBoxJsx(code) {
 
             updateStrategies[currentUpdateStrategy](view, _root, newCode);
 
-            code = newCode;
+            code = newCode; // woa
 
             hasError = false;
             updateNotifier.innerText = '';
@@ -3368,7 +3368,7 @@ function handleMathBoxJsx(code) {
       }
 
       function diffpatchStrategy(view, root, newCode) {
-        (0, _diffpatch.patch)(view, (0, _diffpatch.diff)(currentRoot, root));
+        (0, _index.patch)(view, (0, _index.diff)(currentRoot, root));
       }
     }
   };
@@ -3403,36 +3403,35 @@ function compile(text) {
   });
 }
 
-function build(view, node) {
-  var name = node.name;
-  var children = node.children;
+function build(view, _ref) {
+  var name = _ref.name;
+  var children = _ref.children;
+  var props = _ref.props;
 
-
-  if (name !== 'root') handleChild(node);
+  if (name !== 'root') view = handleChild(name, props, view);
 
   (children || []).forEach(function (child) {
     return build(view, child);
   });
 
   return view;
+}
 
-  function handleChild(_ref) {
-    var name = _ref.name;
-    var props = _ref.props;
+function handleChild(name, props, view) {
+  var props1 = {},
+      props2 = void 0;
 
-    var props1 = {},
-        props2 = void 0;
+  for (var propName in props) {
+    handleProp(propName, props[propName]);
+  } // view = view[name](props1, props2);
+  return view[name](props1, props2);
 
-    for (var propName in props) {
-      handleProp(propName, props[propName]);
-    }view = view[name](props1, props2);
-
-    function handleProp(propName, prop) {
-      if (typeof prop === 'function' && (name === 'camera' || propName !== 'expr')) (props2 = props2 || {})[propName] = prop;else (props1 = props1 || {})[propName] = prop;
-    }
+  function handleProp(propName, prop) {
+    console.log({ name: name, propName: propName, prop: prop, props1: props1, props2: props2, view: view });
+    if (typeof prop === 'function' && (name === 'camera' || propName !== 'expr')) (props2 = props2 || {})[propName] = prop;else (props1 = props1 || {})[propName] = prop;
   }
 }
-},{"./attachControls":13,"./debounce":15,"./diffpatch":17,"./unindent":24,"babel-core":28,"babel-plugin-transform-react-jsx":108,"babel-preset-es2015":117}],15:[function(require,module,exports){
+},{"./attachControls":13,"./debounce":15,"./diffpatch/index":17,"./unindent":24,"babel-core":28,"babel-plugin-transform-react-jsx":108,"babel-preset-es2015":117}],15:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
