@@ -1,5 +1,3 @@
-lib
 node_modules
-/handler.js
 .jshintrc
-
+.transpiled

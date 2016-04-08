@@ -6,7 +6,7 @@ import attachControls from './attachControls';
 import debounce from './debounce';
 import unindent from './unindent';
 
-import {diff, patch} from './diffpatch';
+import {diff, patch} from './diffpatch/index';
 
 const timeToUpdate = 1000; // In milliseconds
 
@@ -102,7 +102,7 @@ function handleMathBoxJsx(code) {
 
             updateStrategies[currentUpdateStrategy](view, root, newCode);
 
-            code = newCode;
+            code = newCode; // woa
 
             hasError = false;
             updateNotifier.innerText = '';
@@ -154,25 +154,25 @@ function compile(text) {
   });
 }
 
-function build(view, node) {
-  const {name, children} = node;
-
-  if (name !== 'root') handleChild(node);
+function build(view, {name, children, props}) {
+  if (name !== 'root') view = handleChild(name, props, view);
 
   (children || []).forEach(child => build(view, child));
 
   return view;
+}
 
-  function handleChild({name, props}) {
-    let props1 = {}, props2;
+function handleChild(name, props, view) {
+  let props1 = {}, props2;
 
-    for (let propName in props) handleProp(propName, props[propName]);
+  for (let propName in props) handleProp(propName, props[propName]);
 
-    view = view[name](props1, props2);
+  // view = view[name](props1, props2);
+  return view[name](props1, props2);
 
-    function handleProp(propName, prop) {
-      if (typeof prop === 'function' && (name === 'camera' || (propName !== 'expr'))) (props2 = (props2 || {}))[propName] = prop;
-      else (props1 = (props1 || {}))[propName] = prop;
-    }
+  function handleProp(propName, prop) {
+    console.log({name, propName, prop, props1, props2, view});
+    if (typeof prop === 'function' && (name === 'camera' || (propName !== 'expr'))) (props2 = (props2 || {}))[propName] = prop;
+    else (props1 = (props1 || {}))[propName] = prop;
   }
 }
