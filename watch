@@ -3,8 +3,8 @@
 #try running: npm install -g watchify browser-sync babel-cli
 echo "Building Handler..."
 
-mkdir -p .dist && \
+mkdir -p dist && \
 (babel --presets es2015 --source-type 'module' --watch src --out-dir .transpiled & \
   (sleep 5 && \
-  tee >(read && browser-sync start --server --https --files "*.html|.dist/*.js") \
-    < <(watchify .transpiled/handlers/custom/index.js -o '> .dist/handler.js && echo "Built handler.js"' -v)))
+  tee >(read && browser-sync start --server --https --files "*.html|dist/*.js") \
+    < <(watchify .transpiled/handlers/custom/index.js -o '> dist/handler.js && echo "Built handler.js"' -v)))
