@@ -3,8 +3,8 @@ import es2015 from 'babel-preset-es2015';
 import transformReactJsx from 'babel-plugin-transform-react-jsx';
 
 import attachControls from './attachControls';
-import debounce from './debounce';
-import unindent from './unindent';
+import debounce from './util/debounce';
+import unindent from './util/unindent';
 
 import {diff, patch} from './diffpatch/index';
 
@@ -59,7 +59,9 @@ function handleMathBoxJsx(code) {
       const updateStrategies = {
         'replace': replaceStrategy,
         'diffpatch': diffpatchStrategy
-      }, currentUpdateStrategy = 'replace';
+      };
+
+      let currentUpdateStrategy = 'replace';
 
       // const panel = element.getElementsByTagName('panel')[0],
       //       textarea = panel.getElementsByTagName('textarea')[0],
@@ -69,13 +71,27 @@ function handleMathBoxJsx(code) {
           oldCode = '';
 
       const panel = document.createElement('panel'),
+            select = document.createElement('select'),
             textarea = document.createElement('textarea'),
             updateNotifier = document.createElement('update-notifier');
 
+      panel.appendChild(select);
       panel.appendChild(textarea);
       panel.appendChild(updateNotifier);
 
       panel.className = 'panel before';
+
+      for (let name in updateStrategies) {
+        const option = document.createElement('option');
+
+        option.value = name;
+        option.innerText = name;
+
+        if (name === currentUpdateStrategy) option.selected = true;
+
+        select.appendChild(option);
+      }
+      select.addEventListener('change', event => currentUpdateStrategy = event.target.selectedOptions[0].value);
 
       textarea.value = code;
 
