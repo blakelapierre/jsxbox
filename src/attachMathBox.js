@@ -151,9 +151,9 @@ function handleMathBoxJsx(code) {
                   renderSurface = document.createElement('render-surface'),
                   info = document.createElement('info');
 
-            renderSurface.innerText = newCode;
+            renderSurface.innerHTML = newCode;
 
-            if (historyIndex > 0) info.innerText = `+${Math.round((currentHistoryRecord.time - codeHistory[historyIndex - 1].time) / 1000)}s later`;
+            if (historyIndex > 0) info.innerHTML = `+${Math.round((currentHistoryRecord.time - codeHistory[historyIndex - 1].time) / 1000)}s later`;
 
             historyElement.dataset.historyIndex = historyIndex;
             renderSurface.dataset.historyIndex = historyIndex;
@@ -206,13 +206,13 @@ function handleMathBoxJsx(code) {
               code = newCode; // woa
 
               hasError = false;
-              errorArea.innerText = '';
+              errorArea.innerHTML = '';
               editPanel.className = '';
             }
             catch (e) {
               console.log('Failed to update', e);
               hasError = true;
-              errorArea.innerText = e.toString();
+              errorArea.innerHTML = e.toString();
               editPanel.className = 'panel has-error';
 
               error = e;
@@ -243,7 +243,9 @@ function handleMathBoxJsx(code) {
       }
 
       function diffpatchStrategy(view, root, newCode) {
-        patch(view, diff(currentRoot, root));
+        throw new Error('diffpatch not implemented yet!');
+
+        // patch(view, diff(currentRoot, root));
       }
     }
   };
@@ -304,7 +306,7 @@ function createSelect(values, defaultValue = (values || [])[0], names = values) 
     const option = document.createElement('option');
 
     option.value = name;
-    option.innerText = name;
+    option.innerHTML = name;
 
     if (name === defaultValue) option.selected = true;
 
