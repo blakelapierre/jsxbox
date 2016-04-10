@@ -98,7 +98,7 @@ function handleMathBoxJsx(code) {
 
         panel.className = 'panel before';
 
-        select.addEventListener('change', event => currentUpdateStrategy = event.target.selectedOptions.map(({value}) => value).join(','));
+        select.addEventListener('change', event => currentUpdateStrategy = Array.prototype.map.call(event.target.selectedOptions, (({value}) => value)).join(','));
 
         textarea.addEventListener('keyup', (...args) => willUpdateAt(signalUpdate(args)));
         textarea.value = code;
