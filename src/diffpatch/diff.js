@@ -6,7 +6,7 @@ export default function diff(oldObj, newObj) {
         changedKeys = difference(oo, no);
 
 
-  console.log({changedKeys});
+  console.log({oo, no, changedKeys});
 
 
 

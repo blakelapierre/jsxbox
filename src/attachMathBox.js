@@ -3,10 +3,14 @@ import es2015 from 'babel-preset-es2015';
 import transformReactJsx from 'babel-plugin-transform-react-jsx';
 
 import attachControls from './attachControls';
-import debounce from './debounce';
-import unindent from './unindent';
+import debounce from './util/debounce';
+import unindent from './util/unindent';
 
 import {diff, patch} from './diffpatch/index';
+
+import {diffString, diffString2, diffStringRaw} from './diffString';
+
+import {diffChars} from 'diff';
 
 const timeToUpdate = 1000; // In milliseconds
 
@@ -45,13 +49,10 @@ function handleMathBoxJsx(code) {
       },
     });
 
-    console.log({element});
-
     element.addEventListener('resize', event => console.log('resize', event));
 
     if (editorPanel) attachPanel(element, root);
 
-    console.log(root);
 
     return {view, result, root};
 
@@ -59,60 +60,179 @@ function handleMathBoxJsx(code) {
       const updateStrategies = {
         'replace': replaceStrategy,
         'diffpatch': diffpatchStrategy
-      }, currentUpdateStrategy = 'replace';
+      }, defaultUpdateStrategy = 'replace';
 
-      // const panel = element.getElementsByTagName('panel')[0],
-      //       textarea = panel.getElementsByTagName('textarea')[0],
-      //       updateNotifier = panel.getElementsByTagName('update-notifier')[0];
+      let currentUpdateStrategy = defaultUpdateStrategy;
 
       let hasError = false,
-          oldCode = '';
+          oldCode = '',
+          codeHistory = [];
 
-      const panel = document.createElement('panel'),
-            textarea = document.createElement('textarea'),
-            updateNotifier = document.createElement('update-notifier');
+      buildUI();
 
-      panel.appendChild(textarea);
-      panel.appendChild(updateNotifier);
+      function buildUI() {
+        // const template = `
+        //   <panel>
+        //     <edit-panel>
+        //       <select>
+        //        <option value="replace">replace</option>
+        //        <option value="diffpatch">diffpatch</option>
+        //       </select>
+        //       <textarea></textarea>
+        //       <error-area></error-area>
+        //       <diff-area></diff-area>
+        //     </edit-panel>
+        //     <history></history>
+        //   </panel>`;
 
-      panel.className = 'panel before';
+        const panel = document.createElement('panel'),
+              editPanel = document.createElement('edit-panel'),
+              history = document.createElement('history'),
+              select = createSelect(Object.keys(updateStrategies), defaultUpdateStrategy),
+              textarea = document.createElement('textarea'),
+              diffarea = document.createElement('diff-area'),
+              updateSignaler = createUpdateSignaler(),
+              errorArea = document.createElement('error-area');
 
-      textarea.value = code;
+        const signalUpdate = debounce(update, timeToUpdate);
 
-      const signalUpdate = debounce(update, timeToUpdate);
+        panel.className = 'panel before';
 
-      textarea.addEventListener('keyup', (...args) => willUpdateAt(signalUpdate(args)));
+        select.addEventListener('change', event => currentUpdateStrategy = event.target.selectedOptions.map(({value}) => value).join(','));
 
-      element.appendChild(panel);
+        textarea.addEventListener('keyup', (...args) => willUpdateAt(signalUpdate(args)));
+        textarea.value = code;
 
-      function willUpdateAt(time) {
-        console.log('will update at', time);
-      }
+        [ select,
+          textarea,
+          errorArea,
+          diffarea
+        ].map(el => editPanel.appendChild(el));
 
-      function update(event) {
-        const newCode = textarea.value;
+        element.appendChild(panel);
+        panel.appendChild(editPanel);
+        panel.appendChild(history);
 
-        if (newCode !== oldCode) updateScene(newCode); // possibly not the most efficient comparison? (might be!)
+        function createUpdateSignaler() {
+          const signaler = document.createElement('update-signaler'),
+                left = document.createElement('div'),
+                right = document.createElement('div');
 
-        function updateScene(newCode) {
-          console.log('updating scene');
-          oldCode = newCode;
-          try {
-            const {result, root} = runMathBoxJsx(compile(newCode).code);
+          [left, right].map(el => signaler.appendChild(el));
 
-            updateStrategies[currentUpdateStrategy](view, root, newCode);
+          return signaler;
+        }
 
-            code = newCode; // woa
+        function willUpdateAt(time) {
+          console.log('will update at', time);
+        }
 
-            hasError = false;
-            updateNotifier.innerText = '';
-            panel.className = 'panel';
+        function update(event) {
+          const newCode = textarea.value;
+
+          const currentHistoryRecord = addHistoryRecord(code);
+
+          if (newCode !== oldCode) {
+            const {diff, error} = updateScene(newCode); // possibly not the most efficient comparison? (might be!)
+            if (error) {
+              currentHistoryRecord.error = error;
+              currentHistoryRecord.diff = diff;
+              currentHistoryRecord.historyElement.className = 'had-error';
+            }
           }
-          catch (e) {
-            console.log('Failed to update', e);
-            hasError = true;
-            updateNotifier.innerText = e.toString();
-            panel.className = 'panel has-error';
+
+          function addHistoryRecord(code) {
+            const currentHistoryRecord = {code, time: new Date()};
+            const historyIndex = codeHistory.length;
+
+            codeHistory.push(currentHistoryRecord);
+
+            const historyElement = document.createElement('history-element'),
+                  renderSurface = document.createElement('render-surface'),
+                  info = document.createElement('info');
+
+            renderSurface.innerText = newCode;
+
+            if (historyIndex > 0) info.innerText = `+${Math.round((currentHistoryRecord.time - codeHistory[historyIndex - 1].time) / 1000)}s later`;
+
+            historyElement.dataset.historyIndex = historyIndex;
+            renderSurface.dataset.historyIndex = historyIndex;
+
+            historyElement.addEventListener('click', historyClickHandler);
+
+            historyElement.appendChild(renderSurface);
+            historyElement.appendChild(info);
+
+            history.appendChild(historyElement);
+
+            history.scrollTop = history.scrollHeight - history.clientHeight;
+
+            currentHistoryRecord.historyElement = historyElement;
+
+            return currentHistoryRecord;
+
+            function historyClickHandler(event) {
+              console.log(event);
+              const code = codeHistory[event.target.dataset.historyIndex].code;
+
+              const currentHistoryRecord = addHistoryRecord(code);
+
+              if (newCode !== code) {
+                textarea.value = code;
+                const {diff, error} = updateScene(code); // possibly not the most efficient comparison? (might be!)
+
+                if (error) {
+                  currentHistoryRecord.error = error;
+                  currentHistoryRecord.diff = diff;
+                  currentHistoryRecord.historyElement.className = 'had-error';
+                }
+              }
+            }
+          }
+
+          function updateScene(newCode) {
+            console.log('updating scene');
+            oldCode = newCode;
+
+            const diff = updateDiffArea(code, newCode);
+
+            let error;
+
+            try {
+              const {result, root} = runMathBoxJsx(compile(newCode).code);
+
+              updateStrategies[currentUpdateStrategy](view, root, newCode);
+
+              code = newCode; // woa
+
+              hasError = false;
+              errorArea.innerText = '';
+              editPanel.className = '';
+            }
+            catch (e) {
+              console.log('Failed to update', e);
+              hasError = true;
+              errorArea.innerText = e.toString();
+              editPanel.className = 'panel has-error';
+
+              error = e;
+            }
+
+            return {diff, error};
+          }
+
+          function updateDiffArea(code, newCode) {
+            const diff = diffChars(code, newCode);
+
+            diffarea.innerHTML = diff.reduce((s, e) => {
+              if (e.added) return `${s}<ins>${escape(e.value)}</ins>`;
+              else if (e.removed) return `${s}<del>${escape(e.value)}</del>`;
+              return s;
+            }, '');
+          }
+
+          function escape(s) {
+            return s.replace(/>/g, '&gt;').replace(/</g, '&lt;');
           }
         }
       }
@@ -175,4 +295,21 @@ function handleChild(name, props, view) {
     if (typeof prop === 'function' && (name === 'camera' || (propName !== 'expr'))) (props2 = (props2 || {}))[propName] = prop;
     else (props1 = (props1 || {}))[propName] = prop;
   }
+}
+
+function createSelect(values, defaultValue = (values || [])[0], names = values) {
+  const select = document.createElement('select');
+
+  names.forEach(name => {
+    const option = document.createElement('option');
+
+    option.value = name;
+    option.innerText = name;
+
+    if (name === defaultValue) option.selected = true;
+
+    select.appendChild(option);
+  });
+
+  return select;
 }
