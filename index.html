@@ -19,63 +19,135 @@
 
       flex: 1 1 auto;
 
+      height: 100%;
+
       mathbox-container {
         width: 50%;
       }
 
       panel {
+        display: flex;
+
         flex: 1 1 auto;
 
         min-width: 50%;
 
-        display: flex;
-        flex-direction: column;
+        history {
+          flex: 0 1 auto;
 
-        overflow: auto;
+          background-color: white;
+          color: black;
 
-        &.after {
-          order: 1;
+          max-width: 10%;
+
+          overflow-y: auto;
+
+          history-element {
+            display: block;
+
+            overflow: hidden;
+
+            cursor: pointer;
+
+            &.had-error {
+              background-color: red;
+            }
+
+            &:hover {
+              background-color: #999;
+            }
+
+            render-surface {
+              display: block;
+
+              height: 10em;
+              width: 100%;
+
+              overflow: hidden;
+
+              transform: scale(0.9);
+
+              white-space: pre-wrap;
+              font-family: monospace;
+
+              font-size: 0.5em;
+            }
+          }
         }
 
-        textarea {
+        edit-panel {
           flex: 1 1 auto;
 
-          background: #000;
-
-          border: none;
-
-          color: #fff;
-
-          white-space: pre-wrap;
-          font-family: monospace;
-
-          overflow: visible;
-
-          cursor: text;
-
-          transition: all 0.25s ease-in-out;
-        }
-
-        update-notifier {
-          display: none;
-
-          flex: 0 0 auto;
-
-          width: 100%;
+          display: flex;
+          flex-direction: column;
 
           overflow: auto;
 
-          background-color: #cc6666;
+          &.after {
+            order: 1;
+          }
 
-          transition: all 0.25s ease-in-out;
-        }
+          &.has-error {
+            error-area {
+              display: block;
 
-        &.has-error {
-          update-notifier {
-            display: block;
+            }
+          }
+
+          textarea {
+            flex: 1 1 auto;
+
+            min-height: 2em;
+
+            background: #000;
+
+            border: none;
+
+            color: #fff;
 
             white-space: pre-wrap;
             font-family: monospace;
+
+            overflow: visible;
+
+            cursor: text;
+
+            transition: all 0.25s ease-in-out;
+          }
+
+          error-area {
+            display: none;
+
+            flex: 0 0 auto;
+
+            width: 100%;
+
+            overflow: auto;
+
+            white-space: pre-wrap;
+            font-family: monospace;
+
+            background-color: #cc6666;
+
+            transition: all 0.25s ease-in-out;
+          }
+
+          diff-area {
+            * {
+              display: none;
+
+              white-space: pre-wrap;
+            }
+
+            ins {
+              display: inline;
+              color: green;
+            }
+
+            del {
+              display: inline;
+              color: red;
+            }
           }
         }
       }
@@ -88,7 +160,7 @@
 
     <mathbox tabindex="2">
       <script type="mathbox/jsx">
-      const {data, domain, range} = generateData(1, 1, 2, 256, 256, 10, uniformRandom(0.005)); // might still work on some phones, there should be a way to optimize this, but the strict limit on the length of `data` is due to webgl/your_gpu
+      const {data, domain, range} = generateData(1, 1, 2, 256, 256, 10); // might still work on some phones, there should be a way to optimize this, but the strict limit on the length of `data` is due to webgl/your_gpu
 
       <root>
           <camera
@@ -101,15 +173,14 @@
           <spherical
             range={[[range.min_x, range.max_x], [range.min_y, range.max_y], [range.min_z, range.max_z], [-1, 1]]}
             scale={[16/9, 2, 2, 1]}
-            position={[-5, 0, 5, 0]}
-            bend={t=> (Math.sin(t / 5) + 1) / 25}
+            position={[-5 * 2, 0, 5 * 2, 0]}
+            bend={t=> (Math.sin(t / 5) + 1) * 2}
             rotation={t => [t / 3, -t / 7, t / 5]}
           >
             <array length={data.length} channels={4} data={data} />
-            <swizzle order={'xyzw'} />
+            <swizzle order={'zxww'} />
             <point size={5} color={[64 / 255, 128 / 255, 192 / 255]} blending={'add'} shape={'square'}/>
           </spherical>
-
       </root>
 
       function generateData(x_min, y_min, z_min, width, height, depth, selector = divisors, transform = scaledWFrom3Items) {
@@ -196,6 +267,7 @@
         index = (index + 1 ) % fovs.length;
         return thisFov;
       }
+
 
       </script>
     </mathbox>
