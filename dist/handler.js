@@ -3334,7 +3334,7 @@ function handleMathBoxJsx(code) {
         panel.className = 'panel before';
 
         select.addEventListener('change', function (event) {
-          return currentUpdateStrategy = event.target.selectedOptions.map(function (_ref) {
+          return currentUpdateStrategy = Array.prototype.map.call(event.target.selectedOptions, function (_ref) {
             var value = _ref.value;
             return value;
           }).join(',');
