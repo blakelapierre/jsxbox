@@ -3280,7 +3280,12 @@ function handleMathBoxJsx(code) {
       controls: {
         klass: cameraControls || THREE.OrbitControls
       }
-    });
+    }),
+        thumbnailCanvas = document.createElement('canvas'),
+        thumbnailContext = thumbnailCanvas.getContext('2d');
+
+    thumbnailCanvas.width = view._context.canvas.width / 5;
+    thumbnailCanvas.height = view._context.canvas.height / 5;
 
     element.addEventListener('resize', function (event) {
       return console.log('resize', event);
@@ -3399,19 +3404,27 @@ function handleMathBoxJsx(code) {
 
             var historyElement = document.createElement('history-element'),
                 renderSurface = document.createElement('render-surface'),
+                image = document.createElement('img'),
                 info = document.createElement('info');
 
-            renderSurface.innerHTML = newCode;
+            thumbnailContext.drawImage(view._context.canvas, 0, 0, thumbnailCanvas.width, thumbnailCanvas.height);
+
+            image.src = thumbnailCanvas.toDataURL();
+
+            // renderSurface.innerHTML = newCode;
 
             if (historyIndex > 0) info.innerHTML = '+' + Math.round((currentHistoryRecord.time - codeHistory[historyIndex - 1].time) / 1000) + 's later';
 
             historyElement.dataset.historyIndex = historyIndex;
             renderSurface.dataset.historyIndex = historyIndex;
+            image.dataset.historyIndex = historyIndex;
 
             historyElement.addEventListener('click', historyClickHandler);
 
-            historyElement.appendChild(renderSurface);
+            renderSurface.appendChild(image);
+
             historyElement.appendChild(info);
+            historyElement.appendChild(renderSurface);
 
             history.appendChild(historyElement);
 
