@@ -40,14 +40,11 @@
           background-color: white;
           color: black;
 
-          max-width: 10%;
-
           overflow-y: auto;
 
           history-element {
-            display: block;
-
-            overflow: hidden;
+            display: flex;
+            flex-direction: column;
 
             cursor: pointer;
 
@@ -59,11 +56,13 @@
               background-color: #999;
             }
 
+            info {
+              display: block;
+              text-align: center;
+            }
+
             render-surface {
               display: block;
-
-              height: 10em;
-              width: 100%;
 
               overflow: hidden;
 
@@ -73,6 +72,10 @@
               font-family: monospace;
 
               font-size: 0.5em;
+
+              img {
+                width: 100%;
+              }
             }
           }
         }
