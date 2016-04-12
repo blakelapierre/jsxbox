@@ -12,6 +12,8 @@ import {diffString, diffString2, diffStringRaw} from './diffString';
 
 import {diffChars} from 'diff';
 
+import {defineUI} from './defineUI';
+
 const timeToUpdate = 1000; // In milliseconds
 
 // pretty terrible globals
@@ -84,21 +86,17 @@ function handleMathBoxJsx(code) {
                <option value="replace">replace</option>
                <option value="diffpatch">diffpatch</option>
               </select>
-              <textarea [debounceTo]="newCode">some stuff</textarea>
+              <textarea [debounceTo]="newCode">${code}</textarea>
               <error-area></error-area>
               <diff-area></diff-area>
             </edit-panel>
             <history></history>
           </panel>`;
 
-        const built = build(template);
 
-        element.appendChild(built.children[0]);
-
-        function build(template, el = document.createElement('div')) {
-          const components = {
+        const {buildUI} = defineUI({
             PANEL(panel) {
-              panel.className = 'panel before';
+
             },
 
             'EDIT-PANEL'(editPanel) {
@@ -192,28 +190,11 @@ function handleMathBoxJsx(code) {
                 console.log({data});
               }
             }
-          };
+          });
 
-          console.log({components});
+        const built = buildUI(template);
 
-          el.innerHTML = template;
-
-          setup(el, data);
-
-          return el;
-
-          function setup(el, data) {
-            console.log('setup', {el});
-            const component = components[el.tagName];
-
-            // do something with the result! (make one!)
-            if (component) component(el, data); // might want to pass other stuff here
-
-            for (let i = 0; i < el.children.length; i++) {
-              setup(el.children[i], data);
-            }
-          }
-        }
+        element.appendChild(built.children[0]); // have to skip one here...wot
 
         const panel = document.createElement('panel'),
               editPanel = document.createElement('edit-panel'),
