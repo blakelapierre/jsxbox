@@ -66,7 +66,9 @@ function handleMathBoxJsx(code) {
         'diffpatch': diffpatchStrategy
       }, defaultUpdateStrategy = 'replace';
 
-      let currentUpdateStrategy = defaultUpdateStrategy;
+      const data = {currentUpdateStrategy: defaultUpdateStrategy};
+
+      // let currentUpdateStrategy = defaultUpdateStrategy;
 
       let hasError = false,
           oldCode = '',
@@ -75,19 +77,99 @@ function handleMathBoxJsx(code) {
       buildUI();
 
       function buildUI() {
-        // const template = `
-        //   <panel>
-        //     <edit-panel>
-        //       <select>
-        //        <option value="replace">replace</option>
-        //        <option value="diffpatch">diffpatch</option>
-        //       </select>
-        //       <textarea></textarea>
-        //       <error-area></error-area>
-        //       <diff-area></diff-area>
-        //     </edit-panel>
-        //     <history></history>
-        //   </panel>`;
+        const template = `
+          <panel>
+            <edit-panel>
+              <select [emitTo]="currentUpdateStrategy">
+               <option value="replace">replace</option>
+               <option value="diffpatch">diffpatch</option>
+              </select>
+              <textarea></textarea>
+              <error-area></error-area>
+              <diff-area></diff-area>
+            </edit-panel>
+            <history></history>
+          </panel>`;
+
+        const built = build(template);
+
+        element.appendChild(built.children[0]);
+
+        function build(template, el = document.createElement('div')) {
+          const components = {
+            PANEL(panel) {
+              panel.className = 'panel before';
+            },
+
+            'EDIT-PANEL'(editPanel) {
+
+            },
+
+            'ERROR-AREA'(errorArea) {
+
+            },
+
+            'DIFF-AREA'(diffArea) {
+
+            },
+
+            HISTORY(history) {
+            },
+
+            SELECT(select) {
+              console.log({select});
+              for (let i = 0; i < select.attributes.length; i++) {
+                const attribute = select.attributes[i];
+
+                {
+                  const match = attribute.name.match(/^\[(change)\]$/);
+
+                  console.log({match});
+                  if (match) {
+                    const event = match[1];
+                    select.addEventListener(event, event => attribute.value);
+                  }
+                }
+
+                {
+                  const match = attribute.name.match(/^\[(emitto)\]$/);
+
+                  console.log({match});
+                  if (match) {
+                    const event = match[1];
+
+                    switch (event) {
+                      case 'emitto':
+                        select.addEventListener('change', event => {
+                          data[attribute.value] = Array.prototype.map.call(event.target.selectedOptions, (({value}) => value)).join(',');
+                        });
+                        break;
+                    }
+                  }
+                }
+              }
+            }
+          };
+
+          console.log({components});
+
+          el.innerHTML = template;
+
+          setup(el);
+
+          return el;
+
+          function setup(el, data) {
+            console.log('setup', {el});
+            const component = components[el.tagName];
+
+            if (component) component(el); // might want to pass other stuff here
+
+            for (let i = 0; i < el.children.length; i++) {
+              setup(el.children[i], data);
+            }
+          }
+        }
 
         const panel = document.createElement('panel'),
               editPanel = document.createElement('edit-panel'),
@@ -102,7 +184,8 @@ function handleMathBoxJsx(code) {
 
         panel.className = 'panel before';
 
-        select.addEventListener('change', event => currentUpdateStrategy = Array.prototype.map.call(event.target.selectedOptions, (({value}) => value)).join(','));
+        select.addEventListener('change',
+          event => data.currentUpdateStrategy = Array.prototype.map.call(event.target.selectedOptions, (({value}) => value)).join(','));
 
         textarea.addEventListener('keyup', (...args) => willUpdateAt(signalUpdate(args)));
         textarea.value = code;
@@ -213,7 +296,7 @@ function handleMathBoxJsx(code) {
             try {
               const {result, root} = runMathBoxJsx(compile(newCode).code);
 
-              updateStrategies[currentUpdateStrategy](view, root, newCode);
+              updateStrategies[data.currentUpdateStrategy](view, root, newCode, result);
 
               code = newCode; // woa
 
@@ -249,9 +332,12 @@ function handleMathBoxJsx(code) {
         }
       }
 
-      function replaceStrategy(view, root, newCode) {
+      function replaceStrategy(view, root, newCode, result) {
         view.remove('*');
         build(view, root);
+
+        const {controls, commands} = result;
+        if (attachControls) attachControls(view, controls, commands);
       }
 
       function diffpatchStrategy(view, root, newCode) {
