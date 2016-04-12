@@ -84,7 +84,7 @@ function handleMathBoxJsx(code) {
                <option value="replace">replace</option>
                <option value="diffpatch">diffpatch</option>
               </select>
-              <textarea></textarea>
+              <textarea [debounceTo]="newCode">some stuff</textarea>
               <error-area></error-area>
               <diff-area></diff-area>
             </edit-panel>
@@ -116,7 +116,7 @@ function handleMathBoxJsx(code) {
             HISTORY(history) {
             },
 
-            SELECT(select) {
+            SELECT(select, data) {
               console.log({select});
               for (let i = 0; i < select.attributes.length; i++) {
                 const attribute = select.attributes[i];
@@ -148,6 +148,49 @@ function handleMathBoxJsx(code) {
                   }
                 }
               }
+            },
+
+            TEXTAREA(textarea, data) {
+              console.log({textarea});
+              for (let i = 0; i < textarea.attributes.length; i++) {
+                const attribute = textarea.attributes[i];
+
+                {
+                  const match = attribute.name.match(/^\[(change)\]$/);
+
+                  console.log({match});
+                  if (match) {
+                    const event = match[1];
+                    textarea.addEventListener(event, event => attribute.value);
+                  }
+                }
+
+                {
+                  const match = attribute.name.match(/^\[(debounceto)\]$/);
+
+                  console.log({match});
+                  if (match) {
+                    const event = match[1];
+
+                    switch (event) {
+                      case 'debounceto':
+                        const debounced = debounce(update, timeToUpdate);
+                        const value = attribute.value;
+                        textarea.addEventListener('keyup', event => console.log('Debounced to', debounced(event, value)));
+                        update(event, value);
+                        break;
+                    }
+                  }
+                }
+              }
+
+              function update(event, value) {
+                data[value] = textarea.value;
+
+                //data.emit(value, textarea.value); // This could signal to external code, which might be useful
+
+                console.log({data});
+              }
             }
           };
 
@@ -155,7 +198,7 @@ function handleMathBoxJsx(code) {
 
           el.innerHTML = template;
 
-          setup(el);
+          setup(el, data);
 
           return el;
 
@@ -163,7 +206,8 @@ function handleMathBoxJsx(code) {
             console.log('setup', {el});
             const component = components[el.tagName];
 
-            if (component) component(el); // might want to pass other stuff here
+            // do something with the result! (make one!)
+            if (component) component(el, data); // might want to pass other stuff here
 
             for (let i = 0; i < el.children.length; i++) {
               setup(el.children[i], data);
