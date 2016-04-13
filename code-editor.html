@@ -1,0 +1,185 @@
+<html>
+  <head>
+    <title>mathbox/jsx</title>
+
+    <script>less = {async: true}; //wot</script>
+
+    <style type="text/less">
+    body {
+      height: 100%;
+
+      margin: 0;
+      padding: 0;
+
+      display: flex;
+
+      overflow: hidden;
+    }
+
+    mathbox {
+      display: flex;
+
+      flex: 1 1 auto;
+
+      height: 100%;
+
+      mathbox-container {
+        width: 50%;
+      }
+
+      panel {
+        display: flex;
+
+        flex: 1 1 auto;
+
+        // min-width: 50%;
+
+        history {
+          flex: 0 1 auto;
+
+          background-color: white;
+          color: black;
+
+          overflow-y: auto;
+
+          history-element {
+            display: flex;
+            flex-direction: column;
+
+            cursor: pointer;
+
+            &.had-error {
+              background-color: red;
+            }
+
+            &:hover {
+              background-color: #999;
+            }
+
+            info {
+              display: block;
+              text-align: center;
+            }
+
+            render-surface {
+              display: block;
+
+              overflow: hidden;
+
+              transform: scale(0.9);
+
+              white-space: pre-wrap;
+              font-family: monospace;
+
+              font-size: 0.5em;
+
+              img {
+                width: 100%;
+              }
+            }
+          }
+        }
+
+        edit-panel {
+          flex: 1 1 auto;
+
+          display: flex;
+          flex-direction: column;
+
+          overflow: auto;
+
+          &.after {
+            order: 1;
+          }
+
+          &.has-error {
+            error-area {
+              display: block;
+
+            }
+          }
+
+          textarea {
+            flex: 1 1 auto;
+
+            min-height: 2em;
+
+            background: #000;
+
+            border: none;
+
+            color: #fff;
+
+            white-space: pre-wrap;
+            font-family: monospace;
+
+            overflow: visible;
+
+            cursor: text;
+
+            transition: all 0.25s ease-in-out;
+          }
+
+          error-area {
+            display: none;
+
+            flex: 0 0 auto;
+
+            width: 100%;
+
+            overflow: auto;
+
+            white-space: pre-wrap;
+            font-family: monospace;
+
+            background-color: #cc6666;
+
+            transition: all 0.25s ease-in-out;
+          }
+
+          diff-area {
+            * {
+              display: none;
+
+              white-space: pre-wrap;
+            }
+
+            ins {
+              display: inline;
+              color: green;
+            }
+
+            del {
+              display: inline;
+              color: red;
+            }
+          }
+        }
+      }
+    }
+    </style>
+  </head>
+  <body>
+    <script src="dist/handler.js"></script>
+    <script src="lib/mathbox-bundle.js"></script>
+
+    <script src="dist/ui.js"></script>
+
+    <ui>
+      <mathbox
+        +code-editor:code
+        +options
+        -scene-info
+        ></mathbox>
+      <code-editor
+        +history:code
+        -code
+        -options
+        ></code-editor>
+      <history
+        +mathbox:scene-info
+        -code
+        ></history>
+    </ui>
+  </body>
+</html>

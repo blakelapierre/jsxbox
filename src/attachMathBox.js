@@ -12,7 +12,6 @@ import {diffString, diffString2, diffStringRaw} from './diffString';
 
 import {diffChars} from 'diff';
 
-import {defineUI} from './defineUI';
 
 const timeToUpdate = 1000; // In milliseconds
 
@@ -68,7 +67,7 @@ function handleMathBoxJsx(code) {
         'diffpatch': diffpatchStrategy
       }, defaultUpdateStrategy = 'replace';
 
-      const data = {currentUpdateStrategy: defaultUpdateStrategy};
+      // const data = {currentUpdateStrategy: defaultUpdateStrategy};
 
       // let currentUpdateStrategy = defaultUpdateStrategy;
 
@@ -76,125 +75,10 @@ function handleMathBoxJsx(code) {
           oldCode = '',
           codeHistory = [];
 
-      buildUI();
+      buildPanel();
 
-      function buildUI() {
-        const template = `
-          <panel>
-            <edit-panel>
-              <select [emitTo]="currentUpdateStrategy">
-               <option value="replace">replace</option>
-               <option value="diffpatch">diffpatch</option>
-              </select>
-              <textarea [debounceTo]="newCode">${code}</textarea>
-              <error-area></error-area>
-              <diff-area></diff-area>
-            </edit-panel>
-            <history></history>
-          </panel>`;
-
-
-        const {buildUI} = defineUI({
-            PANEL(panel) {
-
-            },
-
-            'EDIT-PANEL'(editPanel) {
-
-            },
-
-            'ERROR-AREA'(errorArea) {
-
-            },
-
-            'DIFF-AREA'(diffArea) {
-
-            },
-
-            HISTORY(history) {
-            },
-
-            SELECT(select, data) {
-              console.log({select});
-              for (let i = 0; i < select.attributes.length; i++) {
-                const attribute = select.attributes[i];
-
-                {
-                  const match = attribute.name.match(/^\[(change)\]$/);
-
-                  console.log({match});
-                  if (match) {
-                    const event = match[1];
-                    select.addEventListener(event, event => attribute.value);
-                  }
-                }
-
-                {
-                  const match = attribute.name.match(/^\[(emitto)\]$/);
-
-                  console.log({match});
-                  if (match) {
-                    const event = match[1];
-
-                    switch (event) {
-                      case 'emitto':
-                        select.addEventListener('change', event => {
-                          data[attribute.value] = Array.prototype.map.call(event.target.selectedOptions, (({value}) => value)).join(',');
-                        });
-                        break;
-                    }
-                  }
-                }
-              }
-            },
-
-            TEXTAREA(textarea, data) {
-              console.log({textarea});
-              for (let i = 0; i < textarea.attributes.length; i++) {
-                const attribute = textarea.attributes[i];
-
-                {
-                  const match = attribute.name.match(/^\[(change)\]$/);
-
-                  console.log({match});
-                  if (match) {
-                    const event = match[1];
-                    textarea.addEventListener(event, event => attribute.value);
-                  }
-                }
-
-                {
-                  const match = attribute.name.match(/^\[(debounceto)\]$/);
-
-                  console.log({match});
-                  if (match) {
-                    const event = match[1];
-
-                    switch (event) {
-                      case 'debounceto':
-                        const debounced = debounce(update, timeToUpdate);
-                        const value = attribute.value;
-                        textarea.addEventListener('keyup', event => console.log('Debounced to', debounced(event, value)));
-                        update(event, value);
-                        break;
-                    }
-                  }
-                }
-              }
-
-              function update(event, value) {
-                data[value] = textarea.value;
-
-                //data.emit(value, textarea.value); // This could signal to external code, which might be useful
-
-                console.log({data});
-              }
-            }
-          });
-
-        const built = buildUI(template);
-
-        element.appendChild(built.children[0]); // have to skip one here...wot
+      function buildPanel() {
+        const data = {currentUpdateStrategy: defaultUpdateStrategy};
 
         const panel = document.createElement('panel'),
               editPanel = document.createElement('edit-panel'),
