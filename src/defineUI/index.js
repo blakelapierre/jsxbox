@@ -20,9 +20,7 @@ export function defineUI(components) {
     // do something with the result! (make one!)
     if (component) component(el, data); // might want to pass other stuff here
 
-    for (let i = 0; i < el.children.length; i++) {
-      setupUI(el.children[i], data);
-    }
+    for (let i = 0; i < el.children.length; i++) setupUI(el.children[i], data);
   }
 
 }
@@ -44,6 +42,10 @@ class Data {
     this.outputs.register(name, element);
   }
 
+  pipe(output, input) {
+
+  }
+
   scope() {
     return this;
   }
@@ -51,22 +53,65 @@ class Data {
   hookup() {
     console.log({this});
     for (let i = 0; i < this.inputs.length; i++) {
-      console.log(i, this.inputs.data[i]);
+      const input = this.inputs.at(i),
+            {name, element} = input,
+            [a, b] = name.split(':');
+
+      if (b) {
+        const map = this.outputs.data[b || a];
+
+        if (map) {
+          const element = map.map[a];
+
+          if (element) connect(element, name);
+          else throw new Error('Missing element', name);
+        }
+        else throw new Error('Missing', b || a, name);
+      }
+      else {
+        const map = this.outputs.data[a];
+
+        if (map) {
+          // only grab if one
+          // if (map.list.length === 1) {
+          //   const {tagName} = map.list[0];
+
+          //   connect(tagName, name);
+          // }
+          // else throw new Error('too many or not enough');
+
+          // grab all
+          for (let j = 0; j < map.list.length; j++) {
+            const output = map.list[j];
+            if (output.name === name) connect(output, input);
+          }
+        }
+        else throw new Error(`no ${a}!`);
+      }
+    }
+
+    function connect(output, input) {
+      console.log('connect', output, input);
+      output.attach(input);
     }
   }
 }
 
 class Inputs {
   constructor() {
-    this._data = [];
+    this._ = [];
   }
 
   register(name, element) {
-    this._data.push({name, element});
+    const input = new Input(name, element);
+    this._.push(input);
+    input.bind(element);
   }
 
-  get length() { return this._data.length; }
-  get data() { return this._data; }
+  at(i) { return this._[i]; }
+
+  get length() { return this._.length; }
+  get data() { return this._; }
 }
 
 class Outputs {
@@ -75,14 +120,63 @@ class Outputs {
   }
 
   register(name, element) {
-    let names = name.split(':');
+    let [a, b] = name.split(':');
 
+    const map = this.data[b || a] = (this.data[b || a] || {map: {}, list: []});
 
-    const map = this.data[name] = (this.data[name] || {map: {}, list: []});
+    const output = new Output(name, element);
 
-    map.map[element.tagName] = element;
-    map.list.push(element);
+    output.bind(element);
 
-    console.log('- out', name, element);
+    map.map[element.tagName] = output;
+    map.list.push(output);
+
+    console.log('- out', name, element, output);
+  }
+}
+
+class Input {
+  constructor(name, element) {
+    this.name = name;
+    this.element = element;
+  }
+
+  bind(component, config = {}, fn = () => {}) {
+    this.component = component;
+    this.config = config;
+    this.fn = fn;
+  }
+
+  // why do we need this?
+  receive(data) {
+    this.fn(data);
+  }
+}
+
+class Output {
+  constructor(name, element) {
+    this.name = name;
+    this.element = element;
+  }
+
+  bind(component, config = {}) {
+    this.component = component;
+    this.config = config;
+
+    return {
+      emit: data => {
+        for (let i = 0; i < this.inputs.length; i++) this.inputs[i].receive(data);
+      }
+    };
+  }
+
+  attach(input) {
+    if (!this.component) throw new Error('Unbound!', this);
+
+    this.inputs = this.inputs || [];
+
+    if (this.inputs.length >= this.config.maxInputs || Math.Infinity) throw new Error('Too many inputs!', this, input);
+
+    this.inputs.push(input);
   }
 }

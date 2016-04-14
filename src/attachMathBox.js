@@ -58,7 +58,6 @@ function handleMathBoxJsx(code) {
 
     if (editorPanel) attachPanel(element, root);
 
-
     return {view, result, root};
 
     function attachPanel(element, currentRoot) {
@@ -67,12 +66,8 @@ function handleMathBoxJsx(code) {
         'diffpatch': diffpatchStrategy
       }, defaultUpdateStrategy = 'replace';
 
-      // const data = {currentUpdateStrategy: defaultUpdateStrategy};
-
-      // let currentUpdateStrategy = defaultUpdateStrategy;
-
       let hasError = false,
-          oldCode = '',
+          oldCode = code,
           codeHistory = [];
 
       buildPanel();
@@ -126,9 +121,8 @@ function handleMathBoxJsx(code) {
         function update(event) {
           const newCode = textarea.value;
 
-          const currentHistoryRecord = addHistoryRecord(code);
-
           if (newCode !== oldCode) {
+            const currentHistoryRecord = addHistoryRecord(code);
             const {diff, error} = updateScene(newCode); // possibly not the most efficient comparison? (might be!)
             if (error) {
               currentHistoryRecord.error = error;

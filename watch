@@ -9,5 +9,5 @@ mkdir -p dist && \
     (tee >(read && browser-sync start --server --https --files "*.html|dist/*.js") \
        < <( \
             (watchify .transpiled/handlers/custom/index.js -o '> dist/handler.js && echo "Built handler.js"' -v) \
-          & (watchify .transpiled/ui/index.js -o '> dist/ui.js && "Built ui.js"' -v) \
+          & (watchify .transpiled/ui/index.js -o '> dist/ui.js && echo "Built ui.js"' -v) \
           ))))
