@@ -3,7 +3,7 @@ const handlers = {
   '-': [/^\-(.*)$/, (match, data, element) => data.registerOutput(match[1], element)]
 };
 
-export function establishInputsAndOutputs(element, data) {
+export function establishInputsAndOutputs(element, data, streams = {}) {
   for (let name in handlers) {
     const [expression, fn] = handlers[name];
 
@@ -16,4 +16,16 @@ export function establishInputsAndOutputs(element, data) {
       if (match) fn(match, data.scope(element), element);
     }
   }
+
+  forEach(streams['+'], inStream => {
+    console.log({inStream});
+  });
+
+  forEach(streams['-'], outStream => {
+    console.log({outStream});
+  });
+}
+
+function forEach(obj, fn) {
+  for (let key in obj) fn(obj[key]);
 }

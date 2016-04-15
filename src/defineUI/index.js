@@ -69,7 +69,7 @@ class Data {
         else throw new Error('Missing', b || a, name);
       }
       else {
-        const map = this.outputs.data[a];
+        const map = this.outputs.at(a);
 
         if (map) {
           // only grab if one
@@ -81,10 +81,13 @@ class Data {
           // else throw new Error('too many or not enough');
 
           // grab all
+          let connected = false;
           for (let j = 0; j < map.list.length; j++) {
-            const output = map.list[j];
-            if (output.name === name) connect(output, input);
+            const output = map.list[j],
+                  [a, b] = output.name.split(':');
+            if (output.name === b || a && output.component !== input.component) connected = connect(output, input);
           }
+          if (!connected) throw new Error(`No output for ${name}, ${element.tagName}`);
         }
         else throw new Error(`no ${a}!`);
       }
@@ -93,6 +96,7 @@ class Data {
     function connect(output, input) {
       console.log('connect', output, input);
       output.attach(input);
+      return true;
     }
   }
 }
@@ -130,9 +134,9 @@ class Outputs {
 
     map.map[element.tagName] = output;
     map.list.push(output);
-
-    console.log('- out', name, element, output);
   }
+
+  at(i) { return this.data[i]; }
 }
 
 class Input {
