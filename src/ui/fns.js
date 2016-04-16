@@ -1,6 +1,6 @@
 const handlers = {
-  '+': [/^\+(.*)$/, (match, data, element) => data.registerInput(match[1], element)],
-  '-': [/^\-(.*)$/, (match, data, element) => data.registerOutput(match[1], element)]
+  '+': [/^\+(.*)$/, (match, data, element) => data.registerInput(match[1], element, message => streams['+'][match[1](message)])],
+  '-': [/^\-(.*)$/, (match, data, element) => data.registerOutput(match[1], element, emitter => streams['-'][match[1]](emitter))]
 };
 
 export function establishInputsAndOutputs(element, data, streams = {}) {
@@ -17,15 +17,15 @@ export function establishInputsAndOutputs(element, data, streams = {}) {
     }
   }
 
-  forEach(streams['+'], inStream => {
-    console.log({inStream});
+  forEach(streams['+'], (inStream, name) => {
+    console.log(name, {inStream});
   });
 
-  forEach(streams['-'], outStream => {
-    console.log({outStream});
+  forEach(streams['-'], (outStream, name) => {
+    console.log(name, {outStream});
   });
 }
 
 function forEach(obj, fn) {
-  for (let key in obj) fn(obj[key]);
+  for (let key in obj) fn(obj[key], key);
 }

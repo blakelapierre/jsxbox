@@ -34,12 +34,11 @@ class Data {
   }
 
   registerInput(name, element) {
-    this.inputs.register(name, element);
-
+    return this.inputs.register(name, element);
   }
 
   registerOutput(name, element) {
-    this.outputs.register(name, element);
+    return this.outputs.register(name, element);
   }
 
   pipe(output, input) {
@@ -85,7 +84,9 @@ class Data {
           for (let j = 0; j < map.list.length; j++) {
             const output = map.list[j],
                   [a, b] = output.name.split(':');
-            if (output.name === b || a && output.component !== input.component) connected = connect(output, input);
+
+            if (((!b && output.name === a) || (input.component.name === a && output.name === `${a}:${b}`)) && output.component !== input.component) connected = connect(output, input);
+            // if (output.name === b || a && output.component !== input.component) connected = connect(output, input);
           }
           if (!connected) throw new Error(`No output for ${name}, ${element.tagName}`);
         }
@@ -107,9 +108,10 @@ class Inputs {
   }
 
   register(name, element) {
-    const input = new Input(name, element);
+    const input = new Input(name, new InputComponent(element));
     this._.push(input);
-    input.bind(element);
+    input.bind();
+    return input; // Is this wise?
   }
 
   at(i) { return this._[i]; }
@@ -130,25 +132,25 @@ class Outputs {
 
     const output = new Output(name, element);
 
-    output.bind(element);
-
     map.map[element.tagName] = output;
     map.list.push(output);
+
+    return output.bind(element);
   }
 
   at(i) { return this.data[i]; }
 }
 
 class Input {
-  constructor(name, element) {
+  constructor(name, component) {
     this.name = name;
-    this.element = element;
+    this.component = component;
   }
 
-  bind(component, config = {}, fn = () => {}) {
-    this.component = component;
+  bind(config = {}, fn = () => {}) {
     this.config = config;
     this.fn = fn;
+    return fn;
   }
 
   // why do we need this?
@@ -183,4 +185,12 @@ class Output {
 
     this.inputs.push(input);
   }
+}
+
+class InputComponent {
+  constructor(element) {
+    this.element = element;
+  }
+
+  get name() { return this.element.tagName.toLowerCase(); }
 }
