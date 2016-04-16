@@ -33,8 +33,8 @@ function code ({context, scene}, emitters, codeEditor, state) {
   state.context = context;
   state.scene = scene;
 
-  codeEditor.getElementbyTagName('context').children[0].value = context;
-  codeEditor.getElementbyTagName('scene').children[0].value = scene;
+  codeEditor.getElementsbyTagName('context').children[0].value = context;
+  codeEditor.getElementsbyTagName('scene').children[0].value = scene;
 }
 
 
