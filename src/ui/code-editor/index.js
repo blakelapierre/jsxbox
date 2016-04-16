@@ -19,19 +19,15 @@ const template = `
   <diff></diff>
 `;
 
-// export default io({
-//   '+': {code},
-//   '-': ['code', 'options']
-// })((element, state, emitters) => {
-//   state.debounceOn('code', code => emitters.code(code));
-// });
+const defaultCodeDebounceTime = 1000; // milliseconds
 
 export default io({
   '+': {code},
   '-': ['code', 'options']
-})((element, state, {code}) => {
-  state.debounceOn('code', code);
-});
+})((element, state, {code, options}) => {
+  state.debounceOn('code', code, defaultCodeDebounceTime);
+  state.on('options', options);
+})(template);
 
 function code ({context, scene}, emitters, codeEditor, state) {
   state.context = context;
