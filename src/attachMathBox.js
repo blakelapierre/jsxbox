@@ -121,6 +121,7 @@ function handleMathBoxJsx(code) {
         function update(event) {
           const newCode = textarea.value;
 
+          // not right
           if (newCode !== oldCode) {
             const currentHistoryRecord = addHistoryRecord(code);
             const {diff, error} = updateScene(newCode); // possibly not the most efficient comparison? (might be!)
@@ -300,7 +301,7 @@ function handleChild(name, props, view) {
   }
 }
 
-function createSelect(values, defaultValue = (values || [])[0], names = values) {
+function createSelect(values = [], defaultValue = values[0], names = values) {
   const select = document.createElement('select');
 
   names.forEach(name => {

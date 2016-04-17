@@ -26,6 +26,11 @@ export function establishInputsAndOutputs(element, data, streams = {}) {
   });
 }
 
+export function io (config, fn) {
+  // return (element, data) => fn(element, data, establishInputsAndOutputs(element, data, config));
+  return (element, data) => fn(establishInputsAndOutputs(element, data, config), element, data);
+}
+
 function forEach(obj, fn) {
   for (let key in obj) fn(obj[key], key);
 }

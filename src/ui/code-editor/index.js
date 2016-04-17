@@ -1,4 +1,4 @@
-import {establishInputsAndOutputs} from '../fns';
+import {io} from '../fns';
 
 const template = `
   <options>
@@ -29,15 +29,11 @@ export default io({
   state.on('options', options);
 })(template);
 
-function code ({context, scene}, emitters, codeEditor, state) {
+//message, element, state/data, outputEmitters
+function code ({context, scene}, codeEditor, state, emitters) {
   state.context = context;
   state.scene = scene;
 
   codeEditor.getElementsbyTagName('context').children[0].value = context;
   codeEditor.getElementsbyTagName('scene').children[0].value = scene;
-}
-
-
-export default (element, data) => {
-  establishInputsAndOutputs(element, data);
 }
