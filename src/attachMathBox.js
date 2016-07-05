@@ -12,6 +12,7 @@ import {diffString, diffString2, diffStringRaw} from './diffString';
 
 import {diffChars} from 'diff';
 
+
 const timeToUpdate = 1000; // In milliseconds
 
 // pretty terrible globals
@@ -57,7 +58,6 @@ function handleMathBoxJsx(code) {
 
     if (editorPanel) attachPanel(element, root);
 
-
     return {view, result, root};
 
     function attachPanel(element, currentRoot) {
@@ -66,28 +66,14 @@ function handleMathBoxJsx(code) {
         'diffpatch': diffpatchStrategy
       }, defaultUpdateStrategy = 'replace';
 
-      let currentUpdateStrategy = defaultUpdateStrategy;
-
       let hasError = false,
-          oldCode = '',
+          oldCode = code,
           codeHistory = [];
 
-      buildUI();
+      buildPanel();
 
-      function buildUI() {
-        // const template = `
-        //   <panel>
-        //     <edit-panel>
-        //       <select>
-        //        <option value="replace">replace</option>
-        //        <option value="diffpatch">diffpatch</option>
-        //       </select>
-        //       <textarea></textarea>
-        //       <error-area></error-area>
-        //       <diff-area></diff-area>
-        //     </edit-panel>
-        //     <history></history>
-        //   </panel>`;
+      function buildPanel() {
+        const data = {currentUpdateStrategy: defaultUpdateStrategy};
 
         const panel = document.createElement('panel'),
               editPanel = document.createElement('edit-panel'),
@@ -102,7 +88,8 @@ function handleMathBoxJsx(code) {
 
         panel.className = 'panel before';
 
-        select.addEventListener('change', event => currentUpdateStrategy = Array.prototype.map.call(event.target.selectedOptions, (({value}) => value)).join(','));
+        select.addEventListener('change',
+          event => data.currentUpdateStrategy = Array.prototype.map.call(event.target.selectedOptions, (({value}) => value)).join(','));
 
         textarea.addEventListener('keyup', (...args) => willUpdateAt(signalUpdate(args)));
         textarea.value = code;
@@ -134,9 +121,9 @@ function handleMathBoxJsx(code) {
         function update(event) {
           const newCode = textarea.value;
 
-          const currentHistoryRecord = addHistoryRecord(code);
-
+          // not right
           if (newCode !== oldCode) {
+            const currentHistoryRecord = addHistoryRecord(code);
             const {diff, error} = updateScene(newCode); // possibly not the most efficient comparison? (might be!)
             if (error) {
               currentHistoryRecord.error = error;
@@ -213,7 +200,7 @@ function handleMathBoxJsx(code) {
             try {
               const {result, root} = runMathBoxJsx(compile(newCode).code);
 
-              updateStrategies[currentUpdateStrategy](view, root, newCode);
+              updateStrategies[data.currentUpdateStrategy](view, root, newCode, result);
 
               code = newCode; // woa
 
@@ -249,9 +236,12 @@ function handleMathBoxJsx(code) {
         }
       }
 
-      function replaceStrategy(view, root, newCode) {
+      function replaceStrategy(view, root, newCode, result) {
         view.remove('*');
         build(view, root);
+
+        const {controls, commands} = result;
+        if (attachControls) attachControls(view, controls, commands);
       }
 
       function diffpatchStrategy(view, root, newCode) {
@@ -311,7 +301,7 @@ function handleChild(name, props, view) {
   }
 }
 
-function createSelect(values, defaultValue = (values || [])[0], names = values) {
+function createSelect(values = [], defaultValue = values[0], names = values) {
   const select = document.createElement('select');
 
   names.forEach(name => {
