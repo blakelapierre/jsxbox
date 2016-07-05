@@ -100,6 +100,14 @@ class Data {
       return true;
     }
   }
+
+  debounceOn(...args) {
+    console.log('debounceOn !!! should this move?', args);
+  }
+
+  on(...args) {
+    console.log('on !!! should this move?', args);
+  }
 }
 
 class Inputs {
@@ -108,6 +116,7 @@ class Inputs {
   }
 
   register(name, element) {
+    console.log('register+', name, element);
     const input = new Input(name, new InputComponent(element));
     this._.push(input);
     input.bind();
@@ -126,6 +135,8 @@ class Outputs {
   }
 
   register(name, element) {
+    console.log('register-', name, element);
+
     let [a, b] = name.split(':');
 
     const map = this.data[b || a] = (this.data[b || a] || {map: {}, list: []});
@@ -169,10 +180,15 @@ class Output {
     this.component = component;
     this.config = config;
 
-    return {
-      emit: data => {
-        for (let i = 0; i < this.inputs.length; i++) this.inputs[i].receive(data);
-      }
+    // return {
+    //   emit: data => {
+    //     for (let i = 0; i < this.inputs.length; i++) this.inputs[i].receive(data);
+    //   }
+    // };
+
+    return data => {
+      console.log(`-${this.name}: ${data}`);
+      for (let i = 0; i < this.inputs.length; i++) this.inputs[i].receive(data);
     };
   }
 

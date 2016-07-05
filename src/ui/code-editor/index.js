@@ -1,22 +1,28 @@
 import {io} from '../fns';
 
-const template = `
-  <options>
-    <select>
-      <option value="replace">replace</option>
-      <option value="diffpatch">diffpatch</option>
-    </select>
-  </options>
-  <code>
-    <scene>
-      <textarea></textarea>
-    </scene>
-    <context>
-      <textarea></textarea>
-    </context>
-  </code>
-  <error></error>
-  <diff></diff>
+const defaultScene =
+`<root>
+  <camera proxy={true} />
+  <grid />
+</root>`;
+
+const template =
+`<options>
+  <select>
+    <option>replace</option>
+    <option>diffpatch</option>
+  </select>
+</options>
+<code>
+  <scene>
+    <textarea>${defaultScene}</textarea>
+  </scene>
+  <context>
+    <textarea></textarea>
+  </context>
+</code>
+<error></error>
+<diff></diff>
 `;
 
 const defaultCodeDebounceTime = 1000; // milliseconds
@@ -27,6 +33,7 @@ export default io({
 })((element, state, {code, options}) => {
   state.debounceOn('code', code, defaultCodeDebounceTime);
   state.on('options', options);
+  console.log('code-editor');
 })(template);
 
 //message, element, state/data, outputEmitters

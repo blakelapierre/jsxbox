@@ -1,5 +1,9 @@
 import {io} from '../fns';
 
+import {transform} from 'babel-core';
+import es2015 from 'babel-preset-es2015';
+import transformReactJsx from 'babel-plugin-transform-react-jsx';
+
 // export default (mathbox, data) => {
 //   const emitter = establishInputsAndOutputs(mathbox, data, {
 //     '+': {
@@ -42,13 +46,22 @@ import {io} from '../fns';
 export default io({
   '+': { code, options },
   '-': ['scene-info']
-}, (mathbox, data, emitters) => {
+})((mathbox, data, emitters) => {
   const view = createMathBoxView(mathbox);
+  console.log('wot', view);
 
-});
+  window.addEventListener('resize', event => {
+    console.dir(mathbox);
+    view._context.resize({viewWidth: mathbox.clientWidth,
+                          renderWidth: mathbox.clientWidth,
+                          viewHeight: mathbox.clientHeight,
+                          renderHeight: mathbox.clientHeight});
+  });
+})('');
 
 
 function createMathBoxView(element) {
+  const plugins = undefined; // ?
   return mathBox({
     element,
     plugins: plugins || ['core', 'cursor'],
@@ -62,8 +75,8 @@ function createMathBoxView(element) {
 // function code(code, emitters, element) {
 // function code(code, {sceneInfo}, element) {
 // function code(code, {sceneInfo}, mathbox) {
-function code({context, scene}, {sceneInfo}, mathbox, state) {
-  console.log('mathbox got code', code);
+function code({context, scene}, {sceneinfo}, mathbox, state) {
+  console.log('mathbox got code', {context, scene});
 
   if (state.context !== context || state.scene !== scene) {
     // get thumbnail!
@@ -81,7 +94,7 @@ function code({context, scene}, {sceneInfo}, mathbox, state) {
 
     state.code = compiledCode;
 
-    sceneInfo({lastImage, oldCode});
+    sceneinfo({lastImage, oldCode});
   }
 
   function compile(text) {
@@ -89,6 +102,10 @@ function code({context, scene}, {sceneInfo}, mathbox, state) {
       presets: [es2015],
       plugins: [[transformReactJsx, {pragma: 'JMB.createElement'}]]
     });
+  }
+
+  function getThumbnail() {
+
   }
 }
 

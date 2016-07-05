@@ -14,6 +14,81 @@
       display: flex;
 
       overflow: hidden;
+
+      ui {
+        width: 100%;
+
+        display: flex;
+
+        mathbox {
+          flex: 1 1 auto;
+        }
+
+        code-editor {
+          flex: 1 1 auto;
+
+          display: flex;
+          flex-direction: column;
+
+          options {}
+
+          error {}
+
+          diff {}
+
+          code {
+            flex: 1 1 auto;
+
+            display: flex;
+            flex-direction: column;
+
+            context, scene {
+              flex: 1 1 auto;
+
+              display: flex;
+
+              textarea {
+                flex: 1 1 auto;
+
+                width: 100%;
+
+                resize: none;
+              }
+            }
+          }
+        }
+
+        history {
+          flex: 1 1 auto;
+        }
+
+        &.absolute {
+          position: fixed;
+
+          top: 0;
+          left: 0;
+          right: 0;
+          bottom: 0;
+
+          mathbox {
+            position: absolute;
+
+            top: 0;
+            left: 0;
+            right: 50%;
+            bottom: 0;
+          }
+
+          code-editor {
+            position: absolute;
+
+            top: 0;
+            left: 50%;
+            right: 0;
+            bottom: 0;
+          }
+        }
+      }
     }
 
     mathbox {
@@ -165,11 +240,11 @@
 
     <script src="dist/ui.js"></script>
 
-    <ui>
+    <ui class="absolute">
       <mathbox
         +code
         +options
-        -scene-info
+        -sceneInfo
         ></mathbox>
       <code-editor
         +code
@@ -177,7 +252,7 @@
         -options
         ></code-editor>
       <history
-        +scene-info
+        +sceneInfo
         -code-editor:code
         ></history>
     </ui>
