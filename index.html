@@ -245,7 +245,7 @@
         function isCount(x, y, z) {
           let c = 0;
           while (x % (++c * y) === 0);
-          if (z !== 1 && z === c) return true;
+          if (z === c - 1) return true;
           return false;
         }
 
