@@ -20,6 +20,10 @@ window.mathboxes = window.mathboxes || [];
 let boxes = window.mathboxes;
 
 export default function attachMathBox(code, parentNode) {
+  if (window.location.search) {
+    code = decodeURI(window.location.search.substr(1));
+  }
+
   const {view, result, root} = handleMathBoxJsx(unindent(code))(parentNode),
         {commands, controls, onMathBoxViewBuilt} = result;
 
@@ -79,6 +83,8 @@ function handleMathBoxJsx(code) {
               editPanel = document.createElement('edit-panel'),
               history = document.createElement('history'),
               select = createSelect(Object.keys(updateStrategies), defaultUpdateStrategy),
+              link = document.createElement('button'),
+              linkBox = document.createElement('textarea'),
               textarea = document.createElement('textarea'),
               diffarea = document.createElement('diff-area'),
               updateSignaler = createUpdateSignaler(),
@@ -89,12 +95,24 @@ function handleMathBoxJsx(code) {
         panel.className = 'panel before';
 
         select.addEventListener('change',
-          event => data.currentUpdateStrategy = Array.prototype.map.call(event.target.selectedOptions, (({value}) => value)).join(','));
+          event => data.currentUpdateStrategy = Array.prototype.map.call(event.target.selectedOptions, (({value}) => value)).join(',') && alert('Feature not implemented yet! You can help at https://github.com/blakelapierre/jsxbox'));
+
+        linkBox.className = 'link-box';
+
+	element.addEventListener('click', () => linkBox.classList.remove('show'));
+
+        link.addEventListener('click', event => {
+          linkBox.innerText = `${window.location.href.replace(window.location.search || /$/, '?' + encodeURI(textarea.value))}`;
+          linkBox.classList.add('show');
+          event.stopPropagation();
+        });
+	link.innerText = 'Get Link';
 
         textarea.addEventListener('keyup', (...args) => willUpdateAt(signalUpdate(args)));
         textarea.value = code;
 
         [ select,
+          link,
           textarea,
           errorArea,
           diffarea
@@ -103,6 +121,8 @@ function handleMathBoxJsx(code) {
         element.appendChild(panel);
         panel.appendChild(editPanel);
         panel.appendChild(history);
+
+       document.body.appendChild(linkBox);
 
         function createUpdateSignaler() {
           const signaler = document.createElement('update-signaler'),
