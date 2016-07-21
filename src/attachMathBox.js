@@ -12,6 +12,8 @@ import {diffString, diffString2, diffStringRaw} from './diffString';
 
 import {diffChars} from 'diff';
 
+import {compressToEncodedURIComponent, decompressFromEncodedURIComponent} from 'lz-string';
+
 
 const timeToUpdate = 1000; // In milliseconds
 
@@ -21,7 +23,7 @@ let boxes = window.mathboxes;
 
 export default function attachMathBox(code, parentNode) {
   if (window.location.search) {
-    code = decodeURI(window.location.search.substr(1));
+    code = decompressFromEncodedURIComponent(window.location.search.substr(1));
   }
 
   const {view, result, root} = handleMathBoxJsx(unindent(code))(parentNode),
@@ -30,7 +32,7 @@ export default function attachMathBox(code, parentNode) {
   build(view, root);
 
   if (onMathBoxViewBuilt) onMathBoxViewBuilt(view, controls, commands);
-  if (attachControls) attachControls(view, controls, commands);
+  if (controls) attachControls(view, controls, commands);
 
   boxes.push({parentNode, commands, controls, result, view});
 }
@@ -99,14 +101,17 @@ function handleMathBoxJsx(code) {
 
         linkBox.className = 'link-box';
 
-	element.addEventListener('click', () => linkBox.classList.remove('show'));
+        element.addEventListener('click', () => linkBox.classList.remove('show'));
 
         link.addEventListener('click', event => {
-          linkBox.innerText = `${window.location.href.replace(window.location.search || /$/, '?' + encodeURI(textarea.value))}`;
+          linkBox.innerText = `${window.location.href.replace(window.location.search || /$/, '?' + compressToEncodedURIComponent(textarea.value))}`;
           linkBox.classList.add('show');
+          linkBox.select();
+
           event.stopPropagation();
         });
-	link.innerText = 'Get Link';
+
+        link.innerText = 'Get Link';
 
         textarea.addEventListener('keyup', (...args) => willUpdateAt(signalUpdate(args)));
         textarea.value = code;
@@ -286,7 +291,7 @@ function handleMathBoxJsx(code) {
     };
 
     const result = eval(code) || {};
-
+    
     return {result, root};
   }
 }
