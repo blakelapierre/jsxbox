@@ -270,8 +270,7 @@
         function isCount(x, y, z) {
           let c = 0;
           while (x % (++c * y) === 0);
-          if (z === c - 1) return true;
-          return false;
+          return z === c - 1;
         }
 
         function scaledWFrom3Items(x, y, z) {
