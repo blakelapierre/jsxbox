@@ -97,7 +97,7 @@ function handleMathBoxJsx(code) {
         panel.className = 'panel before';
 
         select.addEventListener('change',
-          event => data.currentUpdateStrategy = Array.prototype.map.call(event.target.selectedOptions, (({value}) => value)).join(',') && alert('Feature not implemented yet! You can help at https://github.com/blakelapierre/jsxbox'));
+          event => (data.currentUpdateStrategy = Array.prototype.map.call(event.target.selectedOptions, (({value}) => value)).join(',')) && alert('Feature not implemented yet! You can help at https://github.com/blakelapierre/jsxbox'));
 
         linkBox.className = 'link-box';
 
