@@ -261,11 +261,10 @@ function handleMathBoxJsx(code) {
         }
       }
 
-      function replaceStrategy(view, root, newCode, result) {
+      function replaceStrategy(view, root, newCode, {controls, commands}) {
         view.remove('*');
         build(view, root);
 
-        const {controls, commands} = result;
         if (attachControls) attachControls(view, controls, commands);
       }
 
@@ -291,7 +290,7 @@ function handleMathBoxJsx(code) {
     };
 
     const result = eval(code) || {};
-    
+
     return {result, root};
   }
 }
