@@ -280,13 +280,7 @@ function handleMathBoxJsx(code) {
     let root;
     const JMB = {
       // We'll just assemble our VDOM-like here.
-      createElement: (name, props, ...rest) => {
-        root = {name, props};
-
-        root.children = rest;
-
-        return root;
-      }
+      createElement: (name, props, ...rest) => (root = ({name, props, children: rest}))
     };
 
     const result = eval(code) || {};
@@ -319,7 +313,6 @@ function handleChild(name, props, view) {
   return view[name](props1, props2);
 
   function handleProp(propName, prop) {
-    console.log({name, propName, prop, props1, props2, view});
     if (typeof prop === 'function' && (name === 'camera' || (propName !== 'expr'))) (props2 = (props2 || {}))[propName] = prop;
     else (props1 = (props1 || {}))[propName] = prop;
   }
