@@ -120,6 +120,8 @@ function handleMathBoxJsx(code) {
           oldCode = code,
           codeHistory = [];
 
+      console.log({updateStrategies});
+
       buildPanel();
 
       function buildPanel() {
