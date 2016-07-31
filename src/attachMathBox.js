@@ -21,10 +21,54 @@ const timeToUpdate = 1000; // In milliseconds
 window.mathboxes = window.mathboxes || [];
 let boxes = window.mathboxes;
 
+class SimulatedView {
+  constructor() {
+    this.three = {
+      renderer: {
+        setClearColor: (...params) => {
+          console.log('setting', ...params);
+          this.clearColorParams = params;
+        }
+      }
+    };
+  }
+
+  playback(mathbox) {
+    console.log({mathbox, color: this.clearColorParams});
+    if (this.clearColorParams) mathbox.three.renderer.setClearColor(...this.clearColorParams);
+  }
+}
+
+class Scene {
+  constructor() {
+
+    this._simulatedView = new SimulatedView();
+  }
+
+  update(parentNode, commands, controls, result, view) {
+    this.parentNode = parentNode;
+    this.commands = commands;
+    this.controls = controls;
+    this.result = result;
+    this._view = view;
+
+    this._simulatedView.playback(view);
+    this._simulatedView = undefined;
+  }
+
+  get view() {
+    return this._view || this._simulatedView;
+  }
+}
+
 export default function attachMathBox(code, parentNode) {
   if (window.location.search) {
     code = decompressFromEncodedURIComponent(window.location.search.substr(1));
   }
+
+  const newScene = new Scene();
+
+  boxes.push(newScene);
 
   const {view, result, root} = handleMathBoxJsx(unindent(code))(parentNode),
         {commands, controls, onMathBoxViewBuilt} = result;
@@ -34,7 +78,7 @@ export default function attachMathBox(code, parentNode) {
   if (onMathBoxViewBuilt) onMathBoxViewBuilt(view, controls, commands);
   if (controls) attachControls(view, controls, commands);
 
-  boxes.push({parentNode, commands, controls, result, view});
+  newScene.update(parentNode, commands, controls, result, view);
 }
 
 function handleMathBoxJsx(code) {
