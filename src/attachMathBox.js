@@ -12,6 +12,8 @@ import {diffString, diffString2, diffStringRaw} from './diffString';
 
 import {diffChars} from 'diff';
 
+import {compressToEncodedURIComponent, decompressFromEncodedURIComponent} from 'lz-string';
+
 
 const timeToUpdate = 1000; // In milliseconds
 
@@ -19,16 +21,64 @@ const timeToUpdate = 1000; // In milliseconds
 window.mathboxes = window.mathboxes || [];
 let boxes = window.mathboxes;
 
+class SimulatedView {
+  constructor() {
+    this.three = {
+      renderer: {
+        setClearColor: (...params) => {
+          console.log('setting', ...params);
+          this.clearColorParams = params;
+        }
+      }
+    };
+  }
+
+  playback(mathbox) {
+    console.log({mathbox, color: this.clearColorParams});
+    if (this.clearColorParams) mathbox.three.renderer.setClearColor(...this.clearColorParams);
+  }
+}
+
+class Scene {
+  constructor() {
+
+    this._simulatedView = new SimulatedView();
+  }
+
+  update(parentNode, commands, controls, result, view) {
+    this.parentNode = parentNode;
+    this.commands = commands;
+    this.controls = controls;
+    this.result = result;
+    this._view = view;
+
+    this._simulatedView.playback(view);
+    this._simulatedView = undefined;
+  }
+
+  get view() {
+    return this._view || this._simulatedView;
+  }
+}
+
 export default function attachMathBox(code, parentNode) {
+  if (window.location.search) {
+    code = decompressFromEncodedURIComponent(window.location.search.substr(1));
+  }
+
+  const newScene = new Scene();
+
+  boxes.push(newScene);
+
   const {view, result, root} = handleMathBoxJsx(unindent(code))(parentNode),
         {commands, controls, onMathBoxViewBuilt} = result;
 
   build(view, root);
 
   if (onMathBoxViewBuilt) onMathBoxViewBuilt(view, controls, commands);
-  if (attachControls) attachControls(view, controls, commands);
+  if (controls) attachControls(view, controls, commands);
 
-  boxes.push({parentNode, commands, controls, result, view});
+  newScene.update(parentNode, commands, controls, result, view);
 }
 
 function handleMathBoxJsx(code) {
@@ -79,6 +129,8 @@ function handleMathBoxJsx(code) {
               editPanel = document.createElement('edit-panel'),
               history = document.createElement('history'),
               select = createSelect(Object.keys(updateStrategies), defaultUpdateStrategy),
+              link = document.createElement('button'),
+              linkBox = document.createElement('textarea'),
               textarea = document.createElement('textarea'),
               diffarea = document.createElement('diff-area'),
               updateSignaler = createUpdateSignaler(),
@@ -89,12 +141,27 @@ function handleMathBoxJsx(code) {
         panel.className = 'panel before';
 
         select.addEventListener('change',
-          event => data.currentUpdateStrategy = Array.prototype.map.call(event.target.selectedOptions, (({value}) => value)).join(','));
+          event => (data.currentUpdateStrategy = Array.prototype.map.call(event.target.selectedOptions, (({value}) => value)).join(',')) && alert('Feature not implemented yet! You can help at https://github.com/blakelapierre/jsxbox'));
+
+        linkBox.className = 'link-box';
+
+        element.addEventListener('click', () => linkBox.classList.remove('show'));
+
+        link.addEventListener('click', event => {
+          linkBox.innerText = `${window.location.href.replace(window.location.search || /$/, '?' + compressToEncodedURIComponent(textarea.value))}`;
+          linkBox.classList.add('show');
+          linkBox.select();
+
+          event.stopPropagation();
+        });
+
+        link.innerText = 'Get Link';
 
         textarea.addEventListener('keyup', (...args) => willUpdateAt(signalUpdate(args)));
         textarea.value = code;
 
         [ select,
+          link,
           textarea,
           errorArea,
           diffarea
@@ -103,6 +170,8 @@ function handleMathBoxJsx(code) {
         element.appendChild(panel);
         panel.appendChild(editPanel);
         panel.appendChild(history);
+
+       document.body.appendChild(linkBox);
 
         function createUpdateSignaler() {
           const signaler = document.createElement('update-signaler'),
@@ -236,11 +305,10 @@ function handleMathBoxJsx(code) {
         }
       }
 
-      function replaceStrategy(view, root, newCode, result) {
+      function replaceStrategy(view, root, newCode, {controls, commands}) {
         view.remove('*');
         build(view, root);
 
-        const {controls, commands} = result;
         if (attachControls) attachControls(view, controls, commands);
       }
 
@@ -256,13 +324,7 @@ function handleMathBoxJsx(code) {
     let root;
     const JMB = {
       // We'll just assemble our VDOM-like here.
-      createElement: (name, props, ...rest) => {
-        root = {name, props};
-
-        root.children = rest;
-
-        return root;
-      }
+      createElement: (name, props, ...rest) => (root = ({name, props, children: rest}))
     };
 
     const result = eval(code) || {};
@@ -295,7 +357,6 @@ function handleChild(name, props, view) {
   return view[name](props1, props2);
 
   function handleProp(propName, prop) {
-    console.log({name, propName, prop, props1, props2, view});
     if (typeof prop === 'function' && (name === 'camera' || (propName !== 'expr'))) (props2 = (props2 || {}))[propName] = prop;
     else (props1 = (props1 || {}))[propName] = prop;
   }

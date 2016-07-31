@@ -13,6 +13,7 @@ const template =
     <option>diffpatch</option>
   </select>
 </options>
+<button>Get link</button>
 <code>
   <scene>
     <textarea>${defaultScene}</textarea>

@@ -1,6 +1,1 @@
 https://blakelapierre.github.io/jsxbox
-
-Build & Develop
-````
-$ ./watch
-````
