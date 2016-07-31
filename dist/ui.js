@@ -3584,7 +3584,7 @@ var _fns = require('../fns');
 
 var defaultScene = '<root>\n  <camera proxy={true} />\n  <grid />\n</root>';
 
-var template = '<options>\n  <select>\n    <option>replace</option>\n    <option>diffpatch</option>\n  </select>\n</options>\n<code>\n  <scene>\n    <textarea>' + defaultScene + '</textarea>\n  </scene>\n  <context>\n    <textarea></textarea>\n  </context>\n</code>\n<error></error>\n<diff></diff>\n';
+var template = '<options>\n  <select>\n    <option>replace</option>\n    <option>diffpatch</option>\n  </select>\n</options>\n<button>Get link</button>\n<code>\n  <scene>\n    <textarea>' + defaultScene + '</textarea>\n  </scene>\n  <context>\n    <textarea></textarea>\n  </context>\n</code>\n<error></error>\n<diff></diff>\n';
 
 var defaultCodeDebounceTime = 1000; // milliseconds
 
