@@ -14,6 +14,11 @@ import {diffChars} from 'diff';
 
 import {compressToEncodedURIComponent, decompressFromEncodedURIComponent} from 'lz-string';
 
+window.addEventListener('error', error => {
+  console.log(error);
+  return false;
+});
+
 
 const timeToUpdate = 1000; // In milliseconds
 
@@ -91,12 +96,15 @@ function handleMathBoxJsx(code) {
     const container = document.createElement('mathbox-container');
     element.appendChild(container);
 
+    if (editorPanel) attachPanel(element, root);
+
     const view = mathBox({
       // element,
       element: container,
       plugins: plugins || ['core', 'cursor'],
       controls: {
-        klass: cameraControls || THREE.OrbitControls
+        // klass: cameraControls || THREE.OrbitControls
+        klass: THREE.OrbitControls
       },
     }), thumbnailCanvas = document.createElement('canvas')
       , thumbnailContext = thumbnailCanvas.getContext('2d');
@@ -105,8 +113,6 @@ function handleMathBoxJsx(code) {
     thumbnailCanvas.height = view._context.canvas.height / 5;
 
     element.addEventListener('resize', event => console.log('resize', event));
-
-    if (editorPanel) attachPanel(element, root);
 
     return {view, result, root};
 
@@ -121,6 +127,8 @@ function handleMathBoxJsx(code) {
           codeHistory = [];
 
       buildPanel();
+
+      element.classList.add('has-editor-panel');
 
       function buildPanel() {
         const data = {currentUpdateStrategy: defaultUpdateStrategy};
