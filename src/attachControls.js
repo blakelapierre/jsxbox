@@ -1,7 +1,6 @@
 let boxes = [];
 
 export default function attachControls(view, controls, commands) {
-  console.log('attaching', controls, commands, 'to', view);
   if (controls === undefined || commands === undefined) return;
 
   addListeners(generateActionHandler(controls, define(commands)));
@@ -72,16 +71,26 @@ export default function attachControls(view, controls, commands) {
     const box = view._context.canvas.parentElement.parentElement;
     focusOn(box, 'mousedown');
 
+    let exists = false;
     if (boxes.length === 0) window.addEventListener('keydown', windowKeydownListener);
+    else {
+      for (let i = 0; i < boxes.length; i++) {
+        if (boxes[i].box === box) {
+          boxes[i].actionHandler = actionHandler;
+          exists = true;
+          break;
+        }
+      }
+    }
 
-    boxes.push({box, actionHandler, view});
+    if (!exists) boxes.push({box, actionHandler, view});
   }
 }
 
 function windowKeydownListener(event) {
   const {length} = boxes,
         {target} = event;
-console.log({event, boxes});
+
   for (let i = 0; i < length; i++) {
     const {box, actionHandler} = boxes[i]; // don't need to pull actionHandler out here for most cases
 

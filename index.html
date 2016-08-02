@@ -26,9 +26,9 @@
     textarea.link-box {
       display: none;
       position: fixed;
-      
+
       top: 25%;
-      left: 12.5%; 
+      left: 12.5%;
       width: 75%;
       height: 50%;
 
@@ -49,8 +49,14 @@
 
       height: 100%;
 
+      &.has-editor-panel {
+        mathbox-container {
+          width: 50%;
+        }
+      }
+
       mathbox-container {
-        width: 50%;
+        width: 100%;
       }
 
       panel {
@@ -314,6 +320,7 @@
           index = (index + 1 ) % fovs.length;
           return thisFov;
         }
+
       </script>
     </mathbox>
   </body>
