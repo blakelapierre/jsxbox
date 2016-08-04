@@ -335,9 +335,17 @@ function handleMathBoxJsx(code) {
       createElement: (name, props, ...rest) => (root = ({name, props, children: rest}))
     };
 
+    const setInterval = fakeSetInterval;
+
+    const intervals = [];
+
     const result = eval(code) || {};
 
-    return {result, root};
+    return {result, root, cancel: () => intervals.forEach(clearInterval)};
+
+    function fakeSetInterval(...args) {
+      intervals.push(window.setInterval.apply(window, args));
+    }
   }
 }
 
