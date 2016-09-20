@@ -67,8 +67,9 @@ class Scene {
 }
 
 export default function attachMathBox(code, parentNode) {
-  if (window.location.search) {
-    code = decompressFromEncodedURIComponent(window.location.search.substr(1));
+  const compressedCode = window.location.search || window.location.hash;
+  if (compressedCode) {
+    code = decompressFromEncodedURIComponent(compressedCode.substr(1));
   }
 
   const newScene = new Scene();
@@ -87,7 +88,7 @@ export default function attachMathBox(code, parentNode) {
 }
 
 function handleMathBoxJsx(code) {
-  const {result, root} = runMathBoxJsx(compile(code).code),
+  const {result, root, cancel} = runMathBoxJsx(compile(code).code),
         {attachTo, cameraControls, editorPanel, plugins} = result;
 
   return parentNode => {
@@ -156,7 +157,7 @@ function handleMathBoxJsx(code) {
         element.addEventListener('click', () => linkBox.classList.remove('show'));
 
         link.addEventListener('click', event => {
-          linkBox.innerText = `${window.location.href.replace(window.location.search || /$/, '?' + compressToEncodedURIComponent(textarea.value))}`;
+          linkBox.innerText = `${window.location.href.replace(window.location.hash, '').replace(window.location.search || /$/, '?' + compressToEncodedURIComponent(textarea.value))}`;
           linkBox.classList.add('show');
           linkBox.select();
 
