@@ -56,13 +56,17 @@ export default function attachControls(view, controls, commands) {
     function buildActions(controls, commands) {
       return controls.reduce(addAction, {});
 
-      function addAction(actions, [keys, commandName, upCommandName]) {
+      function addAction(actions, [keys, downCommandName, upCommandName]) {
         (typeof keys !== 'object' ? [keys] : keys).forEach(setAction);
 
         return actions;
 
         function setAction(key) {
-          actions[typeof key === 'number' ? key : key.charCodeAt(0)] = {'+': commands[commandName], '-': commands[upCommandName]};
+          let pressed = false;
+          actions[typeof key === 'number' ? key : key.charCodeAt(0)] = {
+            '+': (...args) => {const repeat = pressed; pressed = true; commands[downCommandName](repeat, ...args); },
+            '-': (...args) => {pressed = false; return commands[upCommandName](...args); }
+          };
         }
       }
     }
