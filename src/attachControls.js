@@ -9,7 +9,7 @@ export default function attachControls(view, controls, commands) {
     return dispatch(commands, value => typeof value, {'function': identity}, createMultiplePropsHandler);
 
     function createMultiplePropsHandler(command) {
-      return view => {
+      return (repeat, view) => {
         forEach(command, executeCommand);
 
         function executeCommand(selector, props) {
@@ -65,13 +65,15 @@ export default function attachControls(view, controls, commands) {
           let pressed = false;
           actions[typeof key === 'number' ? key : key.charCodeAt(0)] = {
             '+': (...args) => {const repeat = pressed; pressed = true; commands[downCommandName](repeat, ...args); },
-            '-': (...args) => {pressed = false; return commands[upCommandName](...args); }
+            '-': (...args) => {pressed = false; return (commands[upCommandName] || noUpHandler)(...args); }
           };
         }
       }
     }
 
     function noActionHandler(view, keyCode) { console.log(`No action for ${keyCode} on ${view}`); }
+
+    function noUpHandler(view, keyCode) { console.log(`No up handler for ${keyCode}`); }
   }
 
   function addListeners(actionHandler) {
