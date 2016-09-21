@@ -89,7 +89,7 @@ export default function attachMathBox(code, parentNode) {
 
 function handleMathBoxJsx(code) {
   const {result, root, cancel} = runMathBoxJsx(compile(code).code),
-        {attachTo, cameraControls, editorPanel, plugins} = result;
+        {attachTo, cameraControls, editorPanel, plugins, camera} = result;
 
   return parentNode => {
     const element = attachTo || parentNode; // kind of strange. oh well
@@ -107,6 +107,7 @@ function handleMathBoxJsx(code) {
         // klass: cameraControls || THREE.OrbitControls
         klass: THREE.OrbitControls
       },
+      camera: camera
     }), thumbnailCanvas = document.createElement('canvas')
       , thumbnailContext = thumbnailCanvas.getContext('2d');
 
