@@ -77,7 +77,7 @@ export default function attachMathBox(code, parentNode) {
   boxes.push(newScene);
 
   const {view, result, root} = handleMathBoxJsx(unindent(code))(parentNode),
-        {commands, controls, onMathBoxViewBuilt} = result;
+        {callback, commands, controls, onMathBoxViewBuilt} = result;
 
   build(view, root);
 
@@ -85,6 +85,8 @@ export default function attachMathBox(code, parentNode) {
   if (controls) attachControls(view, controls, commands);
 
   newScene.update(parentNode, commands, controls, result, view);
+
+  if (callback) callback(view);
 }
 
 function handleMathBoxJsx(code) {
