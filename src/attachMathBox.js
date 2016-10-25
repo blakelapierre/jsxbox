@@ -26,6 +26,13 @@ const timeToUpdate = 1000; // In milliseconds
 window.mathboxes = window.mathboxes || [];
 let boxes = window.mathboxes;
 
+document.body.addEventListener('resize', event => {
+  boxes.forEach(box => {
+    const {width, height, _view} = box.parentNode;
+    _view._context.setSize(width, height);
+  });
+});
+
 class SimulatedView {
   constructor() {
     this.three = {
