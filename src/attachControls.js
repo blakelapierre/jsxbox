@@ -9,7 +9,7 @@ export default function attachControls(view, controls, commands) {
     return dispatch(commands, value => typeof value, {'function': identity}, createMultiplePropsHandler);
 
     function createMultiplePropsHandler(command) {
-      return view => {
+      return (repeat, view) => {
         forEach(command, executeCommand);
 
         function executeCommand(selector, props) {
@@ -18,6 +18,7 @@ export default function attachControls(view, controls, commands) {
           forEach(props, updateProp);
 
           function updateProp(propName, action) {
+            console.log('updateProp', propName, typeof action, action);
             let isComplex = typeof action !== 'function',
                 getNewValue = isComplex ? getComplexPropValue : action;
 
@@ -44,27 +45,35 @@ export default function attachControls(view, controls, commands) {
   }
 
   function generateActionHandler(controls, commands) {
+    const defaultHandler = {'+': noActionHandler, '-': noActionHandler};
+
     return generateHandler(buildActions(controls, commands));
 
     function generateHandler(actions) {
-      return keyCode => (actions[keyCode] || noActionHandler)(view, keyCode);
+      return (keyCode, direction) => ((actions[keyCode] || defaultHandler)[direction] || noActionHandler)(view, keyCode);
     }
 
     function buildActions(controls, commands) {
       return controls.reduce(addAction, {});
 
-      function addAction(actions, [keys, commandName]) {
+      function addAction(actions, [keys, downCommandName, upCommandName]) {
         (typeof keys !== 'object' ? [keys] : keys).forEach(setAction);
 
         return actions;
 
         function setAction(key) {
-          actions[typeof key === 'number' ? key : key.charCodeAt(0)] = commands[commandName];
+          let pressed = false;
+          actions[typeof key === 'number' ? key : key.charCodeAt(0)] = {
+            '+': (...args) => {const repeat = pressed; pressed = true; commands[downCommandName](repeat, ...args); },
+            '-': (...args) => {pressed = false; return (commands[upCommandName] || noUpHandler)(...args); }
+          };
         }
       }
     }
 
     function noActionHandler(view, keyCode) { console.log(`No action for ${keyCode} on ${view}`); }
+
+    function noUpHandler(view, keyCode) { console.log(`No up handler for ${keyCode}`); }
   }
 
   function addListeners(actionHandler) {
@@ -72,7 +81,10 @@ export default function attachControls(view, controls, commands) {
     focusOn(box, 'mousedown');
 
     let exists = false;
-    if (boxes.length === 0) window.addEventListener('keydown', windowKeydownListener);
+    if (boxes.length === 0) {
+      window.addEventListener('keydown', windowKeydownListener);
+      window.addEventListener('keyup', windowKeyupListener);
+    }
     else {
       for (let i = 0; i < boxes.length; i++) {
         if (boxes[i].box === box) {
@@ -95,7 +107,24 @@ function windowKeydownListener(event) {
     const {box, actionHandler} = boxes[i]; // don't need to pull actionHandler out here for most cases
 
     if (target === box) {
-      actionHandler(event.keyCode);
+      actionHandler(event.keyCode, '+');
+      // actionHandler(event.keyCode);
+      return;
+    }
+  }
+
+  console.log('no handler', event, boxes);
+}
+
+function windowKeyupListener(event) {
+  const {length} = boxes,
+        {target} = event;
+
+  for (let i = 0; i < length; i++) {
+    const {box, actionHandler} = boxes[i]; // don't need to pull actionHandler out here for most cases
+
+    if (target === box) {
+      actionHandler(event.keyCode, '-');
       return;
     }
   }

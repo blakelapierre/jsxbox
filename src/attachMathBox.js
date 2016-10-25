@@ -26,6 +26,13 @@ const timeToUpdate = 1000; // In milliseconds
 window.mathboxes = window.mathboxes || [];
 let boxes = window.mathboxes;
 
+document.body.addEventListener('resize', event => {
+  boxes.forEach(box => {
+    const {width, height, _view} = box.parentNode;
+    _view._context.setSize(width, height);
+  });
+});
+
 class SimulatedView {
   constructor() {
     this.three = {
@@ -67,8 +74,9 @@ class Scene {
 }
 
 export default function attachMathBox(code, parentNode) {
-  if (window.location.search) {
-    code = decompressFromEncodedURIComponent(window.location.search.substr(1));
+  const compressedCode = window.location.search || window.location.hash;
+  if (compressedCode) {
+    code = decompressFromEncodedURIComponent(compressedCode.substr(1));
   }
 
   const newScene = new Scene();
@@ -76,7 +84,7 @@ export default function attachMathBox(code, parentNode) {
   boxes.push(newScene);
 
   const {view, result, root} = handleMathBoxJsx(unindent(code))(parentNode),
-        {commands, controls, onMathBoxViewBuilt} = result;
+        {callback, commands, controls, onMathBoxViewBuilt} = result;
 
   build(view, root);
 
@@ -84,11 +92,13 @@ export default function attachMathBox(code, parentNode) {
   if (controls) attachControls(view, controls, commands);
 
   newScene.update(parentNode, commands, controls, result, view);
+
+  if (callback) callback(view);
 }
 
 function handleMathBoxJsx(code) {
-  const {result, root} = runMathBoxJsx(compile(code).code),
-        {attachTo, cameraControls, editorPanel, plugins} = result;
+  const {result, root, cancel} = runMathBoxJsx(compile(code).code),
+        {attachTo, cameraControls, editorPanel, plugins, camera} = result;
 
   return parentNode => {
     const element = attachTo || parentNode; // kind of strange. oh well
@@ -106,6 +116,7 @@ function handleMathBoxJsx(code) {
         // klass: cameraControls || THREE.OrbitControls
         klass: THREE.OrbitControls
       },
+      camera: camera
     }), thumbnailCanvas = document.createElement('canvas')
       , thumbnailContext = thumbnailCanvas.getContext('2d');
 
@@ -158,7 +169,7 @@ function handleMathBoxJsx(code) {
         element.addEventListener('click', () => linkBox.classList.remove('show'));
 
         link.addEventListener('click', event => {
-          linkBox.innerText = `${window.location.href.replace(window.location.search || /$/, '?' + compressToEncodedURIComponent(textarea.value))}`;
+          linkBox.innerText = `${window.location.href.replace(window.location.hash, '').replace(window.location.search || /$/, '?' + compressToEncodedURIComponent(textarea.value))}`;
           linkBox.classList.add('show');
           linkBox.select();
 
@@ -337,9 +348,17 @@ function handleMathBoxJsx(code) {
       createElement: (name, props, ...rest) => (root = ({name, props, children: rest}))
     };
 
+    const setInterval = fakeSetInterval;
+
+    const intervals = [];
+
     const result = eval(code) || {};
 
-    return {result, root};
+    return {result, root, cancel: () => intervals.forEach(clearInterval)};
+
+    function fakeSetInterval(...args) {
+      intervals.push(window.setInterval.apply(window, args));
+    }
   }
 }
 
