@@ -343,7 +343,7 @@ function handleMathBoxJsx(code) {
     let root;
     const JMB = {
       // We'll just assemble our VDOM-like here.
-      createElement: (name, props, ...rest) => (root = ({name, props, children: rest}))
+      createElement: (name, props, ...children) => (root = ({name, props, children}))
     };
 
     const setInterval = fakeSetInterval;
