@@ -378,7 +378,11 @@ function compile(text) {
   });
 }
 
-function build(view, {name, children, props}) {
+function build(view, vdom) {
+  if (Array.isArray(vdom)) return vdom.forEach(v => build(view, v));
+
+  const {name, children, props} = vdom;
+
   if (name !== 'root') view = handleChild(name, props, view);
 
   (children || []).forEach(child => build(view, child));
