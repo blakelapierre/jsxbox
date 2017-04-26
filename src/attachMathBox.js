@@ -342,22 +342,33 @@ function handleMathBoxJsx(code) {
   };
 
   function runMathBoxJsx(code) {
-    let root;
+    let root, realRoot;
+
     const JMB = {
       // We'll just assemble our VDOM-like here.
-      createElement: (name, props, ...rest) => (root = ({name, props, children: rest}))
+      createElement: (name, props, ...children) => (root = ({name, props, children}))
     };
 
-    const setInterval = fakeSetInterval;
+    // const setInterval = fakeSetInterval,;
 
-    const intervals = [];
 
-    const result = eval(code) || {};
+    function render(something) {
+      realRoot = something;
+    }
 
-    return {result, root, cancel: () => intervals.forEach(clearInterval)};
+    const intervals = [],
+          result = eval(code) || {};
 
-    function fakeSetInterval(...args) {
+    return {result, root: realRoot || root, cancel};
+
+    // function fakeSetInterval(...args) {
+    function setInterval(...args) {
       intervals.push(window.setInterval.apply(window, args));
+    }
+
+    function cancel() {
+      intervals.forEach(clearInterval);
+      intervals.splice(0);
     }
   }
 }
@@ -369,7 +380,11 @@ function compile(text) {
   });
 }
 
-function build(view, {name, children, props}) {
+function build(view, vdom) {
+  if (Array.isArray(vdom)) return vdom.forEach(v => build(view, v));
+
+  const {name, children, props} = vdom;
+
   if (name !== 'root') view = handleChild(name, props, view);
 
   (children || []).forEach(child => build(view, child));
@@ -383,7 +398,7 @@ function handleChild(name, props, view) {
   for (let propName in props) handleProp(propName, props[propName]);
 
   // view = view[name](props1, props2);
-  return view[name](props1, props2);
+  return view[name](props1, props2);6
 
   function handleProp(propName, prop) {
     if (typeof prop === 'function' && (name === 'camera' || (propName !== 'expr'))) (props2 = (props2 || {}))[propName] = prop;
