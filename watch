@@ -8,7 +8,7 @@ mkdir -p dist && \
   (sleep 5 && \
     (tee >(read && ./serve) \
        < <( \
-            (watchify .transpiled/handlers/custom/index.js -o '> dist/handler.min.js && echo "Built handler.js"' -v) & \
-           # (watchify .transpiled/handlers/custom/index.js -o 'uglifyjs -cm > dist/handler.min.js && echo "Built handler.js"' -v) & \
+           # (watchify .transpiled/handlers/custom/index.js -o '> dist/handler.min.js && echo "Built handler.js"' -v) & \
+           (watchify .transpiled/handlers/custom/index.js -o 'uglifyjs -cm > dist/handler.min.js && echo "Built handler.js"' -v) & \
            (watchify .transpiled/ui/index.js -o '> dist/ui.js && echo "Built ui.js"' -v) \
           ))))
